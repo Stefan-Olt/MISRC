@@ -21,35 +21,30 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include <getopt.h>
-#include <unistd.h>
 #include <stdint.h>
 
 #ifndef _WIN32
-	#include <unistd.h>
-	#define sleep_ms(ms)	usleep(ms*1000)
-	#else
+	#include <getopt.h>
+	#define aligned_free(x) free(x)
+	#define PERF_MEASURE 1
+#else
 	#include <windows.h>
 	#include <io.h>
 	#include <fcntl.h>
-	#define sleep_ms(ms)	Sleep(ms)
+	#include "getopt/getopt.h"
+	#define aligned_free(x) _aligned_free(x)
+	#define aligned_alloc(a,s) _aligned_malloc(s,a)
+	#define PERF_MEASURE 0
 #endif
 
-#define PERF_MEASURE 1
 
-#ifdef PERF_MEASURE
+#if PERF_MEASURE
 #include <time.h>
 #endif
 
 #define BUFFER_SIZE 65536*32
 
 #define _FILE_OFFSET_BITS 64
-
-#ifdef _WIN64
-#define FSEEK fseeko64
-#else
-#define FSEEK fseeko
-#endif
 
 void usage(void)
 {
@@ -143,7 +138,7 @@ int main(int argc, char **argv)
 	// conversion function
 	void (*conv_function)(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB);
 
-#ifdef PERF_MEASURE
+#if PERF_MEASURE
 	struct timespec start, stop;
 	double timeread = 0.0, timeconv = 0.0, timewrite = 0.0;
 #endif
@@ -259,13 +254,13 @@ int main(int argc, char **argv)
 	{
 		while(!feof(input_1))
 		{
-#ifdef PERF_MEASURE
+#if PERF_MEASURE
 			clock_gettime(CLOCK_MONOTONIC, &start);
 #endif
 
 			nb_block = fread(buf_tmp,4,BUFFER_SIZE,input_1);
 
-#ifdef PERF_MEASURE
+#if PERF_MEASURE
 			clock_gettime(CLOCK_MONOTONIC, &stop);
 			timeread += (stop.tv_sec - start.tv_sec) * 1e6 + (stop.tv_nsec - start.tv_nsec) / 1e3;
 			clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &start);
@@ -273,7 +268,7 @@ int main(int argc, char **argv)
 
 			conv_function(buf_tmp, nb_block, clip, buf_aux, buf_1, buf_2);
 
-#ifdef PERF_MEASURE
+#if PERF_MEASURE
 			clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &stop);
 			timeconv += (stop.tv_sec - start.tv_sec) * 1e6 + (stop.tv_nsec - start.tv_nsec) / 1e3;
 #endif
@@ -289,7 +284,7 @@ int main(int argc, char **argv)
 				fprintf(stderr,"ADC B : %ld samples clipped\n",clip[1]);
 				clip[1] = 0; 
 			}
-#ifdef PERF_MEASURE
+#if PERF_MEASURE
 			clock_gettime(CLOCK_MONOTONIC, &start);
 #endif
 			//write output
@@ -297,7 +292,7 @@ int main(int argc, char **argv)
 			if(output_name_2   != NULL){fwrite(buf_2, 2,nb_block,output_2);}
 			if(output_name_aux != NULL){fwrite(buf_aux,1,nb_block,output_aux);}
 
-#ifdef PERF_MEASURE
+#if PERF_MEASURE
 			clock_gettime(CLOCK_MONOTONIC, &stop);
 			timewrite += (stop.tv_sec - start.tv_sec) * 1e6 + (stop.tv_nsec - start.tv_nsec) / 1e3;
 #endif
@@ -309,9 +304,9 @@ int main(int argc, char **argv)
 
 ////ending of the program
 	
-	free(buf_1);
-	free(buf_2);
-	free(buf_aux);
+	aligned_free(buf_1);
+	aligned_free(buf_2);
+	aligned_free(buf_aux);
 	
 	//Close file 1
 	if(input_name_1 != NULL)
@@ -347,7 +342,7 @@ int main(int argc, char **argv)
 		}
 	}
 
-#ifdef PERF_MEASURE
+#if PERF_MEASURE
 	fprintf(stderr, "Readtime: %f\nConvtime: %f\nwrittime: %f\n", timeread, timeconv, timewrite);
 #endif
 

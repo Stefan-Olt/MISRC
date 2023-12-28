@@ -22,4 +22,8 @@ add_executable(misrc_extract main.c extract.asm)
 
 set(INSTALL_TARGETS misrc_extract)
 
+if(WIN32 AND NOT MINGW)
+target_link_libraries(misrc_extract libgetopt_static)
+endif()
+
 install(TARGETS ${INSTALL_TARGETS})
