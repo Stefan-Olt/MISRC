@@ -1,3 +1,21 @@
+/*
+* MISRC extract
+* Copyright (C) 2023  vrunk11, stefan_o
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #include <errno.h>
 #include <string.h>
 #include <stdio.h>
@@ -16,6 +34,14 @@
 	#include <fcntl.h>
 	#define sleep_ms(ms)	Sleep(ms)
 #endif
+
+#define PERF_MEASURE 1
+
+#ifdef PERF_MEASURE
+#include <time.h>
+#endif
+
+#define BUFFER_SIZE 65536*32
 
 #define _FILE_OFFSET_BITS 64
 
@@ -38,12 +64,52 @@ void usage(void)
 	exit(1);
 }
 
+//bit masking
+#define MASK_1      0xFFF
+#define MASK_2      0xFFF00000
+#define MASK_AUX    0xFF000
+
+void extract_A_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB) {
+	for(size_t i = 0; i < len; i++)
+	{
+		outA[i]  = ((int16_t)(in[i] & MASK_1)) - 2048;
+		aux[i]   = (in[i] & MASK_AUX) >> 12;
+		clip[0] += ((in[i] >> 12) & 1);
+	}
+}
+void extract_B_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB) {
+	for(size_t i = 0; i < len; i++)
+	{
+		outB[i]  = ((int16_t)((in[i] & MASK_2) >> 20)) - 2048;
+		aux[i]   = (in[i] & MASK_AUX) >> 12;
+		clip[1] += ((in[i] >> 13) & 1);
+	}
+}
+
+void extract_AB_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB) {
+	for(size_t i = 0; i < len; i++)
+	{
+		outA[i]  = ((int16_t)(in[i] & MASK_1)) - 2048;
+		outB[i]  = ((int16_t)((in[i] & MASK_2) >> 20)) - 2048;
+		aux[i]   = (in[i] & MASK_AUX) >> 12;
+		clip[0] += ((in[i] >> 12) & 1);
+		clip[1] += ((in[i] >> 13) & 1);
+	}
+}
+
+#if defined(__x86_64__) || defined(_M_X64)
+void extract_A_sse (uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB);
+void extract_B_sse (uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB);
+void extract_AB_sse(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB);
+int check_cpu_feat();
+#endif
+
 int main(int argc, char **argv)
 {
 //set pipe mode to binary in windows
-#ifdef _WIN32 || _WIN64
+#if defined(_WIN32) || defined(_WIN64)
 	_setmode(_fileno(stdout), O_BINARY);
-	_setmode(_fileno(stdin), O_BINARY);	
+	_setmode(_fileno(stdin), O_BINARY);
 #endif
 
 	int opt;
@@ -62,26 +128,26 @@ int main(int argc, char **argv)
 	FILE *output_2;
 	FILE *output_aux;
 	
-	//bufer
-	uint32_t *buf_tmp = malloc(sizeof(uint32_t)*65000);
-	uint16_t *buf_1   = malloc(sizeof(uint16_t)*65000);
-	uint16_t *buf_2   = malloc(sizeof(uint16_t)*65000);
-	uint8_t  *buf_aux = malloc(sizeof(uint8_t) *65000);
+	//buffer
+	uint32_t *buf_tmp = aligned_alloc(16,sizeof(uint32_t)*BUFFER_SIZE);
+	int16_t  *buf_1   = aligned_alloc(16,sizeof(int16_t) *BUFFER_SIZE);
+	int16_t  *buf_2   = aligned_alloc(16,sizeof(int16_t) *BUFFER_SIZE);
+	uint8_t  *buf_aux = aligned_alloc(16,sizeof(uint8_t) *BUFFER_SIZE);
 	
 	//number of byte read
 	int nb_block;
 	
-	//bits masking
-	const uint32_t mask_1      = 0xFFF;
-	const uint32_t mask_clip_1 = 0x1000;
-	const uint32_t mask_2      = 0xFFF00000;
-	const uint32_t mask_clip_2 = 0x2000;
-	const uint32_t mask_aux    = 0xFC000;
-	
 	//clipping state
-	int clip_A = 0;
-	int clip_B = 0;
+	size_t clip[2] = {0, 0};
 	
+	// conversion function
+	void (*conv_function)(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB);
+
+#ifdef PERF_MEASURE
+	struct timespec start, stop;
+	double timeread = 0.0, timeconv = 0.0, timewrite = 0.0;
+#endif
+
 	while ((opt = getopt(argc, argv, "i:a:b:x:")) != -1) {
 		switch (opt) {
 		case 'i':
@@ -118,7 +184,7 @@ int main(int argc, char **argv)
 		{
 			input_1 = fopen(input_name_1, "rb");
 			if (!input_1) {
-				fprintf(stderr, "(1) : Failed to open %s\n", input_1);
+				fprintf(stderr, "(1) : Failed to open %s\n", input_name_1);
 				return -ENOENT;
 			}
 		}
@@ -135,7 +201,7 @@ int main(int argc, char **argv)
 		{
 			output_1 = fopen(output_name_1, "wb");
 			if (!output_1) {
-				fprintf(stderr, "(2) : Failed to open %s\n", output_1);
+				fprintf(stderr, "(2) : Failed to open %s\n", output_name_1);
 				return -ENOENT;
 			}
 		}
@@ -152,7 +218,7 @@ int main(int argc, char **argv)
 		{
 			output_2 = fopen(output_name_2, "wb");
 			if (!output_2) {
-				fprintf(stderr, "(2) : Failed to open %s\n", output_2);
+				fprintf(stderr, "(2) : Failed to open %s\n", output_name_2);
 				return -ENOENT;
 			}
 		}
@@ -169,55 +235,75 @@ int main(int argc, char **argv)
 		{
 			output_aux = fopen(output_name_aux, "wb");
 			if (!output_aux) {
-				fprintf(stderr, "(2) : Failed to open %s\n", output_aux);
+				fprintf(stderr, "(2) : Failed to open %s\n", output_name_aux);
 				return -ENOENT;
 			}
 		}
 	}
+#if defined(__x86_64__) || defined(_M_X64)
+	if(check_cpu_feat()==0) {
+		if (output_name_1 == NULL) conv_function = &extract_B_sse;
+		else if (output_name_2 == NULL) conv_function = &extract_A_sse;
+		else conv_function = &extract_AB_sse;
+	}
+	else {
+#endif
+		if (output_name_1 == NULL) conv_function = &extract_B_C;
+		else if (output_name_2 == NULL) conv_function = &extract_A_C;
+		else conv_function = &extract_AB_C;
+#if defined(__x86_64__) || defined(_M_X64)
+	}
+#endif
 	
 	if(input_name_1 != NULL && (output_name_1 != NULL || output_name_2 != NULL || output_name_aux != NULL))
 	{
 		while(!feof(input_1))
 		{
-			nb_block = fread(buf_tmp  ,65000,4,input_1);
-			
-			for(int i = 0; i < nb_block; i++)
+#ifdef PERF_MEASURE
+			clock_gettime(CLOCK_MONOTONIC, &start);
+#endif
+
+			nb_block = fread(buf_tmp,4,BUFFER_SIZE,input_1);
+
+#ifdef PERF_MEASURE
+			clock_gettime(CLOCK_MONOTONIC, &stop);
+			timeread += (stop.tv_sec - start.tv_sec) * 1e6 + (stop.tv_nsec - start.tv_nsec) / 1e3;
+			clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &start);
+#endif
+
+			conv_function(buf_tmp, nb_block, clip, buf_aux, buf_1, buf_2);
+
+#ifdef PERF_MEASURE
+			clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &stop);
+			timeconv += (stop.tv_sec - start.tv_sec) * 1e6 + (stop.tv_nsec - start.tv_nsec) / 1e3;
+#endif
+
+			if(clip[0] > 0)
 			{
-				buf_1[i]   = (buf_tmp[i] & mask_1);
-				buf_2[i]   = (buf_tmp[i] & mask_2) >> 20;
-				buf_aux[i] = (buf_tmp[i] & mask_aux) >> 13;
-				
-				if(((buf_tmp[i] & mask_clip_1) >> 19) == 1)
-				{
-					clip_A++;
-				}
-				
-				if(((buf_tmp[i] & mask_clip_2) >> 12) == 1)
-				{
-					clip_B++;
-				}
+				fprintf(stderr,"ADC A : %ld samples clipped\n",clip[0]);
+				clip[0] = 0; 
 			}
 			
-			if(clip_A > 0)
+			if(clip[1] > 0)
 			{
-				fprintf(stderr,"ADC A : %d sample clipped",clip_A);
-				clip_A = 0; 
+				fprintf(stderr,"ADC B : %ld samples clipped\n",clip[1]);
+				clip[1] = 0; 
 			}
-			
-			if(clip_B > 0)
-			{
-				fprintf(stderr,"ADC B : %d sample clipped",clip_B);
-				clip_B = 0; 
-			}
-			
+#ifdef PERF_MEASURE
+			clock_gettime(CLOCK_MONOTONIC, &start);
+#endif
 			//write output
-			if(output_name_1   != NULL){fwrite(buf_1, nb_block,2,output_1);}
-			if(output_name_2   != NULL){fwrite(buf_2, nb_block,2,output_2);}
-			if(output_name_aux != NULL){fwrite(buf_aux,8,1,output_aux);}
-			
-			fflush(output_1);
-			fflush(output_2);
-			fflush(output_aux);
+			if(output_name_1   != NULL){fwrite(buf_1, 2,nb_block,output_1);}
+			if(output_name_2   != NULL){fwrite(buf_2, 2,nb_block,output_2);}
+			if(output_name_aux != NULL){fwrite(buf_aux,1,nb_block,output_aux);}
+
+#ifdef PERF_MEASURE
+			clock_gettime(CLOCK_MONOTONIC, &stop);
+			timewrite += (stop.tv_sec - start.tv_sec) * 1e6 + (stop.tv_nsec - start.tv_nsec) / 1e3;
+#endif
+			//fflush(output_1);
+			//fflush(output_2);
+			//fflush(output_aux);
 		}
 	}
 
@@ -260,6 +346,10 @@ int main(int argc, char **argv)
 			fclose(output_aux);
 		}
 	}
+
+#ifdef PERF_MEASURE
+	fprintf(stderr, "Readtime: %f\nConvtime: %f\nwrittime: %f\n", timeread, timeconv, timewrite);
+#endif
 
 	return 0;
 }
