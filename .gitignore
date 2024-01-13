@@ -51,4 +51,37 @@ Module.symvers
 Mkfile.old
 dkms.conf
 
-build/
+**/build
+
+# KiCAD
+
+# Temporary files
+hardware/kicad/**/*.000
+hardware/kicad/**/*.bak
+hardware/kicad/**/*.bck
+hardware/kicad/**/*.kicad_pcb-bak
+hardware/kicad/**/*.kicad_sch-bak
+hardware/kicad/**/*-backups
+hardware/kicad/**/*.kicad_prl
+hardware/kicad/**/*.sch-bak
+hardware/kicad/**/*~
+hardware/kicad/**/*.tmp
+hardware/kicad/**/*.log
+hardware/kicad/**/*-save.pro
+hardware/kicad/**/*-save.kicad_pcb
+hardware/kicad/**/fp-info-cache
+hardware/kicad/**/fp-lib-table
+hardware/kicad/**/sym-lib-table
+hardware/kicad/**/_autosave-*
+hardware/kicad/**/gerber
+
+# Netlist files (exported from Eeschema)
+hardware/kicad/**/*.net
+
+# Autorouter files (exported from Pcbnew)
+hardware/kicad/**/*.dsn
+hardware/kicad/**/*.ses
+
+# Exported BOM files
+hardware/kicad/**/*.xml
+hardware/kicad/**/*.csv
