@@ -1,6 +1,6 @@
 
 ; MISRC extract
-; Copyright (C) 2023  vrunk11, stefan_o
+; Copyright (C) 2024  vrunk11, stefan_o
 ;
 ; This program is free software: you can redistribute it and/or modify
 ; it under the terms of the GNU General Public License as published by
@@ -78,10 +78,12 @@ loop_AB_0:
 	movhlps xmm1, xmm0
 	psrlw xmm1, 4
 	pand xmm4, [andmask]
-	psubw xmm1, [subval]
-	psubw xmm4, [subval]
-	movdqa [outA], xmm4
-	movdqa [outB], xmm1
+	movdqa xmm5, [subval]
+	psubw xmm5, xmm4
+	movdqa [outA], xmm5
+	movdqa xmm5, [subval]
+	psubw xmm5, xmm1
+	movdqa [outB], xmm5
 	psrld xmm2, 12
 	psrld xmm3, 12
 	pshufb xmm2, [shuf_aux0]
@@ -116,8 +118,9 @@ loop_A_0:
 	pshufb xmm1, [shuf_dat]
 	movlhps xmm0, xmm1
 	pand xmm0, [andmask]
-	psubw xmm0, [subval]
-	movdqa [outA], xmm0
+	movdqa xmm4, [subval]
+	psubw xmm4, xmm0
+	movdqa [outA], xmm4
 	psrld xmm2, 12
 	psrld xmm3, 12
 	pshufb xmm2, [shuf_aux0]
@@ -147,8 +150,9 @@ loop_B_0:
 	pshufb xmm1, [shuf_dat]
 	movhlps xmm1, xmm0
 	psrlw xmm1, 4
-	psubw xmm1, [subval]
-	movdqa [outB], xmm1
+	movdqa xmm4, [subval]
+	psubw xmm4, xmm1
+	movdqa [outB], xmm4
 	psrld xmm2, 12
 	psrld xmm3, 12
 	pshufb xmm2, [shuf_aux0]
@@ -164,6 +168,117 @@ loop_B_0:
 	add in, 32
 	sub len, 8
 	jg loop_B_0
+	ret
+
+global extract_AB_p_sse
+extract_AB_p_sse:
+	POPARGS
+loop_AB_p_0:
+	movdqa xmm0, [in]
+	movdqa xmm1, [in+16]
+	movdqa xmm2, xmm0
+	movdqa xmm3, xmm1
+	pshufb xmm0, [shuf_dat]
+	pshufb xmm1, [shuf_dat]
+	movdqa xmm4, xmm0
+	movlhps xmm4, xmm1
+	movhlps xmm1, xmm0
+	psrlw xmm1, 4
+	pand xmm4, [andmask]
+	movdqa xmm5, [subval]
+	psubw xmm5, xmm4
+	psllw xmm5, 4
+	movdqa [outA], xmm5
+	movdqa xmm5, [subval]
+	psubw xmm5, xmm1
+	psllw xmm5, 4
+	movdqa [outB], xmm5
+	psrld xmm2, 12
+	psrld xmm3, 12
+	pshufb xmm2, [shuf_aux0]
+	pshufb xmm3, [shuf_aux1]
+	por xmm2, xmm3
+	movlpd [aux], xmm2
+	movq rax, xmm2
+	and rax, [clip_maskA]
+	popcnt rax, rax
+	add [clip], rax
+	movq rax, xmm2
+	and rax, [clip_maskB]
+	popcnt rax, rax
+	add [clip+8], rax
+	add aux, 8
+	add outA, 16
+	add outB, 16
+	add in, 32
+	sub len, 8
+	jg loop_AB_p_0
+	ret
+
+global extract_A_p_sse
+extract_A_p_sse:
+	POPARGS
+loop_A_p_0:
+	movdqa xmm0, [in]
+	movdqa xmm1, [in+16]
+	movdqa xmm2, xmm0
+	movdqa xmm3, xmm1
+	pshufb xmm0, [shuf_dat]
+	pshufb xmm1, [shuf_dat]
+	movlhps xmm0, xmm1
+	pand xmm0, [andmask]
+	movdqa xmm4, [subval]
+	psubw xmm4, xmm0
+	psllw xmm4, 4
+	movdqa [outA], xmm4
+	psrld xmm2, 12
+	psrld xmm3, 12
+	pshufb xmm2, [shuf_aux0]
+	pshufb xmm3, [shuf_aux1]
+	por xmm2, xmm3
+	movlpd [aux], xmm2
+	movq rax, xmm2
+	and rax, [clip_maskA]
+	popcnt rax, rax
+	add [clip], rax
+	add aux, 8
+	add outA, 16
+	add in, 32
+	sub len, 8
+	jg loop_A_p_0
+	ret
+
+global extract_B_p_sse
+extract_B_p_sse:
+	POPARGS
+loop_B_p_0:
+	movdqa xmm0, [in]
+	movdqa xmm1, [in+16]
+	movdqa xmm2, xmm0
+	movdqa xmm3, xmm1
+	pshufb xmm0, [shuf_dat]
+	pshufb xmm1, [shuf_dat]
+	movhlps xmm1, xmm0
+	psrlw xmm1, 4
+	movdqa xmm4, [subval]
+	psubw xmm4, xmm1
+	psllw xmm4, 4
+	movdqa [outB], xmm4
+	psrld xmm2, 12
+	psrld xmm3, 12
+	pshufb xmm2, [shuf_aux0]
+	pshufb xmm3, [shuf_aux1]
+	por xmm2, xmm3
+	movlpd [aux], xmm2
+	movq rax, xmm2
+	and rax, [clip_maskB]
+	popcnt rax, rax
+	add [clip+8], rax
+	add aux, 8
+	add outB, 16
+	add in, 32
+	sub len, 8
+	jg loop_B_p_0
 	ret
 
 global check_cpu_feat

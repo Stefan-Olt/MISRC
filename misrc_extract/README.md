@@ -29,6 +29,10 @@ TBD
 * Run tool without arguments to see options
 
 ## Version History
+* 0.2
+    * Fix: signal now with correct polarity
+    * Mod: output program name and version
+    * New: option to pad lower 4 bits instead of upper 4
 
 * 0.1
     * Initial Release

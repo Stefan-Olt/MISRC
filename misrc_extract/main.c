@@ -1,6 +1,6 @@
 /*
 * MISRC extract
-* Copyright (C) 2023  vrunk11, stefan_o
+* Copyright (C) 2024  vrunk11, stefan_o
 *
 * This program is free software: you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
@@ -42,6 +42,9 @@
 #include <time.h>
 #endif
 
+#define VERSION "0.2"
+#define COPYRIGHT "licensed under GNU GPL v3 or later, (c) 2024 vrunk11, stefan_o"
+
 #define BUFFER_SIZE 65536*32
 
 #define _FILE_OFFSET_BITS 64
@@ -49,12 +52,13 @@
 void usage(void)
 {
 	fprintf(stderr,
-		"MISRC extract, a simple program for extracting captured data into separate file\n\n"
+		"A simple program for extracting captured data into separate files\n\n"
 		"Usage:\n"
 		"\t[-i input file (use '-' to read from stdin)]\n"
 		"\t[-a ADC A output file (use '-' to write on stdout)]\n"
 		"\t[-b ADC B output file (use '-' to write on stdout)]\n"
 		"\t[-x AUX output file (use '-' to write on stdout)]\n"
+		"\t[-p pad lower 4 bits of 16 bit output with 0 instead of upper 4]\n"
 	);
 	exit(1);
 }
@@ -67,7 +71,7 @@ void usage(void)
 void extract_A_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB) {
 	for(size_t i = 0; i < len; i++)
 	{
-		outA[i]  = ((int16_t)(in[i] & MASK_1)) - 2048;
+		outA[i]  = 2048 - ((int16_t)(in[i] & MASK_1));
 		aux[i]   = (in[i] & MASK_AUX) >> 12;
 		clip[0] += ((in[i] >> 12) & 1);
 	}
@@ -75,7 +79,7 @@ void extract_A_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *
 void extract_B_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB) {
 	for(size_t i = 0; i < len; i++)
 	{
-		outB[i]  = ((int16_t)((in[i] & MASK_2) >> 20)) - 2048;
+		outB[i]  = 2048 - ((int16_t)((in[i] & MASK_2) >> 20));
 		aux[i]   = (in[i] & MASK_AUX) >> 12;
 		clip[1] += ((in[i] >> 13) & 1);
 	}
@@ -84,8 +88,36 @@ void extract_B_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *
 void extract_AB_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB) {
 	for(size_t i = 0; i < len; i++)
 	{
-		outA[i]  = ((int16_t)(in[i] & MASK_1)) - 2048;
-		outB[i]  = ((int16_t)((in[i] & MASK_2) >> 20)) - 2048;
+		outA[i]  = 2048 - ((int16_t)(in[i] & MASK_1));
+		outB[i]  = 2048 - ((int16_t)((in[i] & MASK_2) >> 20));
+		aux[i]   = (in[i] & MASK_AUX) >> 12;
+		clip[0] += ((in[i] >> 12) & 1);
+		clip[1] += ((in[i] >> 13) & 1);
+	}
+}
+
+void extract_A_p_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB) {
+	for(size_t i = 0; i < len; i++)
+	{
+		outA[i]  = (2048 - ((int16_t)(in[i] & MASK_1)))<<4;
+		aux[i]   = (in[i] & MASK_AUX) >> 12;
+		clip[0] += ((in[i] >> 12) & 1);
+	}
+}
+void extract_B_p_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB) {
+	for(size_t i = 0; i < len; i++)
+	{
+		outB[i]  = (2048 - ((int16_t)((in[i] & MASK_2) >> 20)))<<4;
+		aux[i]   = (in[i] & MASK_AUX) >> 12;
+		clip[1] += ((in[i] >> 13) & 1);
+	}
+}
+
+void extract_AB_p_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB) {
+	for(size_t i = 0; i < len; i++)
+	{
+		outA[i]  = (2048 - ((int16_t)(in[i] & MASK_1)))<<4;
+		outB[i]  = (2048 - ((int16_t)((in[i] & MASK_2) >> 20)))<<4;
 		aux[i]   = (in[i] & MASK_AUX) >> 12;
 		clip[0] += ((in[i] >> 12) & 1);
 		clip[1] += ((in[i] >> 13) & 1);
@@ -93,9 +125,12 @@ void extract_AB_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t 
 }
 
 #if defined(__x86_64__) || defined(_M_X64)
-void extract_A_sse (uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB);
-void extract_B_sse (uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB);
-void extract_AB_sse(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB);
+void extract_A_sse   (uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB);
+void extract_B_sse   (uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB);
+void extract_AB_sse  (uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB);
+void extract_A_p_sse (uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB);
+void extract_B_p_sse (uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB);
+void extract_AB_p_sse(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB);
 int check_cpu_feat();
 #endif
 
@@ -107,8 +142,9 @@ int main(int argc, char **argv)
 	_setmode(_fileno(stdin), O_BINARY);
 #endif
 
-	int opt;
-	
+	int opt, pad=0;
+
+
 	//file adress
 	char *input_name_1    = NULL;
 	char *output_name_1   = NULL;
@@ -143,7 +179,12 @@ int main(int argc, char **argv)
 	double timeread = 0.0, timeconv = 0.0, timewrite = 0.0;
 #endif
 
-	while ((opt = getopt(argc, argv, "i:a:b:x:")) != -1) {
+	fprintf(stderr,
+		"MISRC extract " VERSION "\n"
+		COPYRIGHT "\n\n"
+	);
+
+	while ((opt = getopt(argc, argv, "i:a:b:x:p")) != -1) {
 		switch (opt) {
 		case 'i':
 			input_name_1 = optarg;
@@ -156,6 +197,9 @@ int main(int argc, char **argv)
 			break;
 		case 'x':
 			output_name_aux = optarg;
+			break;
+		case 'p':
+			pad = 1;
 			break;
 		default:
 			usage();
@@ -237,15 +281,31 @@ int main(int argc, char **argv)
 	}
 #if defined(__x86_64__) || defined(_M_X64)
 	if(check_cpu_feat()==0) {
-		if (output_name_1 == NULL) conv_function = &extract_B_sse;
-		else if (output_name_2 == NULL) conv_function = &extract_A_sse;
-		else conv_function = &extract_AB_sse;
+		fprintf(stderr,"Detected processor with SSSE3 and POPCNT, using optimized extraction routine\n\n");
+		if (pad==1) {
+			if (output_name_1 == NULL) conv_function = &extract_B_p_sse;
+			else if (output_name_2 == NULL) conv_function = &extract_A_p_sse;
+			else conv_function = &extract_AB_p_sse;
+		}
+		else {
+			if (output_name_1 == NULL) conv_function = &extract_B_sse;
+			else if (output_name_2 == NULL) conv_function = &extract_A_sse;
+			else conv_function = &extract_AB_sse;
+		}
 	}
 	else {
+		fprintf(stderr,"Detected processor without SSSE3 and POPCNT, using standard extraction routine\n\n");
 #endif
-		if (output_name_1 == NULL) conv_function = &extract_B_C;
-		else if (output_name_2 == NULL) conv_function = &extract_A_C;
-		else conv_function = &extract_AB_C;
+		if (pad==1) {
+			if (output_name_1 == NULL) conv_function = &extract_B_p_C;
+			else if (output_name_2 == NULL) conv_function = &extract_A_p_C;
+			else conv_function = &extract_AB_p_C;
+		}
+		else {
+			if (output_name_1 == NULL) conv_function = &extract_B_C;
+			else if (output_name_2 == NULL) conv_function = &extract_A_C;
+			else conv_function = &extract_AB_C;
+		}
 #if defined(__x86_64__) || defined(_M_X64)
 	}
 #endif
@@ -296,9 +356,6 @@ int main(int argc, char **argv)
 			clock_gettime(CLOCK_MONOTONIC, &stop);
 			timewrite += (stop.tv_sec - start.tv_sec) * 1e6 + (stop.tv_nsec - start.tv_nsec) / 1e3;
 #endif
-			//fflush(output_1);
-			//fflush(output_2);
-			//fflush(output_aux);
 		}
 	}
 
