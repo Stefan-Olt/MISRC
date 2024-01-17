@@ -8,7 +8,7 @@
 
 
 MISRC is a device to capture two signals at 12-bit and up to 40 MHz (could maybe extended to 80 MHz in future) and additional 6 bits binary (auxillary data) over USB3.
-It is intended to capture modulated tape deck RF for software demodulation, but also (C)VBS video signal for software decoding.
+It is intended to capture modulated tape deck RF for software demodulation, but also CVBS (Composite) video signals for software decoding.
 
 The [VHS-Decode](https://github.com/oyvindln/vhs-decode/), [HiFi-Decode](https://github.com/oyvindln/vhs-decode/wiki/hifi-decode), [CVBS-Decode](https://github.com/oyvindln/vhs-decode/wiki/CVBS-Composite-Decode) projects provides software decoding for many video tape formats, hifi-audio via hifi-decode and RAW CVBS decoding via cvbs-decode
 
