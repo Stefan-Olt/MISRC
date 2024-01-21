@@ -1,7 +1,10 @@
 # MISRC - Multi Input Simultaneous Raw RF Capture
 
-
-<img src="https://github.com/Stefan-Olt/MISRC/blob/main/assets/hardware-images/MISRF-v0.0.6-Transparent-Hand-Soldered.png" width="600" height="">
+<picture>
+  <source srcset="assets/hardware-images/MISRC-v0.0.5-Transparent-Hand-Soldered.jxl" type="image/jxl" width="600" />
+  <source srcset="assets/hardware-images/MISRC-v0.0.5-Transparent-Hand-Soldered.avif" type="image/avif" width="600" />
+  <img src="assets/hardware-images/MISRC-v0.0.5-Transparent-Hand-Soldered.png" width="600" height="" />
+</picture>
 
 
 ## Description
@@ -40,7 +43,7 @@ It may be useful for other purposes as well, as it is built as a generic ADC wit
 
 
 PCB: 20-30USD
-Parts 50-70USD
+Parts 100-120USD
 
 (Exact prices and Gerbers/BOM comming soon) 
 
@@ -52,12 +55,12 @@ Parts 50-70USD
 Capturing can be done using the [Sigrok-cli](https://sigrok.org/wiki/Downloads#Binaries_and_distribution_packages) application using the following command:
 
 
-    sigrok-cli --driver cypress-fx3 --output-format binary --config samplerate=40m --continuous --output-file MISRC_Capture.BIN
+    sigrok-cli --driver cypress-fx3 --output-format binary --config samplerate=40m --continuous --output-file MISRC_Capture.bin
 
 
 Note that `sigrok-cli` will most likely terminate on the first call with the message that no device was found (it seems it does not rescan the USB bus after the firmware is being uploaded), the second time it should work fine.
 
-The output `MISRC_Capture.bin` file will contain all data interleaved, you have to use the [extraction tool](https://github.com/Stefan-Olt/MISRC/RF-Extraction-Tool) to extract one or both channels and the aux data to seprate files.
+The output `MISRC_Capture.bin` file will contain all data interleaved, you have to use the [extraction tool](https://github.com/Stefan-Olt/MISRC/tree/main/misrc_extract) to extract one or both channels and the aux data to seprate files.
 
 
 ## User Guide
@@ -66,7 +69,7 @@ Step-by-step
 
 * Connect the device with a high-quality USB 3.0 Type-B to A or C cable to your PC. 
 
-NOTE: NEVER use USB for any other heavy-load task (like external SSD drives, USB network adapters, YUV capture devices) during capture. Do not connect/disconnect any other USB device during capture.
+NOTE: NEVER use USB for any other heavy-load task (like external HDD/SSD drives, USB network adapters, YUV capture devices) during capture. Do not connect/disconnect any other USB device during capture.
 
 * Connect the desired sources to the BNC inputs and select suitable impedance and coupling
 
