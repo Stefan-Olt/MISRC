@@ -1254,6 +1254,12 @@
     (uuid ff981128-966d-4a47-b5d3-e0bd82fa4534)
   )
 
+  (text "Capacitor values with \"/1\" suffix indicate parts that are required to be class 1 ceramic material"
+    (at 20.32 24.13 0)
+    (effects (font (size 1.27 1.27)) (justify left bottom))
+    (uuid 963cc8f2-1583-4160-ae3b-5855d7f3e9a3)
+  )
+
   (symbol (lib_id "power:GND") (at 67.31 52.07 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 043714dc-e5b8-419b-9666-6c4bc0952169)
@@ -1886,7 +1892,7 @@
     (property "Reference" "C27" (at 59.69 68.58 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
-    (property "Value" "1n" (at 59.69 73.66 0)
+    (property "Value" "1n/1" (at 59.69 73.66 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Footprint" "Capacitor_SMD:C_0805_2012Metric" (at 58.7248 67.31 0)
