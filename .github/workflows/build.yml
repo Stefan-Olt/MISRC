@@ -4,11 +4,15 @@ on:
   workflow_dispatch:
   push:
     tags:
-      - "*"
+      - "misrc_extract-*"
+
+env:
+  ARCHIVE_NAME_LINUX: ${{ github.ref_name }}-linux-x86_64.tar.gz
+  ARCHIVE_NAME_SRC: ${{ github.ref_name }}-src.tar.gz
 
 jobs:
-  build:
-    name: build
+  build-linux:
+    name: Build Linux
     runs-on: ubuntu-20.04
 
     steps:
@@ -28,25 +32,39 @@ jobs:
             ${{ github.workspace }}/misrc_extract
           cmake --build ${{ github.workspace }}/misrc_extract/build
 
-      - name: Create archive
+      - name: Create binary archive
         run: >-
-          tar -cvzf misrc_extract-${{ github.ref_name }}.tar.gz
+          tar -cvzf ${{ env.ARCHIVE_NAME_LINUX }}
           --owner=root --group=root
           -C ${{ github.workspace }}/misrc_extract/build
           misrc_extract
 
-      - name: Upload artifacts
+      - name: Create source archive
+        run: >-
+          tar -cvzf ${{ env.ARCHIVE_NAME_SRC }}
+          --exclude=build
+          misrc_extract
+
+      - name: Upload binary artifact
         uses: actions/upload-artifact@v4
         with:
-          name: misrc_extract
-          path: misrc_extract-${{ github.ref_name }}.tar.gz
+          name: misrc_extract-linux
+          path: ${{ env.ARCHIVE_NAME_LINUX }}
+          if-no-files-found: error
+
+      - name: Upload source artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: misrc_extract-src
+          path: ${{ env.ARCHIVE_NAME_SRC }}
+          if-no-files-found: error
 
   github-release:
     name: Create GitHub release
     runs-on: ubuntu-20.04
 
     needs:
-      - build
+      - build-linux
 
     permissions:
       contents: write # IMPORTANT: mandatory for making GitHub Releases
@@ -54,8 +72,6 @@ jobs:
     steps:
       - name: Download artifacts
         uses: actions/download-artifact@v4
-        with:
-          name: misrc_extract
 
       - name: Create GitHub Release
         env:
@@ -64,14 +80,20 @@ jobs:
           gh release create
           '${{ github.ref_name }}'
           --repo '${{ github.repository }}'
+          --title '${{ github.ref_name }}'
           --notes ""
 
       - name: Upload artifacts to GitHub Release
         env:
           GITHUB_TOKEN: ${{ github.token }}
 
-        run: >-
-          gh release upload
-          '${{ github.ref_name }}'
-          'misrc_extract-${{ github.ref_name }}.tar.gz'
+        run: |
+          gh release upload \
+          '${{ github.ref_name }}' \
+          'misrc_extract-linux/${{ env.ARCHIVE_NAME_LINUX }}' \
+          --repo '${{ github.repository }}'
+
+          gh release upload \
+          '${{ github.ref_name }}' \
+          'misrc_extract-src/${{ env.ARCHIVE_NAME_SRC }}' \
           --repo '${{ github.repository }}'
