@@ -62,7 +62,7 @@ jobs:
 
   build-macos-intel:
     name: Build macOS (Intel)
-    runs-on: macos-10.15
+    runs-on: macos-11
 
     steps:
       - uses: actions/checkout@v4
