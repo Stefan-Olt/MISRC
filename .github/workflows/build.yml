@@ -1,0 +1,77 @@
+name: "Build and release binary"
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "*"
+
+jobs:
+  build:
+    name: build
+    runs-on: ubuntu-20.04
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - uses: awalsh128/cache-apt-pkgs-action@latest
+        with:
+          packages: cmake nasm build-essential
+          version: 1.0
+
+      - name: Build
+        run: |
+          cmake -B ${{ github.workspace }}/misrc_extract/build \
+            ${{ github.workspace }}/misrc_extract
+          cmake --build ${{ github.workspace }}/misrc_extract/build
+
+      - name: Create archive
+        run: >-
+          tar -cvzf misrc_extract-${{ github.ref_name }}.tar.gz
+          --owner=root --group=root
+          -C ${{ github.workspace }}/misrc_extract/build
+          misrc_extract
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: misrc_extract
+          path: misrc_extract-${{ github.ref_name }}.tar.gz
+
+  github-release:
+    name: Create GitHub release
+    runs-on: ubuntu-20.04
+
+    needs:
+      - build
+
+    permissions:
+      contents: write # IMPORTANT: mandatory for making GitHub Releases
+
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: misrc_extract
+
+      - name: Create GitHub Release
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: >-
+          gh release create
+          '${{ github.ref_name }}'
+          --repo '${{ github.repository }}'
+          --notes ""
+
+      - name: Upload artifacts to GitHub Release
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+        run: >-
+          gh release upload
+          '${{ github.ref_name }}'
+          'misrc_extract-${{ github.ref_name }}.tar.gz'
+          --repo '${{ github.repository }}'
