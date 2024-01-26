@@ -131,7 +131,7 @@ jobs:
 
           gh release upload \
           '${{ github.ref_name }}' \
-          'misrc_extract-linux/${{ env.ARCHIVE_NAME_MACOS_INTEL }}' \
+          'misrc_extract-macos-intel/${{ env.ARCHIVE_NAME_MACOS_INTEL }}' \
           --repo '${{ github.repository }}'
 
           gh release upload \
