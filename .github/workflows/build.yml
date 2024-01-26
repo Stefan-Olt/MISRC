@@ -83,7 +83,7 @@ jobs:
       - name: Create binary archive
         run: >-
           tar -cvzf ${{ env.ARCHIVE_NAME_MACOS_INTEL }}
-          --owner=root --group=root
+          --uid 0 --gid 0 --no-acls
           -C ${{ github.workspace }}/misrc_extract/build
           misrc_extract
 
