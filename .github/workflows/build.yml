@@ -10,6 +10,7 @@ env:
   ARCHIVE_NAME_LINUX: ${{ github.ref_name }}-linux-x86_64.tar.gz
   ARCHIVE_NAME_WINDOWS: ${{ github.ref_name }}-win-x86_64.zip
   ARCHIVE_NAME_MACOS_INTEL: ${{ github.ref_name }}-macos-intel-x86_64.tar.gz
+  ARCHIVE_NAME_MACOS_ARM: ${{ github.ref_name }}-macos-apple-silicon-arm64.tar.gz
   ARCHIVE_NAME_SRC: ${{ github.ref_name }}-src.tar.gz
 
 jobs:
@@ -138,6 +139,41 @@ jobs:
           path: ${{ env.ARCHIVE_NAME_MACOS_INTEL }}
           if-no-files-found: error
 
+  build-macos-arm:
+    name: Build macOS (Apple Silicon)
+    runs-on: macos-11
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Install
+        run: |
+          brew install cmake
+
+      - name: Build
+        run: |
+          cmake -B ${{ github.workspace }}/misrc_extract/build \
+            ${{ github.workspace }}/misrc_extract \
+            -D CMAKE_OSX_ARCHITECTURES=arm64
+          cmake --build ${{ github.workspace }}/misrc_extract/build
+
+      - name: Create binary archive
+        run: >-
+          tar -cvzf ${{ env.ARCHIVE_NAME_MACOS_ARM }}
+          --uid 0 --gid 0 --no-acls
+          -C ${{ github.workspace }}/misrc_extract/build
+          misrc_extract
+
+      - name: Upload binary artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: misrc_extract-macos-arm
+          path: ${{ env.ARCHIVE_NAME_MACOS_ARM }}
+          if-no-files-found: error
+
   github-release:
     name: Create GitHub release
     runs-on: ubuntu-20.04
@@ -146,6 +182,7 @@ jobs:
       - build-linux
       - build-windows
       - build-macos-intel
+      - build-macos-arm
 
     permissions:
       contents: write # IMPORTANT: mandatory for making GitHub Releases
@@ -182,6 +219,11 @@ jobs:
           gh release upload \
           '${{ github.ref_name }}' \
           'misrc_extract-macos-intel/${{ env.ARCHIVE_NAME_MACOS_INTEL }}' \
+          --repo '${{ github.repository }}'
+
+          gh release upload \
+          '${{ github.ref_name }}' \
+          'misrc_extract-macos-arm/${{ env.ARCHIVE_NAME_MACOS_ARM }}' \
           --repo '${{ github.repository }}'
 
           gh release upload \
