@@ -8,6 +8,7 @@ on:
 
 env:
   ARCHIVE_NAME_LINUX: ${{ github.ref_name }}-linux-x86_64.tar.gz
+  ARCHIVE_NAME_MACOS_INTEL: ${{ github.ref_name }}-macos-intel-x86_64.tar.gz
   ARCHIVE_NAME_SRC: ${{ github.ref_name }}-src.tar.gz
 
 jobs:
@@ -59,12 +60,47 @@ jobs:
           path: ${{ env.ARCHIVE_NAME_SRC }}
           if-no-files-found: error
 
+  build-macos-intel:
+    name: Build macOS (Intel)
+    runs-on: macos-10.15
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Install
+        run: |
+          brew install cmake nasm
+
+      - name: Build
+        run: |
+          cmake -B ${{ github.workspace }}/misrc_extract/build \
+            ${{ github.workspace }}/misrc_extract
+          cmake --build ${{ github.workspace }}/misrc_extract/build
+
+      - name: Create binary archive
+        run: >-
+          tar -cvzf ${{ env.ARCHIVE_NAME_MACOS_INTEL }}
+          --owner=root --group=root
+          -C ${{ github.workspace }}/misrc_extract/build
+          misrc_extract
+
+      - name: Upload binary artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: misrc_extract-macos-intel
+          path: ${{ env.ARCHIVE_NAME_MACOS_INTEL }}
+          if-no-files-found: error
+
   github-release:
     name: Create GitHub release
     runs-on: ubuntu-20.04
 
     needs:
       - build-linux
+      - build-macos-intel
 
     permissions:
       contents: write # IMPORTANT: mandatory for making GitHub Releases
@@ -91,6 +127,11 @@ jobs:
           gh release upload \
           '${{ github.ref_name }}' \
           'misrc_extract-linux/${{ env.ARCHIVE_NAME_LINUX }}' \
+          --repo '${{ github.repository }}'
+
+          gh release upload \
+          '${{ github.ref_name }}' \
+          'misrc_extract-linux/${{ env.ARCHIVE_NAME_MACOS_INTEL }}' \
           --repo '${{ github.repository }}'
 
           gh release upload \
