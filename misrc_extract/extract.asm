@@ -56,6 +56,7 @@ section .data
 	shuf_dat:   db     0,    1,    4,    5,    8,    9,   12,   13,    2,    3,    6,    7,  10,    11,   14,   15
 	shuf_aux0:  db     0,    4,    8,   12, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80
 	shuf_aux1:  db  0x80, 0x80, 0x80, 0x80,    0,    4,    8,   12, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80
+	shuf_auxS:  db     0,    2,    4,    6,    8,   10,   12,   14, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80
 	andmask:    db  0xff, 0x0f, 0xff, 0x0f, 0xff, 0x0f, 0xff, 0x0f, 0xff, 0x0f, 0xff, 0x0f, 0xff, 0x0f, 0xff, 0x0f
 	subval:     dw  2048, 2048, 2048, 2048, 2048, 2048, 2048, 2048
 	clip_maskA: db     1,    1,    1,    1,    1,    1,    1,    1
@@ -136,6 +137,55 @@ loop_A_0:
 	add in, 32
 	sub len, 8
 	jg loop_A_0
+	ret
+
+global extract_S_sse
+extract_S_sse:
+	POPARGS
+loop_S_0:
+	movdqa xmm0, [in]
+	movdqa xmm2, xmm0
+	pand xmm0, [andmask]
+	movdqa xmm4, [subval]
+	psubw xmm4, xmm0
+	movdqa [outA], xmm4
+	psrlw xmm2, 12
+	pshufb xmm2, [shuf_auxS]
+	movlpd [aux], xmm2
+	movq rax, xmm2
+	and rax, [clip_maskA]
+	popcnt rax, rax
+	add [clip], rax
+	add aux, 8
+	add outA, 16
+	add in, 16
+	sub len, 8
+	jg loop_S_0
+	ret
+
+global extract_S_p_sse
+extract_S_p_sse:
+	POPARGS
+loop_S_p_0:
+	movdqa xmm0, [in]
+	movdqa xmm2, xmm0
+	pand xmm0, [andmask]
+	movdqa xmm4, [subval]
+	psubw xmm4, xmm0
+	psllw xmm4, 4
+	movdqa [outA], xmm4
+	psrlw xmm2, 12
+	pshufb xmm2, [shuf_auxS]
+	movlpd [aux], xmm2
+	movq rax, xmm2
+	and rax, [clip_maskA]
+	popcnt rax, rax
+	add [clip], rax
+	add aux, 8
+	add outA, 16
+	add in, 16
+	sub len, 8
+	jg loop_S_p_0
 	ret
 
 global extract_B_sse

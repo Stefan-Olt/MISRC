@@ -26,7 +26,7 @@
 #ifndef _WIN32
 	#include <getopt.h>
 	#define aligned_free(x) free(x)
-	#define PERF_MEASURE 1
+	#define PERF_MEASURE 0
 #else
 	#include <windows.h>
 	#include <io.h>
@@ -42,7 +42,7 @@
 #include <time.h>
 #endif
 
-#define VERSION "0.2"
+#define VERSION "0.3"
 #define COPYRIGHT "licensed under GNU GPL v3 or later, (c) 2024 vrunk11, stefan_o"
 
 #define BUFFER_SIZE 65536*32
@@ -59,6 +59,7 @@ void usage(void)
 		"\t[-b ADC B output file (use '-' to write on stdout)]\n"
 		"\t[-x AUX output file (use '-' to write on stdout)]\n"
 		"\t[-p pad lower 4 bits of 16 bit output with 0 instead of upper 4]\n"
+		"\t[-s input is captured as single channel (-b cannot be used)]\n"
 	);
 	exit(1);
 }
@@ -67,6 +68,16 @@ void usage(void)
 #define MASK_1      0xFFF
 #define MASK_2      0xFFF00000
 #define MASK_AUX    0xFF000
+#define MASK_AUXS   0xF000
+
+void extract_S_C(uint16_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB) {
+	for(size_t i = 0; i < len; i++)
+	{
+		outA[i]  = 2048 - ((int16_t)(in[i] & MASK_1));
+		aux[i]   = (in[i] & MASK_AUXS) >> 12;
+		clip[0] += ((in[i] >> 12) & 1);
+	}
+}
 
 void extract_A_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB) {
 	for(size_t i = 0; i < len; i++)
@@ -76,6 +87,7 @@ void extract_A_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *
 		clip[0] += ((in[i] >> 12) & 1);
 	}
 }
+
 void extract_B_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB) {
 	for(size_t i = 0; i < len; i++)
 	{
@@ -93,6 +105,15 @@ void extract_AB_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t 
 		aux[i]   = (in[i] & MASK_AUX) >> 12;
 		clip[0] += ((in[i] >> 12) & 1);
 		clip[1] += ((in[i] >> 13) & 1);
+	}
+}
+
+void extract_S_p_C(uint16_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB) {
+	for(size_t i = 0; i < len; i++)
+	{
+		outA[i]  = (2048 - ((int16_t)(in[i] & MASK_1)))<<4;
+		aux[i]   = (in[i] & MASK_AUXS) >> 12;
+		clip[0] += ((in[i] >> 12) & 1);
 	}
 }
 
@@ -128,9 +149,11 @@ void extract_AB_p_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_
 void extract_A_sse   (uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB);
 void extract_B_sse   (uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB);
 void extract_AB_sse  (uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB);
+void extract_S_sse   (uint16_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB);
 void extract_A_p_sse (uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB);
 void extract_B_p_sse (uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB);
 void extract_AB_p_sse(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB);
+void extract_S_p_sse (uint16_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB);
 int check_cpu_feat();
 #endif
 
@@ -142,7 +165,7 @@ int main(int argc, char **argv)
 	_setmode(_fileno(stdin), O_BINARY);
 #endif
 
-	int opt, pad=0;
+	int opt, pad=0, single=0;
 
 
 	//file adress
@@ -184,7 +207,7 @@ int main(int argc, char **argv)
 		COPYRIGHT "\n\n"
 	);
 
-	while ((opt = getopt(argc, argv, "i:a:b:x:p")) != -1) {
+	while ((opt = getopt(argc, argv, "i:a:b:x:psh")) != -1) {
 		switch (opt) {
 		case 'i':
 			input_name_1 = optarg;
@@ -201,13 +224,18 @@ int main(int argc, char **argv)
 		case 'p':
 			pad = 1;
 			break;
+		case 's':
+			single = 1;
+			break;
+		case 'h':
 		default:
 			usage();
 			break;
 		}
 	}
 	
-	if(input_name_1 == NULL || (output_name_1 != NULL && output_name_2 != NULL && output_name_aux != NULL))
+	if((input_name_1 == NULL || (output_name_1 != NULL && output_name_2 != NULL && output_name_aux != NULL))
+		|| (single == 1 && output_name_2 != NULL))
 	{
 		usage();
 	}
@@ -283,12 +311,14 @@ int main(int argc, char **argv)
 	if(check_cpu_feat()==0) {
 		fprintf(stderr,"Detected processor with SSSE3 and POPCNT, using optimized extraction routine\n\n");
 		if (pad==1) {
-			if (output_name_1 == NULL) conv_function = &extract_B_p_sse;
+			if (single == 1) conv_function = (void (*)(uint32_t*, size_t, size_t*, uint8_t*, int16_t*, int16_t*)) &extract_S_p_sse;
+			else if (output_name_1 == NULL) conv_function = &extract_B_p_sse;
 			else if (output_name_2 == NULL) conv_function = &extract_A_p_sse;
 			else conv_function = &extract_AB_p_sse;
 		}
 		else {
-			if (output_name_1 == NULL) conv_function = &extract_B_sse;
+			if (single == 1) conv_function = (void (*)(uint32_t*, size_t, size_t*, uint8_t*, int16_t*, int16_t*)) &extract_S_sse;
+			else if (output_name_1 == NULL) conv_function = &extract_B_sse;
 			else if (output_name_2 == NULL) conv_function = &extract_A_sse;
 			else conv_function = &extract_AB_sse;
 		}
@@ -297,12 +327,14 @@ int main(int argc, char **argv)
 		fprintf(stderr,"Detected processor without SSSE3 and POPCNT, using standard extraction routine\n\n");
 #endif
 		if (pad==1) {
-			if (output_name_1 == NULL) conv_function = &extract_B_p_C;
+			if (single == 1) conv_function = (void (*)(uint32_t*, size_t, size_t*, uint8_t*, int16_t*, int16_t*)) &extract_S_p_C;
+			else if (output_name_1 == NULL) conv_function = &extract_B_p_C;
 			else if (output_name_2 == NULL) conv_function = &extract_A_p_C;
 			else conv_function = &extract_AB_p_C;
 		}
 		else {
-			if (output_name_1 == NULL) conv_function = &extract_B_C;
+			if (single == 1) conv_function = (void (*)(uint32_t*, size_t, size_t*, uint8_t*, int16_t*, int16_t*)) &extract_S_C;
+			else if (output_name_1 == NULL) conv_function = &extract_B_C;
 			else if (output_name_2 == NULL) conv_function = &extract_A_C;
 			else conv_function = &extract_AB_C;
 		}
@@ -318,7 +350,7 @@ int main(int argc, char **argv)
 			clock_gettime(CLOCK_MONOTONIC, &start);
 #endif
 
-			nb_block = fread(buf_tmp,4,BUFFER_SIZE,input_1);
+			nb_block = fread(buf_tmp,4>>single,BUFFER_SIZE,input_1);
 
 #if PERF_MEASURE
 			clock_gettime(CLOCK_MONOTONIC, &stop);

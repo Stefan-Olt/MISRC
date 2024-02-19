@@ -29,6 +29,9 @@ TBD
 * Run tool without arguments to see options
 
 ## Version History
+* 0.3
+    * New: allow extraction of data from single channel capture
+
 * 0.2
     * Fix: signal now with correct polarity
     * Mod: output program name and version
