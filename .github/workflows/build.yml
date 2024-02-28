@@ -72,19 +72,17 @@ jobs:
           fetch-depth: 0
           fetch-tags: true
 
-      - name: Install winget
-        uses: Cyberboss/install-winget@v1
-
       - name: Install MSVC
         uses: ilammy/msvc-dev-cmd@v1
 
       - name: Install NASM
-        run: >-
-          winget install
-          --disable-interactivity
-          --accept-source-agreements
-          --accept-package-agreements
-          --silent --exact --id NASM.NASM
+        env:
+          WINDOWS_NASM_URL: https://www.nasm.us/pub/nasm/releasebuilds/2.16.01/win64/nasm-2.16.01-win64.zip
+          WINDOWS_NASM_DIR: nasm-2.16.01
+        run: |
+          Invoke-WebRequest ${{ env.WINDOWS_NASM_URL }} -OutFile .\nasm.zip
+          Expand-Archive .\nasm.zip -DestinationPath .
+          Write-Output .\${{ env.WINDOWS_NASM_DIR }} | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
       - name: Build
         run: |
