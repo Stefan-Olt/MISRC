@@ -29,6 +29,10 @@ TBD
 * Run tool without arguments to see options
 
 ## Version History
+
+* 0.3.1
+    * Fix: incorrect align could lead to crash (fix by namazso)
+
 * 0.3
     * New: allow extraction of data from single channel capture
 
