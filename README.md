@@ -97,7 +97,7 @@ It is build around the AD9235 analog-digital converter by Analog Devices and is 
 - Offshelf FX3 USB 3.0 board (same as DdD)
 - External Clock Source Output
 - 6 Extra Aux inputs for audio ADC modules etc
-- Duel ADC / Duel Imput (BNC Connectors)
+- Duel ADC / Dual Input (BNC Connectors)
 - Physically adjustable input filters
 - 12-Bit, 20/40/65msps sampling
 - AD8138 Driver, Op-Amp / SN74ls541 Buffer / AD9235 ADC
