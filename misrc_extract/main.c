@@ -234,7 +234,7 @@ int main(int argc, char **argv)
 		}
 	}
 	
-	if((input_name_1 == NULL || (output_name_1 != NULL && output_name_2 != NULL && output_name_aux != NULL))
+	if((input_name_1 == NULL || (output_name_1 == NULL && output_name_2 == NULL && output_name_aux == NULL))
 		|| (single == 1 && output_name_2 != NULL))
 	{
 		usage();
