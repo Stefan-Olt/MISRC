@@ -1,0 +1,29 @@
+<?xml version="1" encoding="UTF-8"?>
+<!DOCTYPE gowin-fpga-project>
+<Project>
+    <Template>FPGA</Template>
+    <Version>5</Version>
+    <Device name="GW2AR-18C" pn="GW2AR-LV18QN88C8/I7">gw2ar18c-000</Device>
+    <FileList>
+        <File path="common/async_fifo/async_fifo.v" type="file.verilog" enable="1"/>
+        <File path="common/async_fifo/fifomem.v" type="file.verilog" enable="1"/>
+        <File path="common/async_fifo/rptr_empty.v" type="file.verilog" enable="1"/>
+        <File path="common/async_fifo/sync_r2w.v" type="file.verilog" enable="1"/>
+        <File path="common/async_fifo/sync_w2r.v" type="file.verilog" enable="1"/>
+        <File path="common/async_fifo/wptr_full.v" type="file.verilog" enable="1"/>
+        <File path="common/hdmi/auxiliary_video_information_info_frame.v" type="file.verilog" enable="1"/>
+        <File path="common/hdmi/hdmi.v" type="file.verilog" enable="1"/>
+        <File path="common/hdmi/packet_assembler.v" type="file.verilog" enable="1"/>
+        <File path="common/hdmi/packet_picker.v" type="file.verilog" enable="1"/>
+        <File path="common/hdmi/serializer.v" type="file.verilog" enable="1"/>
+        <File path="common/hdmi/tmds_channel.v" type="file.verilog" enable="1"/>
+        <File path="common/hsdaoh/hsdaoh_core.v" type="file.verilog" enable="1"/>
+        <File path="common/uart_i2c_bridge/i2c_master.v" type="file.verilog" enable="1"/>
+        <File path="common/uart_i2c_bridge/uart_i2c_bridge.v" type="file.verilog" enable="1"/>
+        <File path="common/uart_i2c_bridge/uart_rx.v" type="file.verilog" enable="1"/>
+        <File path="common/uart_i2c_bridge/uart_tx.v" type="file.verilog" enable="1"/>
+        <File path="hsdaoh_nano20k_misrc/top.v" type="file.verilog" enable="1"/>
+        <File path="hsdaoh_nano20k_misrc/hsdaoh_nano20k_misrc.cst" type="file.cst" enable="1"/>
+        <File path="hsdaoh_nano20k_misrc/hsdaoh_nano20k_misrc.sdc" type="file.sdc" enable="1"/>
+    </FileList>
+</Project>
