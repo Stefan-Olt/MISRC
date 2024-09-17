@@ -1,5 +1,5 @@
 
-; MISRC extract
+; MISRC tools
 ; Copyright (C) 2024  vrunk11, stefan_o
 ;
 ; This program is free software: you can redistribute it and/or modify
@@ -51,6 +51,8 @@ default rel
 		mov outB, [rsp+48]
 	%endif
 %endmacro
+
+section .note.GNU-stack noalloc noexec nowrite progbits
 
 section .data
 	ALIGN 16

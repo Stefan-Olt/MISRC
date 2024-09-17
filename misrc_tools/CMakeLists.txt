@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.14)
 
 set(CMAKE_OSX_DEPLOYMENT_TARGET "10.15" CACHE STRING "Minimum OS X deployment version" FORCE)
 
-project (misrc_extract)
+project (misrc_tools)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
@@ -28,9 +28,9 @@ if(MISRC__CPU_X86_64)
 		#Add leading underscore when building macho64 object files
 		string(APPEND CMAKE_ASM_NASM_FLAGS "--prefix _") # is that correct for C code?
 	endif(APPLE)
-	add_executable(misrc_extract main.c extract.asm)
+	add_executable(misrc_extract misrc_extract.c extract.c extract.asm)
 else()
-	add_executable(misrc_extract main.c)
+	add_executable(misrc_extract misrc_extract.c extract.c)
 endif()
 
 set(INSTALL_TARGETS misrc_extract)

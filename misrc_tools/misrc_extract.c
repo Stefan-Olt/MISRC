@@ -42,6 +42,8 @@
 #include <time.h>
 #endif
 
+#include "extract.h"
+
 #define VERSION "0.3"
 #define COPYRIGHT "licensed under GNU GPL v3 or later, (c) 2024 vrunk11, stefan_o"
 
@@ -64,98 +66,6 @@ void usage(void)
 	exit(1);
 }
 
-//bit masking
-#define MASK_1      0xFFF
-#define MASK_2      0xFFF00000
-#define MASK_AUX    0xFF000
-#define MASK_AUXS   0xF000
-
-void extract_S_C(uint16_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB) {
-	for(size_t i = 0; i < len; i++)
-	{
-		outA[i]  = 2048 - ((int16_t)(in[i] & MASK_1));
-		aux[i]   = (in[i] & MASK_AUXS) >> 12;
-		clip[0] += ((in[i] >> 12) & 1);
-	}
-}
-
-void extract_A_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB) {
-	for(size_t i = 0; i < len; i++)
-	{
-		outA[i]  = 2048 - ((int16_t)(in[i] & MASK_1));
-		aux[i]   = (in[i] & MASK_AUX) >> 12;
-		clip[0] += ((in[i] >> 12) & 1);
-	}
-}
-
-void extract_B_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB) {
-	for(size_t i = 0; i < len; i++)
-	{
-		outB[i]  = 2048 - ((int16_t)((in[i] & MASK_2) >> 20));
-		aux[i]   = (in[i] & MASK_AUX) >> 12;
-		clip[1] += ((in[i] >> 13) & 1);
-	}
-}
-
-void extract_AB_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB) {
-	for(size_t i = 0; i < len; i++)
-	{
-		outA[i]  = 2048 - ((int16_t)(in[i] & MASK_1));
-		outB[i]  = 2048 - ((int16_t)((in[i] & MASK_2) >> 20));
-		aux[i]   = (in[i] & MASK_AUX) >> 12;
-		clip[0] += ((in[i] >> 12) & 1);
-		clip[1] += ((in[i] >> 13) & 1);
-	}
-}
-
-void extract_S_p_C(uint16_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB) {
-	for(size_t i = 0; i < len; i++)
-	{
-		outA[i]  = (2048 - ((int16_t)(in[i] & MASK_1)))<<4;
-		aux[i]   = (in[i] & MASK_AUXS) >> 12;
-		clip[0] += ((in[i] >> 12) & 1);
-	}
-}
-
-void extract_A_p_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB) {
-	for(size_t i = 0; i < len; i++)
-	{
-		outA[i]  = (2048 - ((int16_t)(in[i] & MASK_1)))<<4;
-		aux[i]   = (in[i] & MASK_AUX) >> 12;
-		clip[0] += ((in[i] >> 12) & 1);
-	}
-}
-void extract_B_p_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB) {
-	for(size_t i = 0; i < len; i++)
-	{
-		outB[i]  = (2048 - ((int16_t)((in[i] & MASK_2) >> 20)))<<4;
-		aux[i]   = (in[i] & MASK_AUX) >> 12;
-		clip[1] += ((in[i] >> 13) & 1);
-	}
-}
-
-void extract_AB_p_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB) {
-	for(size_t i = 0; i < len; i++)
-	{
-		outA[i]  = (2048 - ((int16_t)(in[i] & MASK_1)))<<4;
-		outB[i]  = (2048 - ((int16_t)((in[i] & MASK_2) >> 20)))<<4;
-		aux[i]   = (in[i] & MASK_AUX) >> 12;
-		clip[0] += ((in[i] >> 12) & 1);
-		clip[1] += ((in[i] >> 13) & 1);
-	}
-}
-
-#if defined(__x86_64__) || defined(_M_X64)
-void extract_A_sse   (uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB);
-void extract_B_sse   (uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB);
-void extract_AB_sse  (uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB);
-void extract_S_sse   (uint16_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB);
-void extract_A_p_sse (uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB);
-void extract_B_p_sse (uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB);
-void extract_AB_p_sse(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB);
-void extract_S_p_sse (uint16_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB);
-int check_cpu_feat();
-#endif
 
 int main(int argc, char **argv)
 {
@@ -195,7 +105,7 @@ int main(int argc, char **argv)
 	size_t clip[2] = {0, 0};
 	
 	// conversion function
-	void (*conv_function)(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB);
+	conv_function_t conv_function;
 
 #if PERF_MEASURE
 	struct timespec start, stop;
@@ -307,41 +217,9 @@ int main(int argc, char **argv)
 			}
 		}
 	}
-#if defined(__x86_64__) || defined(_M_X64)
-	if(check_cpu_feat()==0) {
-		fprintf(stderr,"Detected processor with SSSE3 and POPCNT, using optimized extraction routine\n\n");
-		if (pad==1) {
-			if (single == 1) conv_function = (void (*)(uint32_t*, size_t, size_t*, uint8_t*, int16_t*, int16_t*)) &extract_S_p_sse;
-			else if (output_name_1 == NULL) conv_function = &extract_B_p_sse;
-			else if (output_name_2 == NULL) conv_function = &extract_A_p_sse;
-			else conv_function = &extract_AB_p_sse;
-		}
-		else {
-			if (single == 1) conv_function = (void (*)(uint32_t*, size_t, size_t*, uint8_t*, int16_t*, int16_t*)) &extract_S_sse;
-			else if (output_name_1 == NULL) conv_function = &extract_B_sse;
-			else if (output_name_2 == NULL) conv_function = &extract_A_sse;
-			else conv_function = &extract_AB_sse;
-		}
-	}
-	else {
-		fprintf(stderr,"Detected processor without SSSE3 and POPCNT, using standard extraction routine\n\n");
-#endif
-		if (pad==1) {
-			if (single == 1) conv_function = (void (*)(uint32_t*, size_t, size_t*, uint8_t*, int16_t*, int16_t*)) &extract_S_p_C;
-			else if (output_name_1 == NULL) conv_function = &extract_B_p_C;
-			else if (output_name_2 == NULL) conv_function = &extract_A_p_C;
-			else conv_function = &extract_AB_p_C;
-		}
-		else {
-			if (single == 1) conv_function = (void (*)(uint32_t*, size_t, size_t*, uint8_t*, int16_t*, int16_t*)) &extract_S_C;
-			else if (output_name_1 == NULL) conv_function = &extract_B_C;
-			else if (output_name_2 == NULL) conv_function = &extract_A_C;
-			else conv_function = &extract_AB_C;
-		}
-#if defined(__x86_64__) || defined(_M_X64)
-	}
-#endif
-	
+
+	conv_function = get_conv_function(single, pad, output_name_1, output_name_2);
+
 	if(input_name_1 != NULL && (output_name_1 != NULL || output_name_2 != NULL || output_name_aux != NULL))
 	{
 		while(!feof(input_1))

@@ -1,8 +1,10 @@
-# MISRC extract
+# MISRC tools
+
+## misrc_extract
 
 Tool to extract the two ADC channels and the AUX data from the raw capture.
 
-## Description
+### Description
 
 The 2 ADC channels with 12 bit each and the 8 bit AUX data is interleaved into 32 bit words.
 This tool will deinterleave the data. For x86_64 (64 bit AMD and Intel processors)

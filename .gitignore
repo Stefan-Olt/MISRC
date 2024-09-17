@@ -85,3 +85,36 @@ hardware/kicad/**/*.ses
 # Exported BOM files
 hardware/kicad/**/*.xml
 hardware/kicad/**/*.csv
+
+# KiCAD
+
+# Temporary files
+hardware-extra/**/kicad/**/*.000
+hardware-extra/**/kicad/**/*.bak
+hardware-extra/**/kicad/**/*.bck
+hardware-extra/**/kicad/**/*.kicad_pcb-bak
+hardware-extra/**/kicad/**/*.kicad_sch-bak
+hardware-extra/**/kicad/**/*-backups
+hardware-extra/**/kicad/**/*.kicad_prl
+hardware-extra/**/kicad/**/*.sch-bak
+hardware-extra/**/kicad/**/*~
+hardware-extra/**/kicad/**/*.tmp
+hardware-extra/**/kicad/**/*.log
+hardware-extra/**/kicad/**/*-save.pro
+hardware-extra/**/kicad/**/*-save.kicad_pcb
+hardware-extra/**/kicad/**/fp-info-cache
+hardware-extra/**/kicad/**/fp-lib-table
+hardware-extra/**/kicad/**/sym-lib-table
+hardware-extra/**/kicad/**/_autosave-*
+hardware-extra/**/kicad/**/gerber
+
+# Netlist files (exported from Eeschema)
+hardware-extra/**/kicad/**/*.net
+
+# Autorouter files (exported from Pcbnew)
+hardware-extra/**/kicad/**/*.dsn
+hardware-extra/**/kicad/**/*.ses
+
+# Exported BOM files
+hardware-extra/**/kicad/**/*.xml
+hardware-extra/**/kicad/**/*.csv
