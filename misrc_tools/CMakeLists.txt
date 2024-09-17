@@ -11,10 +11,25 @@ include(CheckCPUArch)
 #Set C language version
 set(CMAKE_C_STANDARD 11)
 
+find_package(PkgConfig)
+
+if(PKG_CONFIG_FOUND)
+    pkg_check_modules(LIBHSDAOH libhsdaoh IMPORTED_TARGET)
+    if(LIBHSDAOH_LINK_LIBRARIES)
+        set(LIBHSDAOH_LIBRARIES "${LIBHSDAOH_LINK_LIBRARIES}")
+    endif()
+else()
+    set(LIBHSDAOH_LIBRARIES "" CACHE STRING "manual libhsdaoh path")
+    set(LIBHSDAOH_INCLUDE_DIRS "" CACHE STRING "manual libhsdaoh includepath")
+endif()
+
+if(PKG_CONFIG_FOUND AND NOT LIBHSDAOH_FOUND)
+    message(FATAL_ERROR "libhsdaoh required to build misrc_capture")
+endif()
 
 if(WIN32 AND NOT MINGW)
 add_library(libgetopt_static STATIC
-    getopt/getopt.c
+	getopt/getopt.c
 )
 endif()
 
@@ -29,14 +44,19 @@ if(MISRC__CPU_X86_64)
 		string(APPEND CMAKE_ASM_NASM_FLAGS "--prefix _") # is that correct for C code?
 	endif(APPLE)
 	add_executable(misrc_extract misrc_extract.c extract.c extract.asm)
+	add_executable(misrc_capture misrc_capture.c extract.c extract.asm)
 else()
 	add_executable(misrc_extract misrc_extract.c extract.c)
+	add_executable(misrc_capture misrc_capture.c extract.c)
 endif()
 
-set(INSTALL_TARGETS misrc_extract)
+set(INSTALL_TARGETS misrc_extract misrc_capture)
+
+target_link_libraries(misrc_capture hsdaoh)
 
 if(WIN32 AND NOT MINGW)
 target_link_libraries(misrc_extract libgetopt_static)
+target_link_libraries(misrc_capture libgetopt_static)
 endif()
 
 install(TARGETS ${INSTALL_TARGETS})
