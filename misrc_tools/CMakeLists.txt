@@ -7,6 +7,7 @@ project (misrc_tools)
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 include(CheckCPUArch)
+include(FindLibFLAC)
 
 #Set C language version
 set(CMAKE_C_STANDARD 11)
@@ -27,6 +28,12 @@ if(PKG_CONFIG_FOUND AND NOT LIBHSDAOH_FOUND)
     message(FATAL_ERROR "libhsdaoh required to build misrc_capture")
 endif()
 
+if(LIBFLAC_FOUND)
+    add_compile_definitions(LIBFLAC_ENABLED=1)
+else()
+    message(WARNING "libflac not found, disabling flac encoding")
+endif()
+
 if(WIN32 AND NOT MINGW)
 add_library(libgetopt_static STATIC
 	getopt/getopt.c
@@ -44,15 +51,15 @@ if(MISRC__CPU_X86_64)
 		string(APPEND CMAKE_ASM_NASM_FLAGS "--prefix _") # is that correct for C code?
 	endif(APPLE)
 	add_executable(misrc_extract misrc_extract.c extract.c extract.asm)
-	add_executable(misrc_capture misrc_capture.c extract.c extract.asm)
+	add_executable(misrc_capture misrc_capture.c extract.c ringbuffer.c extract.asm)
 else()
 	add_executable(misrc_extract misrc_extract.c extract.c)
-	add_executable(misrc_capture misrc_capture.c extract.c)
+	add_executable(misrc_capture misrc_capture.c extract.c ringbuffer.c)
 endif()
 
 set(INSTALL_TARGETS misrc_extract misrc_capture)
 
-target_link_libraries(misrc_capture hsdaoh)
+target_link_libraries(misrc_capture hsdaoh ${LIBFLAC_LIBRARIES})
 
 if(WIN32 AND NOT MINGW)
 target_link_libraries(misrc_extract libgetopt_static)

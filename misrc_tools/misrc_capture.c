@@ -28,6 +28,9 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdint.h>
+#include <stdbool.h>
+#include <threads.h>
+#include <time.h>
 
 #ifndef _WIN32
 	#include <getopt.h>
@@ -43,30 +46,40 @@
 #endif
 
 #include <hsdaoh.h>
+
+#if LIBFLAC_ENABLED == 1
+#include "FLAC/stream_encoder.h"
+#define GETOPT_STRING "d:a:b:fl:vx:r:ph"
+#else
+#define GETOPT_STRING "d:a:b:x:r:ph"
+#endif
+
+#include "ringbuffer.h"
 #include "extract.h"
 
 #define VERSION "0.1"
 #define COPYRIGHT "licensed under GNU GPL v3 or later, (c) 2024 vrunk11, stefan_o"
 
-#define BUFFER_SIZE 65536*32
+#define BUFFER_TOTAL_SIZE 65536*1024
+#define BUFFER_READ_SIZE 65536*32
 
 #define _FILE_OFFSET_BITS 64
 
 typedef struct {
-	FILE *output_1;
-	FILE *output_2;
-	FILE *output_aux;
-	FILE *output_raw;
-	//buffer
-	int16_t  *buf_1;
-	int16_t  *buf_2;
-	uint8_t  *buf_aux;
-	//clipping state
-	size_t clip[2];
-	// conversion function
-	conv_function_t conv_function;
+	ringbuffer_t rb;
 	uint64_t samples_to_read;
 } capture_ctx_t;
+
+
+typedef struct {
+	ringbuffer_t rb;
+	FILE *f;
+#if LIBFLAC_ENABLED == 1
+	uint32_t flac_level;
+	bool flac_verify;
+#endif
+} filewriter_ctx_t;
+
 
 static int do_exit;
 static hsdaoh_dev_t *dev = NULL;
@@ -83,6 +96,11 @@ void usage(void)
 		"\t[-x AUX output file (use '-' to write on stdout)]\n"
 		"\t[-r raw data output file (use '-' to write on stdout)]\n"
 		"\t[-p pad lower 4 bits of 16 bit output with 0 instead of upper 4]\n"
+#if LIBFLAC_ENABLED == 1
+		"\t[-f compress ADC output as FLAC]\n"
+		"\t[-l LEVEL set flac compression level (default: 1)]\n"
+		"\t[-v enable verification of flac encoder output]\n"
+#endif
 	);
 	exit(1);
 }
@@ -95,7 +113,7 @@ sighandler(int signum)
 		fprintf(stderr, "Signal caught, exiting!\n");
 		do_exit = 1;
 		hsdaoh_stop_stream(dev);
-		return TRUE;
+		return true;
 	}
 	return FALSE;
 }
@@ -112,37 +130,112 @@ static void sighandler(int signum)
 static void hsdaoh_callback(unsigned char *buf, uint32_t len, uint8_t pack_state, void *ctx)
 {
 	capture_ctx_t *cap_ctx = ctx;
-	if (cap_ctx) {
+	if (ctx) {
 		if (do_exit)
 			return;
-		len >>= 2;
+		//len >>= 2;
 		if ((cap_ctx->samples_to_read > 0) && (cap_ctx->samples_to_read < len)) {
 			len = cap_ctx->samples_to_read;
 			do_exit = 1;
 			hsdaoh_stop_stream(dev);
 		}
-		cap_ctx->conv_function((uint32_t*)buf, len, cap_ctx->clip, cap_ctx->buf_aux, cap_ctx->buf_1, cap_ctx->buf_2);
-		if(cap_ctx->clip[0] > 0)
-		{
-			fprintf(stderr,"ADC A : %ld samples clipped\n",cap_ctx->clip[0]);
-			cap_ctx->clip[0] = 0; 
+		while(rb_put(&cap_ctx->rb,buf,len&(~0x3))) {
+			fprintf(stderr,"Cannot write frame to buffer\n");
+			usleep(4000);
 		}
-
-		if(cap_ctx->clip[1] > 0)
-		{
-			fprintf(stderr,"ADC B : %ld samples clipped\n",cap_ctx->clip[1]);
-			cap_ctx->clip[1] = 0; 
-		}
-		//write output
-		if(cap_ctx->output_1   != NULL){fwrite(cap_ctx->buf_1, 2,len,cap_ctx->output_1);}
-		if(cap_ctx->output_2   != NULL){fwrite(cap_ctx->buf_2, 2,len,cap_ctx->output_2);}
-		if(cap_ctx->output_aux != NULL){fwrite(cap_ctx->buf_aux,1,len,cap_ctx->output_aux);}
-		if(cap_ctx->output_raw != NULL){fwrite(buf,4,len,cap_ctx->output_raw);}
-
 		if (cap_ctx->samples_to_read > 0)
 			cap_ctx->samples_to_read -= len;
 	}
 }
+
+int raw_file_writer(void *ctx)
+{
+	filewriter_ctx_t *file_ctx = ctx;
+	size_t len = BUFFER_READ_SIZE;
+	void *buf;
+	while(true) {
+		while(((buf = rb_read_ptr(&file_ctx->rb, len)) == NULL) && !do_exit) {
+			//usleep(10000);
+			thrd_sleep(&(struct timespec){.tv_nsec=10000000}, NULL);
+		}
+		if (do_exit) {
+			len = file_ctx->rb.tail - file_ctx->rb.head;
+			fprintf(stderr, "thread exit, left %lu bytes", len);
+			if (len == 0) break;
+			buf = rb_read_ptr(&file_ctx->rb, len);
+		}
+		fwrite(buf, 1, len, file_ctx->f);
+		rb_read_finished(&file_ctx->rb, len);
+	}
+	if (file_ctx->f != stdout) fclose(file_ctx->f);
+	return 0;
+}
+
+#if LIBFLAC_ENABLED == 1
+int flac_file_writer(void *ctx)
+{
+	filewriter_ctx_t *file_ctx = ctx;
+	size_t len = BUFFER_READ_SIZE;
+	void *buf;
+	FLAC__bool ok = true;
+	FLAC__StreamEncoder *encoder = NULL;
+	FLAC__StreamEncoderInitStatus init_status;
+
+	if((encoder = FLAC__stream_encoder_new()) == NULL) {
+		fprintf(stderr, "ERROR: failed allocating FLAC encoder\n");
+		do_exit = 1;
+		return 0;
+	}
+	ok &= FLAC__stream_encoder_set_verify(encoder, file_ctx->flac_verify);
+	ok &= FLAC__stream_encoder_set_compression_level(encoder, file_ctx->flac_level);
+	ok &= FLAC__stream_encoder_set_channels(encoder, 1);
+	ok &= FLAC__stream_encoder_set_bits_per_sample(encoder, 16);
+	ok &= FLAC__stream_encoder_set_sample_rate(encoder, 40000);
+	ok &= FLAC__stream_encoder_set_total_samples_estimate(encoder, 0);
+
+	if(!ok) {
+		fprintf(stderr, "ERROR: failed initializing FLAC encoder\n");
+		do_exit = 1;
+		return 0;
+	}
+
+	init_status = FLAC__stream_encoder_init_FILE(encoder, file_ctx->f, NULL, NULL);
+	if(init_status != FLAC__STREAM_ENCODER_INIT_STATUS_OK) {
+		fprintf(stderr, "ERROR: failed initializing FLAC encoder: %s\n", FLAC__StreamEncoderInitStatusString[init_status]);
+		do_exit = 1;
+		return 0;
+	}
+
+	while(true) {
+		while(((buf = rb_read_ptr(&file_ctx->rb, len)) == NULL) && !do_exit) {
+			thrd_sleep(&(struct timespec){.tv_nsec=10000000}, NULL);
+		}
+		if (do_exit) {
+			len = file_ctx->rb.tail - file_ctx->rb.head;
+			if (len == 0) break;
+			buf = rb_read_ptr(&file_ctx->rb, len);
+		}
+		/*int y=0, x=0;
+		for (int i=0; i<len>>2; i++) {
+			int32_t val = ((int32_t*)buf)[i];
+			if (val < -4096) y++;
+			if (val > 4096) x++;
+		}
+		if(x>0 || y>0) fprintf(stderr, "(%p) Out-of-range samples, below: %i above: %i\n", file_ctx->f, y, x); */
+		ok = FLAC__stream_encoder_process_interleaved(encoder, buf, len>>2);
+		if(!ok) fprintf(stderr, "ERROR: (%p) FLAC encoder could not process data: %s\n", file_ctx->f, FLAC__StreamEncoderStateString[FLAC__stream_encoder_get_state(encoder)]);
+		rb_read_finished(&file_ctx->rb, len);
+	}
+	ok = FLAC__stream_encoder_finish(encoder);
+	if(!ok) {
+		fprintf(stderr, "ERROR: FLAC encoder did not finish correctly: %s\n", FLAC__StreamEncoderStateString[FLAC__stream_encoder_get_state(encoder)]);
+		return 0;
+	}
+	FLAC__stream_encoder_delete(encoder);
+	return 0;
+}
+#endif
+
 
 int main(int argc, char **argv)
 {
@@ -154,50 +247,77 @@ int main(int argc, char **argv)
 	struct sigaction sigact;
 #endif
 
-	int r, opt, pad=0, dev_index=0;
-
+	int r, opt, pad=0, dev_index=0, out_size = 2;
+#if LIBFLAC_ENABLED == 1
+	int flac_level = 1;
+	bool flac_verify = false;
+#endif
+	thrd_start_t output_thread_func = raw_file_writer;
 	capture_ctx_t cap_ctx;
 	memset(&cap_ctx,0,sizeof(cap_ctx));
 
+	//output threads
+	// out 1, 2
+	thrd_t thread_out[2] = { 0, 0 };
+	filewriter_ctx_t thread_out_ctx[2];
+	char outbuffer_name[] = "outX_ringbuffer";
+
 	//file adress
-	char *output_name_1   = NULL;
-	char *output_name_2   = NULL;
+	// out 1, 2
+	char *output_names[3] = { NULL, NULL };
 	char *output_name_aux = NULL;
 	char *output_name_raw = NULL;
 
-	//buffer
-	cap_ctx.buf_1   = aligned_alloc(16,sizeof(int16_t) *BUFFER_SIZE);
-	cap_ctx.buf_2   = aligned_alloc(16,sizeof(int16_t) *BUFFER_SIZE);
-	cap_ctx.buf_aux = aligned_alloc(16,sizeof(uint8_t) *BUFFER_SIZE);
+	//output files
+	FILE *output_aux = NULL;
+	FILE *output_raw = NULL;
 
-	//number of byte read
-	int nb_block;
+	//buffer
+	uint8_t  *buf_aux = aligned_alloc(16,sizeof(uint8_t) *BUFFER_READ_SIZE);
+
+
+	//clipping state
+	size_t clip[2] = {0, 0};
+
+	// conversion function
+	conv_function_t conv_function;
 
 	fprintf(stderr,
 		"MISRC capture " VERSION "\n"
 		COPYRIGHT "\n\n"
 	);
 
-	while ((opt = getopt(argc, argv, "d:a:b:x:r:psh")) != -1) {
+	while ((opt = getopt(argc, argv, GETOPT_STRING)) != -1) {
 		switch (opt) {
 		case 'd':
 			dev_index = (uint32_t)atoi(optarg);
 			break;
 		case 'a':
-			output_name_1 = optarg;
+			output_names[0] = optarg;
 			break;
 		case 'b':
-			output_name_2 = optarg;
+			output_names[1] = optarg;
 			break;
+#if LIBFLAC_ENABLED == 1
+		case 'f':
+			output_thread_func = flac_file_writer;
+			out_size = 4;
+			break;
+		case 'l':
+			flac_level = (uint32_t)atoi(optarg);
+			break;
+		case 'v':
+			flac_verify = true;
+			break;
+#endif
 		case 'x':
-			output_name_aux = optarg;
+			output_names[2] = optarg;
 			break;
 		case 'r':
 			output_name_raw = optarg;
 			break;
 		case 'p':
 			pad = 1;
-			break; 1;
 			break;
 		case 'h':
 		default:
@@ -206,7 +326,7 @@ int main(int argc, char **argv)
 		}
 	}
 
-	if(output_name_1 == NULL && output_name_2 == NULL && output_name_aux == NULL && output_name_raw == NULL)
+	if(output_names[0] == NULL && output_names[0] == NULL && output_name_aux == NULL && output_name_raw == NULL)
 	{
 		usage();
 	}
@@ -220,54 +340,48 @@ int main(int argc, char **argv)
 	sigaction(SIGQUIT, &sigact, NULL);
 	sigaction(SIGPIPE, &sigact, NULL);
 #else
-	SetConsoleCtrlHandler( (PHANDLER_ROUTINE) sighandler, TRUE );
+	SetConsoleCtrlHandler( (PHANDLER_ROUTINE) sighandler, true );
 #endif
-
-	if(output_name_1 != NULL)
-	{
-		//opening output file 1
-		if (strcmp(output_name_1, "-") == 0)// Write to stdout
-		{
-			cap_ctx.output_1 = stdout;
-		}
-		else
-		{
-			cap_ctx.output_1 = fopen(output_name_1, "wb");
-			if (!cap_ctx.output_1) {
-				fprintf(stderr, "(2) : Failed to open %s\n", output_name_1);
+	for(int i=0; i<2; i++) {
+		if (output_names[i] != NULL) {
+			if (strcmp(output_names[i], "-") == 0)// Write to stdout
+			{
+				thread_out_ctx[i].f = stdout;
+			}
+			else
+			{
+			   thread_out_ctx[i].f = fopen(output_names[i], "wb");
+				if (!thread_out_ctx[i].f) {
+					fprintf(stderr, "(2) : Failed to open %s\n", output_names[i]);
+					return -ENOENT;
+				}
+			}
+#if LIBFLAC_ENABLED == 1
+			thread_out_ctx[i].flac_level = flac_level;
+			thread_out_ctx[i].flac_verify = flac_verify;
+#endif
+			outbuffer_name[3] = (char)(i+48);
+			rb_init(&thread_out_ctx[i].rb, outbuffer_name, BUFFER_TOTAL_SIZE);
+			r = thrd_create(&thread_out[i], output_thread_func, &thread_out_ctx[i]);
+			if (r != thrd_success) {
+				fprintf(stderr, "Failed to create thread for output processing\n");
 				return -ENOENT;
 			}
 		}
 	}
 
-	if(output_name_2 != NULL)
-	{
-		//opening output file 2
-		if (strcmp(output_name_2, "-") == 0)// Write to stdout
-		{
-			cap_ctx.output_2 = stdout;
-		}
-		else if(output_name_2 != NULL)
-		{
-			cap_ctx.output_2 = fopen(output_name_2, "wb");
-			if (!cap_ctx.output_2) {
-				fprintf(stderr, "(2) : Failed to open %s\n", output_name_2);
-				return -ENOENT;
-			}
-		}
-	}
 
 	if(output_name_aux != NULL)
 	{
 		//opening output file aux
 		if (strcmp(output_name_aux, "-") == 0)// Write to stdout
 		{
-			cap_ctx.output_aux = stdout;
+			output_aux = stdout;
 		}
 		else if(output_name_aux != NULL)
 		{
-			cap_ctx.output_aux = fopen(output_name_aux, "wb");
-			if (!cap_ctx.output_aux) {
+			output_aux = fopen(output_name_aux, "wb");
+			if (!output_aux) {
 				fprintf(stderr, "(2) : Failed to open %s\n", output_name_aux);
 				return -ENOENT;
 			}
@@ -279,21 +393,21 @@ int main(int argc, char **argv)
 		//opening output file aux
 		if (strcmp(output_name_raw, "-") == 0)// Write to stdout
 		{
-			cap_ctx.output_raw = stdout;
+			output_raw = stdout;
 		}
 		else if(output_name_raw != NULL)
 		{
-			cap_ctx.output_raw = fopen(output_name_raw, "wb");
-			if (!cap_ctx.output_raw) {
+			output_raw = fopen(output_name_raw, "wb");
+			if (!output_raw) {
 				fprintf(stderr, "(2) : Failed to open %s\n", output_name_raw);
 				return -ENOENT;
 			}
 		}
 	}
 
+	conv_function = get_conv_function(0, pad, (out_size==2) ? 0 : 1, output_names[0], output_names[1]);
 
-	cap_ctx.conv_function = get_conv_function(0, pad, output_name_1, output_name_2);
-
+	rb_init(&cap_ctx.rb,"capture_ringbuffer",BUFFER_TOTAL_SIZE);
 
 	r = hsdaoh_open(&dev, (uint32_t)dev_index);
 	if (r < 0) {
@@ -306,7 +420,33 @@ int main(int argc, char **argv)
 
 
 	while (!do_exit) {
-		usleep(50000);
+		void *buf, *buf_out1, *buf_out2;
+		while((((buf = rb_read_ptr(&cap_ctx.rb, BUFFER_READ_SIZE*4)) == NULL) || 
+			  (output_names[0] == NULL || ((buf_out1 = rb_write_ptr(&thread_out_ctx[0].rb, BUFFER_READ_SIZE*out_size)) == NULL)) ||
+			  (output_names[1] == NULL || ((buf_out2 = rb_write_ptr(&thread_out_ctx[1].rb, BUFFER_READ_SIZE*out_size)) == NULL))) && 
+			  !do_exit)
+		{
+			usleep(10000);
+		}
+		if (do_exit) break;
+		conv_function((uint32_t*)buf, BUFFER_READ_SIZE, clip, buf_aux, buf_out1, buf_out2);
+		if(output_raw != NULL){fwrite(buf,4,BUFFER_READ_SIZE,output_raw);}
+		rb_read_finished(&cap_ctx.rb, BUFFER_READ_SIZE*4);
+		if(output_aux != NULL){fwrite(buf_aux,1,BUFFER_READ_SIZE,output_aux);}
+		if(output_names[0] != NULL) rb_write_finished(&thread_out_ctx[0].rb, BUFFER_READ_SIZE*out_size);
+		if(output_names[1] != NULL) rb_write_finished(&thread_out_ctx[1].rb, BUFFER_READ_SIZE*out_size);
+
+		if(clip[0] > 0)
+		{
+			fprintf(stderr,"ADC A : %ld samples clipped\n",clip[0]);
+			clip[0] = 0; 
+		}
+
+		if(clip[1] > 0)
+		{
+			fprintf(stderr,"ADC B : %ld samples clipped\n",clip[1]);
+			clip[1] = 0; 
+		}
 	}
 
 	if (do_exit)
@@ -318,42 +458,15 @@ int main(int argc, char **argv)
 
 ////ending of the program
 
-	aligned_free(cap_ctx.buf_1);
-	aligned_free(cap_ctx.buf_2);
-	aligned_free(cap_ctx.buf_aux);
+	aligned_free(buf_aux);
 
+	if (output_aux && (output_aux != stdout)) fclose(output_aux);
+	if (output_raw && (output_raw != stdout)) fclose(output_raw);
 
-	if(output_name_1 != NULL)
-	{
-		//Close out file
-		if (cap_ctx.output_1 && (cap_ctx.output_1 != stdout))
-		{
-			fclose(cap_ctx.output_1);
-		}
+	for(int i=0;i<2;i++) {
+		r = thrd_join(thread_out[i], NULL);
+		if (r != thrd_success) fprintf(stderr, "Failed to join thread %d.\n", i);
 	}
 
-	if(output_name_2 != NULL)
-	{
-		if (cap_ctx.output_2 && (cap_ctx.output_2 != stdout))
-		{
-			fclose(cap_ctx.output_2);
-		}
-	}
-
-	if(output_name_aux != NULL)
-	{
-		if (cap_ctx.output_aux && (cap_ctx.output_aux != stdout))
-		{
-			fclose(cap_ctx.output_aux);
-		}
-	}
-
-	if(output_name_raw != NULL)
-	{
-		if (cap_ctx.output_raw && (cap_ctx.output_raw != stdout))
-		{
-			fclose(cap_ctx.output_raw);
-		}
-	}
 	return 0;
 }

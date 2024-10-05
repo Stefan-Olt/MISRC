@@ -218,7 +218,7 @@ int main(int argc, char **argv)
 		}
 	}
 
-	conv_function = get_conv_function(single, pad, output_name_1, output_name_2);
+	conv_function = get_conv_function(single, pad, 0, output_name_1, output_name_2);
 
 	if(input_name_1 != NULL && (output_name_1 != NULL || output_name_2 != NULL || output_name_aux != NULL))
 	{

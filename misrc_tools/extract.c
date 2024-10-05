@@ -102,37 +102,142 @@ void extract_AB_p_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_
 	}
 }
 
-conv_function_t get_conv_function(uint8_t single, uint8_t pad, void* outA, void* outB) {
+void extract_S_32_C(uint16_t *in, size_t len, size_t *clip, uint8_t *aux, int32_t *outA, int32_t *outB) {
+	for(size_t i = 0; i < len; i++)
+	{
+		outA[i]  = 2048 - ((int32_t)(in[i] & MASK_1));
+		aux[i]   = (in[i] & MASK_AUXS) >> 12;
+		clip[0] += ((in[i] >> 12) & 1);
+	}
+}
+
+void extract_A_32_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int32_t *outA, int32_t *outB) {
+	for(size_t i = 0; i < len; i++)
+	{
+		outA[i]  = 2048 - ((int32_t)(in[i] & MASK_1));
+		aux[i]   = (in[i] & MASK_AUX) >> 12;
+		clip[0] += ((in[i] >> 12) & 1);
+	}
+}
+
+void extract_B_32_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int32_t *outA, int32_t *outB) {
+	for(size_t i = 0; i < len; i++)
+	{
+		outB[i]  = 2048 - ((int32_t)((in[i] & MASK_2) >> 20));
+		aux[i]   = (in[i] & MASK_AUX) >> 12;
+		clip[1] += ((in[i] >> 13) & 1);
+	}
+}
+
+void extract_AB_32_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int32_t *outA, int32_t *outB) {
+	for(size_t i = 0; i < len; i++)
+	{
+		outA[i]  = 2048 - ((int32_t)(in[i] & MASK_1));
+		outB[i]  = 2048 - ((int32_t)((in[i] & MASK_2) >> 20));
+		aux[i]   = (in[i] & MASK_AUX) >> 12;
+		clip[0] += ((in[i] >> 12) & 1);
+		clip[1] += ((in[i] >> 13) & 1);
+	}
+}
+
+void extract_S_p_32_C(uint16_t *in, size_t len, size_t *clip, uint8_t *aux, int32_t *outA, int32_t *outB) {
+	for(size_t i = 0; i < len; i++)
+	{
+		outA[i]  = (2048 - ((int32_t)(in[i] & MASK_1)))<<4;
+		aux[i]   = (in[i] & MASK_AUXS) >> 12;
+		clip[0] += ((in[i] >> 12) & 1);
+	}
+}
+
+void extract_A_p_32_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int32_t *outA, int32_t *outB) {
+	for(size_t i = 0; i < len; i++)
+	{
+		outA[i]  = (2048 - ((int32_t)(in[i] & MASK_1)))<<4;
+		aux[i]   = (in[i] & MASK_AUX) >> 12;
+		clip[0] += ((in[i] >> 12) & 1);
+	}
+}
+void extract_B_p_32_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int32_t *outA, int32_t *outB) {
+	for(size_t i = 0; i < len; i++)
+	{
+		outB[i]  = (2048 - ((int32_t)((in[i] & MASK_2) >> 20)))<<4;
+		aux[i]   = (in[i] & MASK_AUX) >> 12;
+		clip[1] += ((in[i] >> 13) & 1);
+	}
+}
+
+void extract_AB_p_32_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int32_t *outA, int32_t *outB) {
+	for(size_t i = 0; i < len; i++)
+	{
+		outA[i]  = (2048 - ((int32_t)(in[i] & MASK_1)))<<4;
+		outB[i]  = (2048 - ((int32_t)((in[i] & MASK_2) >> 20)))<<4;
+		aux[i]   = (in[i] & MASK_AUX) >> 12;
+		clip[0] += ((in[i] >> 12) & 1);
+		clip[1] += ((in[i] >> 13) & 1);
+	}
+}
+
+conv_function_t get_conv_function(uint8_t single, uint8_t pad, uint8_t dword, void* outA, void* outB) {
 #if defined(__x86_64__) || defined(_M_X64)
 	if(check_cpu_feat()==0) {
 		fprintf(stderr,"Detected processor with SSSE3 and POPCNT, using optimized extraction routine\n\n");
-		if (pad==1) {
-			if (single == 1) return (conv_function_t) &extract_S_p_sse;
-			else if (outA == NULL) return &extract_B_p_sse;
-			else if (outB == NULL) return &extract_A_p_sse;
-			else return &extract_AB_p_sse;
+		if (dword==0) {
+			if (pad==1) {
+				if (single == 1) return (conv_function_t) &extract_S_p_sse;
+				else if (outA == NULL) return &extract_B_p_sse;
+				else if (outB == NULL) return &extract_A_p_sse;
+				else return &extract_AB_p_sse;
+			}
+			else {
+				if (single == 1) return (conv_function_t) &extract_S_sse;
+				else if (outA == NULL) return &extract_B_sse;
+				else if (outB == NULL) return &extract_A_sse;
+				else return &extract_AB_sse;
+			}
 		}
 		else {
-			if (single == 1) return (conv_function_t) &extract_S_sse;
-			else if (outA == NULL) return &extract_B_sse;
-			else if (outB == NULL) return &extract_A_sse;
-			else return &extract_AB_sse;
+			if (pad==1) {
+				if (outA == NULL) return &extract_B_p_32_sse;
+				else if (outB == NULL) return &extract_A_p_sse;
+				else return &extract_AB_p_sse;
+			}
+			else {
+				if (outA == NULL) return &extract_B_32_sse;
+				else if (outB == NULL) return &extract_A_32_sse;
+				else return &extract_AB_32_sse;
+			}
+			return NULL;
 		}
 	}
 	else {
 		fprintf(stderr,"Detected processor without SSSE3 and POPCNT, using standard extraction routine\n\n");
 #endif
-		if (pad==1) {
-			if (single == 1) return (conv_function_t) &extract_S_p_C;
-			else if (outA == NULL) return &extract_B_p_C;
-			else if (outB == NULL) return &extract_A_p_C;
-			else return &extract_AB_p_C;
+		if (dword==0) { 
+			if (pad==1) {
+				if (single == 1) return (conv_function_t) &extract_S_p_C;
+				else if (outA == NULL) return &extract_B_p_C;
+				else if (outB == NULL) return &extract_A_p_C;
+				else return &extract_AB_p_C;
+			}
+			else {
+				if (single == 1) return (conv_function_t) &extract_S_C;
+				else if (outA == NULL) return &extract_B_C;
+				else if (outB == NULL) return &extract_A_C;
+				else return &extract_AB_C;
+			}
 		}
 		else {
-			if (single == 1) return (conv_function_t) &extract_S_C;
-			else if (outA == NULL) return &extract_B_C;
-			else if (outB == NULL) return &extract_A_C;
-			else return &extract_AB_C;
+			if (pad==1) {
+				if (outA == NULL) return &extract_B_p_32_C;
+				else if (outB == NULL) return &extract_A_p_C;
+				else return &extract_AB_p_C;
+			}
+			else {
+				if (outA == NULL) return &extract_B_32_C;
+				else if (outB == NULL) return &extract_A_32_C;
+				else return &extract_AB_32_C;
+			}
+			return NULL;
 		}
 #if defined(__x86_64__) || defined(_M_X64)
 	}

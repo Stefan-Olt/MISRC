@@ -56,14 +56,16 @@ section .note.GNU-stack noalloc noexec nowrite progbits
 
 section .data
 	ALIGN 16
-	shuf_dat:   db     0,    1,    4,    5,    8,    9,   12,   13,    2,    3,    6,    7,  10,    11,   14,   15
-	shuf_aux0:  db     0,    4,    8,   12, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80
-	shuf_aux1:  db  0x80, 0x80, 0x80, 0x80,    0,    4,    8,   12, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80
-	shuf_auxS:  db     0,    2,    4,    6,    8,   10,   12,   14, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80
-	andmask:    db  0xff, 0x0f, 0xff, 0x0f, 0xff, 0x0f, 0xff, 0x0f, 0xff, 0x0f, 0xff, 0x0f, 0xff, 0x0f, 0xff, 0x0f
-	subval:     dw  2048, 2048, 2048, 2048, 2048, 2048, 2048, 2048
-	clip_maskA: db     1,    1,    1,    1,    1,    1,    1,    1
-	clip_maskB: db     2,    2,    2,    2,    2,    2,    2,    2
+	shuf_dat:   db	 0,	1,	4,	5,	8,	9,   12,   13,	2,	3,	6,	7,  10,	11,   14,   15
+	shuf_aux0:  db	 0,	4,	8,   12, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80
+	shuf_aux1:  db  0x80, 0x80, 0x80, 0x80,	0,	4,	8,   12, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80
+	shuf_auxS:  db	 0,	2,	4,	6,	8,   10,   12,   14, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80
+	andmask:	db  0xff, 0x0f, 0xff, 0x0f, 0xff, 0x0f, 0xff, 0x0f, 0xff, 0x0f, 0xff, 0x0f, 0xff, 0x0f, 0xff, 0x0f
+	andmask32:  db  0xff, 0x0f, 0x00, 0x00, 0xff, 0x0f, 0x00, 0x00, 0xff, 0x0f, 0x00, 0x00, 0xff, 0x0f, 0x00, 0x00
+	subval:	 dw  2048, 2048, 2048, 2048, 2048, 2048, 2048, 2048
+	subval32:   dd  2048, 2048, 2048, 2048
+	clip_maskA: db	 1,	1,	1,	1,	1,	1,	1,	1
+	clip_maskB: db	 2,	2,	2,	2,	2,	2,	2,	2
 
 section .text
 
@@ -108,6 +110,193 @@ loop_AB_0:
 	add in, 32
 	sub len, 8
 	jg loop_AB_0
+	ret
+
+global extract_AB_32_sse
+extract_AB_32_sse:
+	POPARGS
+loop_AB_32_0:
+	movdqa xmm0, [in]
+	movdqa xmm2, xmm0
+	pand xmm2, [andmask32]
+	movdqa xmm5, [subval32]
+	psubd xmm5, xmm2
+	movdqa [outA], xmm5
+	movdqa xmm2, xmm0
+	psrld xmm2, 24
+	movdqa xmm5, [subval32]
+	psubd xmm5, xmm2
+	movdqa [outB], xmm5
+	psrld xmm0, 12
+	pshufb xmm0, [shuf_aux0]
+	movd [aux], xmm0
+	movd eax, xmm0
+	and eax, [clip_maskA]
+	popcnt eax, eax
+	add [clip], eax
+	movd eax, xmm0
+	and eax, [clip_maskB]
+	popcnt eax, eax
+	add [clip+8], eax
+	add aux, 4
+	add outA, 16
+	add outB, 16
+	add in, 16
+	sub len, 4
+	jg loop_AB_32_0
+	ret
+
+global extract_AB_p_32_sse
+extract_AB_p_32_sse:
+	POPARGS
+loop_AB_p_32_0:
+	movdqa xmm0, [in]
+	movdqa xmm2, xmm0
+	pand xmm2, [andmask32]
+	movdqa xmm5, [subval32]
+	psubd xmm5, xmm2
+	pslld xmm5, 4
+	movdqa [outA], xmm5
+	movdqa xmm2, xmm0
+	psrld xmm2, 24
+	movdqa xmm5, [subval32]
+	psubd xmm5, xmm2
+	pslld xmm5, 4
+	movdqa [outB], xmm5
+	psrld xmm0, 12
+	pshufb xmm0, [shuf_aux0]
+	movd [aux], xmm0
+	movd eax, xmm0
+	and eax, [clip_maskA]
+	popcnt eax, eax
+	add [clip], eax
+	movd eax, xmm0
+	and eax, [clip_maskB]
+	popcnt eax, eax
+	add [clip+8], eax
+	add aux, 4
+	add outA, 16
+	add outB, 16
+	add in, 16
+	sub len, 4
+	jg loop_AB_p_32_0
+	ret
+
+global extract_A_32_sse
+extract_A_32_sse:
+	POPARGS
+loop_A_32_0:
+	movdqa xmm0, [in]
+	movdqa xmm2, xmm0
+	pand xmm2, [andmask32]
+	movdqa xmm5, [subval32]
+	psubd xmm5, xmm2
+	movdqa [outA], xmm5
+	psrld xmm0, 12
+	pshufb xmm0, [shuf_aux0]
+	movd [aux], xmm0
+	movd eax, xmm0
+	and eax, [clip_maskA]
+	popcnt eax, eax
+	add [clip], eax
+	movd eax, xmm0
+	and eax, [clip_maskB]
+	popcnt eax, eax
+	add [clip+8], eax
+	add aux, 4
+	add outA, 16
+	add in, 16
+	sub len, 4
+	jg loop_A_32_0
+	ret
+
+global extract_A_p_32_sse
+extract_A_p_32_sse:
+	POPARGS
+loop_A_p_32_0:
+	movdqa xmm0, [in]
+	movdqa xmm2, xmm0
+	pand xmm2, [andmask32]
+	movdqa xmm5, [subval32]
+	psubd xmm5, xmm2
+	pslld xmm5, 4
+	movdqa [outA], xmm5
+	psrld xmm0, 12
+	pshufb xmm0, [shuf_aux0]
+	movd [aux], xmm0
+	movd eax, xmm0
+	and eax, [clip_maskA]
+	popcnt eax, eax
+	add [clip], eax
+	movd eax, xmm0
+	and eax, [clip_maskB]
+	popcnt eax, eax
+	add [clip+8], eax
+	add aux, 4
+	add outA, 16
+	add in, 16
+	sub len, 4
+	jg loop_A_p_32_0
+	ret
+
+global extract_B_32_sse
+extract_B_32_sse:
+	POPARGS
+loop_B_32_0:
+	movdqa xmm0, [in]
+	movdqa xmm2, xmm0
+	psrld xmm2, 24
+	movdqa xmm5, [subval32]
+	psubd xmm5, xmm2
+	movdqa [outB], xmm5
+	psrld xmm0, 12
+	pshufb xmm0, [shuf_aux0]
+	movd [aux], xmm0
+	movd eax, xmm0
+	and eax, [clip_maskA]
+	popcnt eax, eax
+	add [clip], eax
+	movd eax, xmm0
+	and eax, [clip_maskB]
+	popcnt eax, eax
+	add [clip+8], eax
+	add aux, 4
+	add outA, 16
+	add outB, 16
+	add in, 16
+	sub len, 4
+	jg loop_B_32_0
+	ret
+
+global extract_B_p_32_sse
+extract_B_p_32_sse:
+	POPARGS
+	movdqa xmm5, [subval32]
+loop_B_p_32_0:
+	movdqa xmm0, [in]
+	movdqa xmm2, xmm0
+	psrld xmm2, 24
+	movdqa xmm5, [subval32]
+	psubd xmm5, xmm2
+	pslld xmm5, 4
+	movdqa [outB], xmm5
+	psrld xmm0, 12
+	pshufb xmm0, [shuf_aux0]
+	movd [aux], xmm0
+	movd eax, xmm0
+	and eax, [clip_maskA]
+	popcnt eax, eax
+	add [clip], eax
+	movd eax, xmm0
+	and eax, [clip_maskB]
+	popcnt eax, eax
+	add [clip+8], eax
+	add aux, 4
+	add outA, 16
+	add outB, 16
+	add in, 16
+	sub len, 4
+	jg loop_B_p_32_0
 	ret
 
 global extract_A_sse

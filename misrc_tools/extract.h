@@ -16,27 +16,46 @@
 * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef EXTRACT_H
+#define EXTRACT_H
+
 typedef void (*conv_function_t)(uint32_t*,size_t,size_t*,uint8_t*,int16_t*,int16_t*);
 
 #if defined(__x86_64__) || defined(_M_X64)
-void extract_A_sse   (uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB);
-void extract_B_sse   (uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB);
-void extract_AB_sse  (uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB);
-void extract_S_sse   (uint16_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB);
-void extract_A_p_sse (uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB);
-void extract_B_p_sse (uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB);
-void extract_AB_p_sse(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB);
-void extract_S_p_sse (uint16_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB);
+void extract_A_sse      (uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB);
+void extract_B_sse      (uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB);
+void extract_AB_sse     (uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB);
+void extract_S_sse      (uint16_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB);
+void extract_A_p_sse    (uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB);
+void extract_B_p_sse    (uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB);
+void extract_AB_p_sse   (uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB);
+void extract_S_p_sse    (uint16_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB);
+void extract_A_32_sse   (uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB);
+void extract_B_32_sse   (uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB);
+void extract_AB_32_sse  (uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB);
+void extract_A_p_32_sse (uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB);
+void extract_B_p_32_sse (uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB);
+void extract_AB_p_32_sse(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB);
 int check_cpu_feat();
 #endif
 
-void extract_A_C   (uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB);
-void extract_B_C   (uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB);
-void extract_AB_C  (uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB);
-void extract_S_C   (uint16_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB);
-void extract_A_p_C (uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB);
-void extract_B_p_C (uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB);
-void extract_AB_p_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB);
-void extract_S_p_C (uint16_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB);
+void extract_A_C      (uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB);
+void extract_B_C      (uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB);
+void extract_AB_C     (uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB);
+void extract_S_C      (uint16_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB);
+void extract_A_p_C    (uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB);
+void extract_B_p_C    (uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB);
+void extract_AB_p_C   (uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB);
+void extract_S_p_C    (uint16_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB);
+void extract_A_32_C   (uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int32_t *outA, int32_t *outB);
+void extract_B_32_C   (uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int32_t *outA, int32_t *outB);
+void extract_AB_32_C  (uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int32_t *outA, int32_t *outB);
+void extract_S_32_C   (uint16_t *in, size_t len, size_t *clip, uint8_t *aux, int32_t *outA, int32_t *outB);
+void extract_A_p_32_C (uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int32_t *outA, int32_t *outB);
+void extract_B_p_32_C (uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int32_t *outA, int32_t *outB);
+void extract_AB_p_32_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int32_t *outA, int32_t *outB);
+void extract_S_p_32_C (uint16_t *in, size_t len, size_t *clip, uint8_t *aux, int32_t *outA, int32_t *outB);
 
-conv_function_t get_conv_function(uint8_t single, uint8_t pad, void* outA, void* outB);
+conv_function_t get_conv_function(uint8_t single, uint8_t pad, uint8_t dword, void* outA, void* outB);
+
+#endif // EXTRACT_H
