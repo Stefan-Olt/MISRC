@@ -1,19 +1,25 @@
 # MISRC - Multi Input Simultaneous Raw RF Capture
 
-<picture>
-  <source srcset="assets/hardware-images/MISRC-v0.0.5-Transparent-Hand-Soldered.jxl" type="image/jxl" width="600" />
-  <source srcset="assets/hardware-images/MISRC-v0.0.5-Transparent-Hand-Soldered.avif" type="image/avif" width="600" />
-  <img src="assets/hardware-images/MISRC-v0.0.5-Transparent-Hand-Soldered.png" width="600" height="" />
-</picture>
+
+<img src="hardware/images/MIRSC_V1.5_Sony_ILCE-7RM3_2024.06.07_14.30.14.png" width="600" height="">
 
 
 ## Description
 
 
-MISRC is a device to capture two signals at 12-bit and up to 40 MHz (could maybe extended to 80 MHz in future) and additional 6 bits binary (auxillary data) over USB3.
-It is intended to capture modulated tape deck RF for software demodulation, but also CVBS (Composite) video signals for software decoding.
+MISRC is a device to capture two signals at 12-bit and up to 40 MHz (could maybe be extended to 80 MHz in the future) and an additional 8-bit's of binary (auxiliary data) over USB 3.0.
 
-The [VHS-Decode](https://github.com/oyvindln/vhs-decode/), [HiFi-Decode](https://github.com/oyvindln/vhs-decode/wiki/hifi-decode), [CVBS-Decode](https://github.com/oyvindln/vhs-decode/wiki/CVBS-Composite-Decode) projects provides software decoding for many video tape formats, hifi-audio via hifi-decode and RAW CVBS decoding via cvbs-decode
+It is intended to capture modulated tape deck RF for software demodulation, but also baseband CVBS/S-Video (Composite) video signals for software decoding, and can be used as a direct stream Oscilloscope but limited to 2vpp input voltage.
+
+The decode projects:
+
+- [VHS-Decode](https://github.com/oyvindln/vhs-decode/)
+- [HiFi-Decode](https://github.com/oyvindln/vhs-decode/wiki/hifi-decode)
+- [CVBS-Decode](https://github.com/oyvindln/vhs-decode/wiki/CVBS-Composite-Decode) 
+
+Provide decoding for a wide range of videotape formats, HiFi audio and even RAW or Baseband composite decoding with free and powerful software time base correction with full post filtering control over the signal processing.
+
+-----------
 
 Possible capture examples:
 
@@ -21,14 +27,16 @@ Possible capture examples:
 - Capture 1x S-Video (Y & C)
 - Capture Video RF and HiFi RF simultaneously
 - Capture Video RF and CVBS simultaneously
+- Capture 4ch of 24-bit 48khz audio with AUX pins via integrated or external ADCs
 
-It may be useful for other purposes as well, as it is built as a generic ADC with configerable filtering.
+> [!NOTE]
+> It may be useful for other purposes as well, as it is built as a generic ADC with configurable filtering.
 
 
 ## Features
 
 
-- Two 12-bit ADCs
+- Two 12-bit 40msps ADCs 
 - Selectable input gain (8 steps)
 - Selectable ADC range (1V or 2V)
 - Selectable input impedance (75, 50, 37.5 and 30 ohms)
@@ -36,101 +44,179 @@ It may be useful for other purposes as well, as it is built as a generic ADC wit
 - Zero-adjust to compensate DC offset
 - Latching clipping indicator
 - Clock source selectable: USB PLL, crystal or external
-- Output clock to external device
+  Clock output SMA for external devices
 - Melted PCB Traces
+
 
 ## Costs
 
 
-PCB: 20-30USD
-Parts 100-120USD
+- PCB: 20-30USD
 
-(Exact prices and Gerbers/BOM comming soon) 
-
-
-## Capture process
-
-
-
-Capturing can be done using the [Sigrok-cli](https://sigrok.org/wiki/Downloads#Binaries_and_distribution_packages) application using the following command:
-
-
-    sigrok-cli --driver cypress-fx3 --output-format binary --config samplerate=40m --continuous --output-file MISRC_Capture.bin
-
-
-Note that `sigrok-cli` will most likely terminate on the first call with the message that no device was found (it seems it does not rescan the USB bus after the firmware is being uploaded), the second time it should work fine.
-
-The output `MISRC_Capture.bin` file will contain all data interleaved, you have to use the [extraction tool](https://github.com/Stefan-Olt/MISRC/tree/main/misrc_extract) to extract one or both channels and the aux data to seprate files.
-
-
-## User Guide
-
-Step-by-step 
-
-* Connect the device with a high-quality USB 3.0 Type-B to A or C cable to your PC. 
-
-NOTE: NEVER use USB for any other heavy-load task (like external HDD/SSD drives, USB network adapters, YUV capture devices) during capture. Do not connect/disconnect any other USB device during capture.
-
-* Connect the desired sources to the BNC inputs and select suitable impedance and coupling
-
-* Start the capturing process for setting the gain:
-    * Reset clipping LEDs (always on after start)
-    * Increase gain during capture until clipping LED lights up
-    * Decrease gain one step and reset clipping LED
-    * Repeat for second channel if in use
-
-* Stop capture and verify levels are acceptable in a audio editor (for example Audacity)
-
-* Start capture.
-
-
-## Design
-
-
-MISRC is loosly based on the [Domesday Duplicator (DdD)](https://github.com/simoninns/DomesdayDuplicator). Like the DdD it uses the Cypress FX3 SuperSpeed Explorer board, but does not require a FPGA board.
-It is build around the AD9235 analog-digital converter by Analog Devices and is heavily based on the evaluation board circuit given in its datasheet.  
+- Parts 100-150USD
 
 
 ## Hardware 
 
 
-- Offshelf FX3 USB 3.0 board (same as DdD)
 - External Clock Source Output
 - 6 Extra Aux inputs for audio ADC modules etc
-- Duel ADC / Dual Input (BNC Connectors)
+- Duel ADC / Duel Input (BNC Connectors)
 - Physically adjustable input filters
 - 12-Bit, 20/40/65msps sampling
-- AD8138 Driver, Op-Amp / SN74ls541 Buffer / AD9235 ADC
+- [AD8138](https://www.analog.com/media/en/technical-documentation/data-sheets/ad8138.pdf) Driver, Op-Amp / [SN74ls541](https://www.ti.com/lit/ds/symlink/sn74ls540.pdf) Buffer / [AD9235](https://www.analog.com/media/en/technical-documentation/data-sheets/AD9235.pdf) ADC
+
+-----
+
+- [Tang Nano 20k](https://s.click.aliexpress.com/e/_DcwBOX3) - buffer / data output over HDMI
+- [MS2130](https://s.click.aliexpress.com/e/_DBaBiOp) - HDMI data stream capture
 
 
-## Firmware
+## Software Setup 
 
 
-MISRC uses a (modified) firmware for the FX3 provided by Infineon (Cypress) in the [Infineon Developer Community](https://community.infineon.com/t5/USB-superspeed-peripherals/EZ-USB-FX3-Explorer-kit-as-16-channel-logic-analyzers-gt-dropped-samples-after/m-p/635325/) 
-Modifications:
-* Change bus width in GPIF II Designer to 32 bit instead of 16 bit
-* Change the top value of the counter variable from 8191 to 4095 in the state machine diagram
-* Select external clock source (only for building a firmware to use external clock/oscillator)
+There are 2 tools currently and a few dependencies required to deploy a MISRC.
+
+- MISRC Capture
+- MISRC Extract
+
+<details closed>
+
+<summary>Software Install Guide</summary>
+<br>
+
+Depedencys 
+
+- `apt install libflac-dev`
+
+Install [hsdaoh](https://github.com/Stefan-Olt/hsdaoh) this allows you to use the MS2130 & MS2131 chips directly. 
+
+Restart and then continue
+
+Install capture & extract tools (Linux & MacOS)
+
+    git clone https://github.com/Stefan-Olt/MISRC.git
+
+Enter Directory
+
+    cd MISRC/misrc_tools
+
+Build and install 
+
+```
+mkdir build
+cd build
+cmake ..
+make
+sudo make install
+```
+
+Run `mirsc_extract` or `misrc_capture` in any directory without arguments to trigger the help menu.
+
+There is a dedicated [sub-readme](/misrc_tools/README.md) for these tools.
 
 
-### Getting the firmware
+</details>
 
 
-It is unclear if the modified source and/or binary can be provided here, for now you have to register at Infineon, download and install the [EZ-USB FX3 SDK](https://www.infineon.com/cms/de/design-support/tools/sdk/usb-controllers-sdk/ez-usb-fx3-software-development-kit/), and download, modify and build the source to get the firmware.
+# Firmware Flashing 
 
 
-## Sigrok
+Originally the MISRC was based around the FX3 interface for a USB 3.0 connection, and using Sigronk for capture, this did not work perfectly.
+
+So today we are now using the more affordable [Tang Nano 20k](https://s.click.aliexpress.com/e/_DcwBOX3) sending the data over HDMI this only needs to be flashed once via usb connection and we have pre-compiled firmware see [releases](https://github.com/Stefan-Olt/MISRC/releases) for the latest version.
+
+Install [openFPGALoader](https://github.com/trabucayre/openFPGALoader)
+
+Connect your Tang to a USB 3.0 port via its Type-C, it will need this for 5V power after flashing, but not data.
+
+Run via terminal inside the firmware directory
+
+    openFPGALoader -b tangnano20k hsdaoh_nano20k_misrc.fs
+
+You have flashed your Tang Nano 20k! 
 
 
-As MISRC uses a (modified) firmware provided by Infineon to work with [sigrok](https://sigrok.org/) (PulseView), the sigrok-cli interface available for many platforms is used to capture.
+## Capture
 
-Unfortunately because of the unclear firmware license, the sigrok project has not (yet?) merged the [pull request to add Cypress FX3 support](https://github.com/sigrokproject/libsigrok/pull/148/).
-You have to apply this patch and build sigrok for your platform.
 
-Note: The other, completly free, open-source firmware projects mentioned in the pull request do not support USB3 correctly yet, making them unuseable for MISRC.
+> [!CAUTION]
+> NEVER use USB for any other heavy-load task (like external HDD/SSD drives, USB network adapters, YUV capture devices) during capture. Do not connect/disconnect any other USB device during capture, a dedicated USB 3.0 to 3.2 Gen 2 card is ideal for dedicated capture stations as it ensures dedicated bandwidth/power if you have other items that require USB.
+
+
+- Connect the desired sources to the BNC inputs and select suitable impedance and coupling
+
+- Start the capturing process for setting the gain:
+    - Reset clipping LEDs (always on after start)
+    - Increase gain during capture until clipping LED lights up
+    - Decrease gain one step and reset clipping LED
+    - Repeat for the second channel if in use
+
+- Stop capture and verify levels are acceptable in an audio editor (Audacity/Audition etc)
+
+- Start capture.
+
+- Stop capture.
+
+---------
+
+`misrc_capture` is a simple program to capture from MISRC using [hsdaoh](https://github.com/Stefan-Olt/hsdaoh) to which levrages data capture over HDMI with [MS2130](https://s.click.aliexpress.com/e/_DBaBiOp) "U3" cheep HDMI capture cards that have YUV support. 
+
+Create a folder which you wish to capture inside, open it inside terminal and then run `misrc_capture`
+
+Example RAW:
+
+    misrc_capture -a video_rf.s16 -b hifi_rf.s16
+
+Example with FLAC compression:
+    
+    misrc_capture -f -a video_rf.flac -b hifi_rf.flac 
+
+You can also define its directory path of each RF stream manually: 
+
+    misrc_capture -f -a /mnt/my_video_storrage/video_rf.flac -b ../../this/is/a/relative/path/hifi_rf.flac
+
+<details closed>
+
+<summary>Usage Arguments:</summary>
+<br>
+
+
+`-d` device_index (default: 0)
+
+`-n` number of samples to read (default: 0, infinite)
+
+`-a` ADC A output file (use '-' to write on stdout)
+
+`-b` ADC B output file (use '-' to write on stdout)
+
+`-x` AUX output file (use '-' to write on stdout)
+
+`-r` raw data output file (use '-' to write on stdout)
+
+`-p` pad lower 4 bits of 16 bit output with 0 instead of upper 4
+
+`-f` compress ADC output as FLAC
+	
+`-l` LEVEL set flac compression level (default: 1)
+
+`-v` enable verification of flac encoder output
+
+</details>
+
+
+## Design
+
+
+MISRC is loosely based on the [Domesday Duplicator (DdD)](https://github.com/simoninns/DomesdayDuplicator). 
+
+Like the DdD it originally used the Cypress FX3 SuperSpeed Explorer board, with hopes to not use the DE0 FPGA. 
+
+It is built around the AD9235 analogue to digital converter by Analog Devices and is heavily based on the evaluation board circuit given in its datasheet with the AD8138 Op-Amp providing adjustable fixed gain.
+
 
 
 ## License
 
 
-You can read the [Licence here](https://github.com/Stefan-Olt/MISRC/wiki/Licence).
+You can read the [License here](https://github.com/Stefan-Olt/MISRC/wiki/Licence).
