@@ -48,6 +48,7 @@
 #include <hsdaoh.h>
 
 #if LIBFLAC_ENABLED == 1
+#include "FLAC/metadata.h"
 #include "FLAC/stream_encoder.h"
 #define GETOPT_STRING "d:a:b:fl:vx:r:ph"
 #else
@@ -180,6 +181,7 @@ int flac_file_writer(void *ctx)
 	FLAC__bool ok = true;
 	FLAC__StreamEncoder *encoder = NULL;
 	FLAC__StreamEncoderInitStatus init_status;
+	FLAC__StreamMetadata *seektable;
 
 	if((encoder = FLAC__stream_encoder_new()) == NULL) {
 		fprintf(stderr, "ERROR: failed allocating FLAC encoder\n");
@@ -195,6 +197,14 @@ int flac_file_writer(void *ctx)
 
 	if(!ok) {
 		fprintf(stderr, "ERROR: failed initializing FLAC encoder\n");
+		do_exit = 1;
+		return 0;
+	}
+	
+	if((seektable = FLAC__metadata_object_new(FLAC__METADATA_TYPE_SEEKTABLE)) == NULL
+		|| FLAC__metadata_object_seektable_template_append_spaced_points(seektable, 1<<18, (uint64_t)1<<41) != true
+		|| FLAC__stream_encoder_set_metadata(encoder, &seektable, 1) != true) {
+		fprintf(stderr, "ERROR: could not create FLAC seektable\n");
 		do_exit = 1;
 		return 0;
 	}
@@ -226,11 +236,18 @@ int flac_file_writer(void *ctx)
 		if(!ok) fprintf(stderr, "ERROR: (%p) FLAC encoder could not process data: %s\n", file_ctx->f, FLAC__StreamEncoderStateString[FLAC__stream_encoder_get_state(encoder)]);
 		rb_read_finished(&file_ctx->rb, len);
 	}
+	FLAC__metadata_object_seektable_template_sort(seektable, false);
+	/* bug in libflac, fix seektable manually */
+	for(int i = seektable->data.seek_table.num_points-1; i>=0; i--) {
+		if (seektable->data.seek_table.points[i].stream_offset != 0) break;
+		seektable->data.seek_table.points[i].sample_number = 0xFFFFFFFFFFFFFFFF;
+	}
 	ok = FLAC__stream_encoder_finish(encoder);
 	if(!ok) {
 		fprintf(stderr, "ERROR: FLAC encoder did not finish correctly: %s\n", FLAC__StreamEncoderStateString[FLAC__stream_encoder_get_state(encoder)]);
 		return 0;
 	}
+	FLAC__metadata_object_delete(seektable);
 	FLAC__stream_encoder_delete(encoder);
 	return 0;
 }
@@ -275,6 +292,7 @@ int main(int argc, char **argv)
 	//buffer
 	uint8_t  *buf_aux = aligned_alloc(16,sizeof(uint8_t) *BUFFER_READ_SIZE);
 
+	uint64_t total_samples = 0;
 
 	//clipping state
 	size_t clip[2] = {0, 0};
@@ -436,6 +454,8 @@ int main(int argc, char **argv)
 		if(output_names[0] != NULL) rb_write_finished(&thread_out_ctx[0].rb, BUFFER_READ_SIZE*out_size);
 		if(output_names[1] != NULL) rb_write_finished(&thread_out_ctx[1].rb, BUFFER_READ_SIZE*out_size);
 
+		total_samples += BUFFER_READ_SIZE;
+
 		if(clip[0] > 0)
 		{
 			fprintf(stderr,"ADC A : %ld samples clipped\n",clip[0]);
@@ -446,6 +466,10 @@ int main(int argc, char **argv)
 		{
 			fprintf(stderr,"ADC B : %ld samples clipped\n",clip[1]);
 			clip[1] = 0; 
+		}
+		if (total_samples % (BUFFER_READ_SIZE<<2) == 0) {
+			printf("\033[A\33[2K\r Progress: %13lu samples, %2uh %2um %2us\n", total_samples, (uint32_t)(total_samples/(144000000000)), (uint32_t)((total_samples/(2400000000)) % 60), (uint32_t)((total_samples/(40000000)) % 60));
+			fflush(stdout);
 		}
 	}
 
