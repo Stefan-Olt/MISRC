@@ -1,7 +1,7 @@
 # MISRC - Multi Input Simultaneous Raw RF Capture
 
 
-<img src="hardware/images/MIRSC_V1.5_Sony_ILCE-7RM3_2024.06.07_14.30.14.png" width="600" height="">
+<img src="assets/hardware-images/MIRSC_V1.5_Sony_ILCE-7RM3_2024.06.07_14.30.14.png" width="600" height="">
 
 
 ## Description
