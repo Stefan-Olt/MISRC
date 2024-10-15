@@ -184,27 +184,27 @@ conv_function_t get_conv_function(uint8_t single, uint8_t pad, uint8_t dword, vo
 		if (dword==0) {
 			if (pad==1) {
 				if (single == 1) return (conv_function_t) &extract_S_p_sse;
-				else if (outA == NULL) return &extract_B_p_sse;
-				else if (outB == NULL) return &extract_A_p_sse;
-				else return &extract_AB_p_sse;
+				else if (outA == NULL) return (conv_function_t) &extract_B_p_sse;
+				else if (outB == NULL) return (conv_function_t) &extract_A_p_sse;
+				else return (conv_function_t) &extract_AB_p_sse;
 			}
 			else {
 				if (single == 1) return (conv_function_t) &extract_S_sse;
-				else if (outA == NULL) return &extract_B_sse;
-				else if (outB == NULL) return &extract_A_sse;
-				else return &extract_AB_sse;
+				else if (outA == NULL) return (conv_function_t) &extract_B_sse;
+				else if (outB == NULL) return (conv_function_t) &extract_A_sse;
+				else return (conv_function_t) &extract_AB_sse;
 			}
 		}
 		else {
 			if (pad==1) {
-				if (outA == NULL) return &extract_B_p_32_sse;
-				else if (outB == NULL) return &extract_A_p_sse;
-				else return &extract_AB_p_sse;
+				if (outA == NULL) return (conv_function_t) &extract_B_p_32_sse;
+				else if (outB == NULL) return (conv_function_t) &extract_A_p_sse;
+				else return (conv_function_t) &extract_AB_p_sse;
 			}
 			else {
-				if (outA == NULL) return &extract_B_32_sse;
-				else if (outB == NULL) return &extract_A_32_sse;
-				else return &extract_AB_32_sse;
+				if (outA == NULL) return (conv_function_t) &extract_B_32_sse;
+				else if (outB == NULL) return (conv_function_t) &extract_A_32_sse;
+				else return (conv_function_t) &extract_AB_32_sse;
 			}
 			return NULL;
 		}
@@ -215,27 +215,27 @@ conv_function_t get_conv_function(uint8_t single, uint8_t pad, uint8_t dword, vo
 		if (dword==0) { 
 			if (pad==1) {
 				if (single == 1) return (conv_function_t) &extract_S_p_C;
-				else if (outA == NULL) return &extract_B_p_C;
-				else if (outB == NULL) return &extract_A_p_C;
-				else return &extract_AB_p_C;
+				else if (outA == NULL) return (conv_function_t) &extract_B_p_C;
+				else if (outB == NULL) return (conv_function_t) &extract_A_p_C;
+				else return (conv_function_t) &extract_AB_p_C;
 			}
 			else {
 				if (single == 1) return (conv_function_t) &extract_S_C;
-				else if (outA == NULL) return &extract_B_C;
-				else if (outB == NULL) return &extract_A_C;
-				else return &extract_AB_C;
+				else if (outA == NULL) return (conv_function_t) &extract_B_C;
+				else if (outB == NULL) return (conv_function_t) &extract_A_C;
+				else return (conv_function_t) &extract_AB_C;
 			}
 		}
 		else {
 			if (pad==1) {
-				if (outA == NULL) return &extract_B_p_32_C;
-				else if (outB == NULL) return &extract_A_p_C;
-				else return &extract_AB_p_C;
+				if (outA == NULL) return (conv_function_t) &extract_B_p_32_C;
+				else if (outB == NULL) return (conv_function_t) &extract_A_p_C;
+				else return (conv_function_t) &extract_AB_p_C;
 			}
 			else {
-				if (outA == NULL) return &extract_B_32_C;
-				else if (outB == NULL) return &extract_A_32_C;
-				else return &extract_AB_32_C;
+				if (outA == NULL) return (conv_function_t) &extract_B_32_C;
+				else if (outB == NULL) return (conv_function_t) &extract_A_32_C;
+				else return (conv_function_t) &extract_AB_32_C;
 			}
 			return NULL;
 		}

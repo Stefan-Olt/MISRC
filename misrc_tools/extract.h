@@ -19,7 +19,7 @@
 #ifndef EXTRACT_H
 #define EXTRACT_H
 
-typedef void (*conv_function_t)(uint32_t*,size_t,size_t*,uint8_t*,int16_t*,int16_t*);
+typedef void (*conv_function_t)(void*,size_t,size_t*,uint8_t*,void*,void*);
 
 #if defined(__x86_64__) || defined(_M_X64)
 void extract_A_sse      (uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB);
@@ -30,12 +30,12 @@ void extract_A_p_sse    (uint32_t *in, size_t len, size_t *clip, uint8_t *aux, i
 void extract_B_p_sse    (uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB);
 void extract_AB_p_sse   (uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB);
 void extract_S_p_sse    (uint16_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB);
-void extract_A_32_sse   (uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB);
-void extract_B_32_sse   (uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB);
-void extract_AB_32_sse  (uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB);
-void extract_A_p_32_sse (uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB);
-void extract_B_p_32_sse (uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB);
-void extract_AB_p_32_sse(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB);
+void extract_A_32_sse   (uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int32_t *outA, int32_t *outB);
+void extract_B_32_sse   (uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int32_t *outA, int32_t *outB);
+void extract_AB_32_sse  (uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int32_t *outA, int32_t *outB);
+void extract_A_p_32_sse (uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int32_t *outA, int32_t *outB);
+void extract_B_p_32_sse (uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int32_t *outA, int32_t *outB);
+void extract_AB_p_32_sse(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int32_t *outA, int32_t *outB);
 int check_cpu_feat();
 #endif
 
