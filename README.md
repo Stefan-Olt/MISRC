@@ -134,7 +134,7 @@ Connect your Tang to a USB 3.0 port via its Type-C, it will need this for 5V pow
 
 Run via terminal inside the firmware directory
 
-    openFPGALoader -b tangnano20k hsdaoh_nano20k_misrc.fs
+    openFPGALoader -b tangnano20k -f hsdaoh_nano20k_misrc.fs
 
 You have flashed your Tang Nano 20k! 
 
