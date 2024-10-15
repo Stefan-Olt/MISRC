@@ -40,16 +40,16 @@ A simple program to capture from MISRC using hsdaoh
 
 Usage:
 
-`-d` device_index (default: 0)
-`-n` number of samples to read (default: 0, infinite)
-`-a` ADC A output file (use '-' to write on stdout)
-`-b` ADC B output file (use '-' to write on stdout)
-`-x` AUX output file (use '-' to write on stdout)
-`-r` raw data output file (use '-' to write on stdout)
-`-p` pad lower 4 bits of 16 bit output with 0 instead of upper 4
-`-f` compress ADC output as FLAC
-`-l` LEVEL set flac compression level (default: 1)
-`-v` enable verification of flac encoder output
+`-d` device_index (default: 0)  
+`-n` number of samples to read (default: 0, infinite)  
+`-a` ADC A output file (use '-' to write on stdout)  
+`-b` ADC B output file (use '-' to write on stdout)  
+`-x` AUX output file (use '-' to write on stdout)  
+`-r` raw data output file (use '-' to write on stdout)  
+`-p` pad lower 4 bits of 16 bit output with 0 instead of upper 4  
+`-f` compress ADC output as FLAC  
+`-l` LEVEL set flac compression level (default: 1)  
+`-v` enable verification of flac encoder output  
 
 
 ## Extract
@@ -58,12 +58,12 @@ A simple program for extracting captured data into separate files
 
 Usage:
 
-`-i` Input file (use '-' to read from stdin)
-`-a` ADC A output file (use '-' to write on stdout)
-`-b` ADC B output file (use '-' to write on stdout)
-`-x` AUX output file (use '-' to write on stdout)
-`-p` pad lower 4 bits of 16 bit output with 0 instead of upper 4
-`-s` input is captured as single channel (-b cannot be used)
+`-i` Input file (use '-' to read from stdin)  
+`-a` ADC A output file (use '-' to write on stdout)  
+`-b` ADC B output file (use '-' to write on stdout)  
+`-x` AUX output file (use '-' to write on stdout)  
+`-p` pad lower 4 bits of 16 bit output with 0 instead of upper 4  
+`-s` input is captured as single channel (-b cannot be used)  
 
 
 ## Version History
