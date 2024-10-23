@@ -141,6 +141,7 @@ static void hsdaoh_callback(unsigned char *buf, uint32_t len, uint8_t pack_state
 			hsdaoh_stop_stream(dev);
 		}
 		while(rb_put(&cap_ctx->rb,buf,len&(~0x3))) {
+			if (do_exit) return;
 			fprintf(stderr,"Cannot write frame to buffer\n");
 			usleep(4000);
 		}
@@ -273,6 +274,11 @@ int main(int argc, char **argv)
 	capture_ctx_t cap_ctx;
 	memset(&cap_ctx,0,sizeof(cap_ctx));
 
+	// device names
+	char dev_manufact[256];
+	char dev_product[256];
+	char dev_serial[256];
+
 	//output threads
 	// out 1, 2
 	thrd_t thread_out[2] = { 0, 0 };
@@ -281,7 +287,7 @@ int main(int argc, char **argv)
 
 	//file adress
 	// out 1, 2
-	char *output_names[3] = { NULL, NULL };
+	char *output_names[2] = { NULL, NULL };
 	char *output_name_aux = NULL;
 	char *output_name_raw = NULL;
 
@@ -427,6 +433,15 @@ int main(int argc, char **argv)
 
 	rb_init(&cap_ctx.rb,"capture_ringbuffer",BUFFER_TOTAL_SIZE);
 
+/* *** No yet implemented in hsdaoh ***
+	hsdaoh_get_device_usb_strings((uint32_t)dev_index, dev_manufact, dev_product, dev_serial);
+	if (r < 0) {
+		fprintf(stderr, "Failed to identify hsdaoh device #%d.\n", dev_index);
+		exit(1);
+	}
+
+	fprintf(stderr, "Will open device #%d: %s %s, serial: %s\n", dev_index, dev_manufact, dev_product, dev_serial);*/
+
 	r = hsdaoh_open(&dev, (uint32_t)dev_index);
 	if (r < 0) {
 		fprintf(stderr, "Failed to open hsdaoh device #%d.\n", dev_index);
@@ -440,8 +455,8 @@ int main(int argc, char **argv)
 	while (!do_exit) {
 		void *buf, *buf_out1, *buf_out2;
 		while((((buf = rb_read_ptr(&cap_ctx.rb, BUFFER_READ_SIZE*4)) == NULL) || 
-			  (output_names[0] == NULL || ((buf_out1 = rb_write_ptr(&thread_out_ctx[0].rb, BUFFER_READ_SIZE*out_size)) == NULL)) ||
-			  (output_names[1] == NULL || ((buf_out2 = rb_write_ptr(&thread_out_ctx[1].rb, BUFFER_READ_SIZE*out_size)) == NULL))) && 
+			  (output_names[0] != NULL && ((buf_out1 = rb_write_ptr(&thread_out_ctx[0].rb, BUFFER_READ_SIZE*out_size)) == NULL)) ||
+			  (output_names[1] != NULL && ((buf_out2 = rb_write_ptr(&thread_out_ctx[1].rb, BUFFER_READ_SIZE*out_size)) == NULL))) && 
 			  !do_exit)
 		{
 			usleep(10000);
