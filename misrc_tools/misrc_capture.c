@@ -29,7 +29,11 @@
 #include <math.h>
 #include <stdint.h>
 #include <stdbool.h>
+#if __STDC_NO_THREADS__
+#include "cthreads.h"
+#else
 #include <threads.h>
+#endif
 #include <time.h>
 
 #ifndef _WIN32
@@ -335,7 +339,7 @@ int main(int argc, char **argv)
 			break;
 #endif
 		case 'x':
-			output_names[2] = optarg;
+			output_name_aux = optarg;
 			break;
 		case 'r':
 			output_name_raw = optarg;
