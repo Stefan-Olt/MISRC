@@ -169,7 +169,6 @@ int raw_file_writer(void *ctx)
 		}
 		if (do_exit) {
 			len = file_ctx->rb.tail - file_ctx->rb.head;
-			fprintf(stderr, "thread exit, left %lu bytes", len);
 			if (len == 0) break;
 			buf = rb_read_ptr(&file_ctx->rb, len);
 		}
@@ -366,7 +365,7 @@ int main(int argc, char **argv)
 		}
 	}
 
-	if(output_names[0] == NULL && output_names[0] == NULL && output_name_aux == NULL && output_name_raw == NULL)
+	if(output_names[0] == NULL && output_names[1] == NULL && output_name_aux == NULL && output_name_raw == NULL)
 	{
 		usage();
 	}
@@ -409,7 +408,6 @@ int main(int argc, char **argv)
 			}
 		}
 	}
-
 
 	if(output_name_aux != NULL)
 	{
