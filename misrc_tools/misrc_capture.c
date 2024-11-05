@@ -29,7 +29,12 @@
 #include <math.h>
 #include <stdint.h>
 #include <stdbool.h>
+#if __STDC_NO_THREADS__
+#include "cthreads.h"
+#warning "No C threads, fallback to pthreads"
+#else
 #include <threads.h>
+#endif
 #include <time.h>
 
 #ifndef _WIN32
@@ -83,6 +88,7 @@ typedef struct {
 
 
 static int do_exit;
+static int new_line = 1;
 static hsdaoh_dev_t *dev = NULL;
 
 void usage(void)
@@ -141,7 +147,9 @@ static void hsdaoh_callback(unsigned char *buf, uint32_t len, uint8_t pack_state
 			hsdaoh_stop_stream(dev);
 		}
 		while(rb_put(&cap_ctx->rb,buf,len&(~0x3))) {
+			if (do_exit) return;
 			fprintf(stderr,"Cannot write frame to buffer\n");
+			new_line = 1;
 			usleep(4000);
 		}
 		if (cap_ctx->samples_to_read > 0)
@@ -161,7 +169,6 @@ int raw_file_writer(void *ctx)
 		}
 		if (do_exit) {
 			len = file_ctx->rb.tail - file_ctx->rb.head;
-			fprintf(stderr, "thread exit, left %lu bytes", len);
 			if (len == 0) break;
 			buf = rb_read_ptr(&file_ctx->rb, len);
 		}
@@ -233,7 +240,10 @@ int flac_file_writer(void *ctx)
 		}
 		if(x>0 || y>0) fprintf(stderr, "(%p) Out-of-range samples, below: %i above: %i\n", file_ctx->f, y, x); */
 		ok = FLAC__stream_encoder_process_interleaved(encoder, buf, len>>2);
-		if(!ok) fprintf(stderr, "ERROR: (%p) FLAC encoder could not process data: %s\n", file_ctx->f, FLAC__StreamEncoderStateString[FLAC__stream_encoder_get_state(encoder)]);
+		if(!ok) {
+			fprintf(stderr, "ERROR: (%p) FLAC encoder could not process data: %s\n", file_ctx->f, FLAC__StreamEncoderStateString[FLAC__stream_encoder_get_state(encoder)]);
+			new_line = 1;
+		}
 		rb_read_finished(&file_ctx->rb, len);
 	}
 	FLAC__metadata_object_seektable_template_sort(seektable, false);
@@ -245,6 +255,7 @@ int flac_file_writer(void *ctx)
 	ok = FLAC__stream_encoder_finish(encoder);
 	if(!ok) {
 		fprintf(stderr, "ERROR: FLAC encoder did not finish correctly: %s\n", FLAC__StreamEncoderStateString[FLAC__stream_encoder_get_state(encoder)]);
+		new_line = 1;
 		return 0;
 	}
 	FLAC__metadata_object_delete(seektable);
@@ -253,6 +264,11 @@ int flac_file_writer(void *ctx)
 }
 #endif
 
+void print_hsdaoh_message(int msg_type, int msg, void *additional, void *ctx)
+{
+	hsdaoh_get_message_string(msg_type, msg, additional, NULL);
+	new_line = 1;
+}
 
 int main(int argc, char **argv)
 {
@@ -273,6 +289,11 @@ int main(int argc, char **argv)
 	capture_ctx_t cap_ctx;
 	memset(&cap_ctx,0,sizeof(cap_ctx));
 
+	// device names
+	char dev_manufact[256];
+	char dev_product[256];
+	char dev_serial[256];
+
 	//output threads
 	// out 1, 2
 	thrd_t thread_out[2] = { 0, 0 };
@@ -281,7 +302,7 @@ int main(int argc, char **argv)
 
 	//file adress
 	// out 1, 2
-	char *output_names[3] = { NULL, NULL };
+	char *output_names[2] = { NULL, NULL };
 	char *output_name_aux = NULL;
 	char *output_name_raw = NULL;
 
@@ -329,7 +350,7 @@ int main(int argc, char **argv)
 			break;
 #endif
 		case 'x':
-			output_names[2] = optarg;
+			output_name_aux = optarg;
 			break;
 		case 'r':
 			output_name_raw = optarg;
@@ -344,7 +365,7 @@ int main(int argc, char **argv)
 		}
 	}
 
-	if(output_names[0] == NULL && output_names[0] == NULL && output_name_aux == NULL && output_name_raw == NULL)
+	if(output_names[0] == NULL && output_names[1] == NULL && output_name_aux == NULL && output_name_raw == NULL)
 	{
 		usage();
 	}
@@ -388,7 +409,6 @@ int main(int argc, char **argv)
 		}
 	}
 
-
 	if(output_name_aux != NULL)
 	{
 		//opening output file aux
@@ -427,21 +447,29 @@ int main(int argc, char **argv)
 
 	rb_init(&cap_ctx.rb,"capture_ringbuffer",BUFFER_TOTAL_SIZE);
 
-	r = hsdaoh_open(&dev, (uint32_t)dev_index);
+	r = hsdaoh_open_msg_cb(&dev, (uint32_t)dev_index, &print_hsdaoh_message, NULL);
 	if (r < 0) {
 		fprintf(stderr, "Failed to open hsdaoh device #%d.\n", dev_index);
 		exit(1);
 	}
 
+	dev_manufact[0] = 0;
+	dev_product[0] = 0;
+	dev_serial[0] = 0;
+	r = hsdaoh_get_usb_strings(dev, dev_manufact, dev_product, dev_serial);
+	if (r < 0)
+		fprintf(stderr, "Failed to identify hsdaoh device #%d.\n", dev_index);
+	else
+		fprintf(stderr, "Opened device #%d: %s %s, serial: %s\n", dev_index, dev_manufact, dev_product, dev_serial);
+
 	fprintf(stderr, "Reading samples...\n");
 	r = hsdaoh_start_stream(dev, hsdaoh_callback, &cap_ctx);
-
 
 	while (!do_exit) {
 		void *buf, *buf_out1, *buf_out2;
 		while((((buf = rb_read_ptr(&cap_ctx.rb, BUFFER_READ_SIZE*4)) == NULL) || 
-			  (output_names[0] == NULL || ((buf_out1 = rb_write_ptr(&thread_out_ctx[0].rb, BUFFER_READ_SIZE*out_size)) == NULL)) ||
-			  (output_names[1] == NULL || ((buf_out2 = rb_write_ptr(&thread_out_ctx[1].rb, BUFFER_READ_SIZE*out_size)) == NULL))) && 
+			  (output_names[0] != NULL && ((buf_out1 = rb_write_ptr(&thread_out_ctx[0].rb, BUFFER_READ_SIZE*out_size)) == NULL)) ||
+			  (output_names[1] != NULL && ((buf_out2 = rb_write_ptr(&thread_out_ctx[1].rb, BUFFER_READ_SIZE*out_size)) == NULL))) && 
 			  !do_exit)
 		{
 			usleep(10000);
@@ -459,16 +487,20 @@ int main(int argc, char **argv)
 		if(clip[0] > 0)
 		{
 			fprintf(stderr,"ADC A : %ld samples clipped\n",clip[0]);
-			clip[0] = 0; 
+			clip[0] = 0;
+			new_line = 1;
 		}
 
 		if(clip[1] > 0)
 		{
 			fprintf(stderr,"ADC B : %ld samples clipped\n",clip[1]);
-			clip[1] = 0; 
+			clip[1] = 0;
+			new_line = 1;
 		}
 		if (total_samples % (BUFFER_READ_SIZE<<2) == 0) {
-			printf("\033[A\33[2K\r Progress: %13lu samples, %2uh %2um %2us\n", total_samples, (uint32_t)(total_samples/(144000000000)), (uint32_t)((total_samples/(2400000000)) % 60), (uint32_t)((total_samples/(40000000)) % 60));
+			if(new_line) fprintf(stderr,"\n");
+			new_line = 0;
+			fprintf(stderr,"\033[A\33[2K\r Progress: %13lu samples, %2uh %2um %2us\n", total_samples, (uint32_t)(total_samples/(144000000000)), (uint32_t)((total_samples/(2400000000)) % 60), (uint32_t)((total_samples/(40000000)) % 60));
 			fflush(stdout);
 		}
 	}
@@ -488,8 +520,10 @@ int main(int argc, char **argv)
 	if (output_raw && (output_raw != stdout)) fclose(output_raw);
 
 	for(int i=0;i<2;i++) {
-		r = thrd_join(thread_out[i], NULL);
-		if (r != thrd_success) fprintf(stderr, "Failed to join thread %d.\n", i);
+		if (thread_out[i]!=0) {
+			r = thrd_join(thread_out[i], NULL);
+			if (r != thrd_success) fprintf(stderr, "Failed to join thread %d.\n", i);
+		}
 	}
 
 	return 0;

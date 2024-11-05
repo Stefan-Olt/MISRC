@@ -21,22 +21,14 @@
 * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#define _GNU_SOURCE
+#include "shm_anon.h"
 #include <string.h>
 #include <unistd.h>
-#include <linux/memfd.h>
 #include <sys/mman.h>
 #include <sys/types.h>
 
 #include "ringbuffer.h"
 
-#if __GLIBC__ < 2 || (__GLIBC__ == 2 && __GLIBC_MINOR__ < 27)
-#include <sys/syscall.h>
-
-static inline int memfd_create(const char *name, unsigned int flags) {
-	return syscall(__NR_memfd_create, name, flags);
-}
-#endif
 
 int rb_init(ringbuffer_t *rb, char *name, size_t size) {
 

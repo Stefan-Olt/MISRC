@@ -10,8 +10,8 @@ module top (
 	tmds_d_n,
 	tmds_d_p,
 	adc0_data,
-    adc1_data,
-    gpio_data,
+	adc1_data,
+	gpio_data,
 	adc_clk,
 	uart_rx,
 	uart_tx,
@@ -27,8 +27,8 @@ module top (
 	output wire [2:0] tmds_d_p;
 
 	input wire [11:0] adc0_data;
-    input wire [11:0] adc1_data;
-    input wire [7:0] gpio_data;
+	input wire [11:0] adc1_data;
+	input wire [7:0] gpio_data;
 
 
 	input wire uart_rx;
@@ -45,10 +45,14 @@ module top (
 
 	// assign adc_clkout = clk_data_pll0_ext;
 
+	// with FBDIV = 52 (maximum)
 	// 477 MHz, maximum that works with the nano 20K
 	// 477/5 = 95.4 MHz
+	// with FBDIV = 47 (enough for 32 bit at 40 MHz)
+	// 432 MHz
+	// 432/5 = 86.4 MHz
 	localparam HDMI_PLL_IDIV  = 2;
-	localparam HDMI_PLL_FBDIV = 52;
+	localparam HDMI_PLL_FBDIV = 47;
 	localparam HDMI_PLL_ODIV  = 2;
 
 	// PLL for HDMI clock
@@ -92,7 +96,7 @@ module top (
 	reg [31:0] fifo_in;
 
 	wire write_enable;
-    wire dword_enable;
+	wire dword_enable;
 
 	wire [31:0] fifo_out;
 	wire fifo_empty;
@@ -105,7 +109,7 @@ module top (
 
 	wire [31:0] settings;
 
-    assign dword_enable = settings[19];
+	assign dword_enable = settings[19];
 
 	async_fifo #(
 		.DSIZE(32),
