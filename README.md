@@ -1,10 +1,12 @@
 # MISRC - Multi Input Simultaneous Raw RF Capture
 
+
 <picture>
-  <source srcset="https://stefan-olt.github.io/MISRC/assets/hardware-images/MISRC_v1.5_Sony_ILCE-7RM3_2024.06.07_14.30.14.jxl" type="image/jxl" width="600" />
-  <source srcset="https://stefan-olt.github.io/MISRC/assets/hardware-images/MISRC_v1.5_Sony_ILCE-7RM3_2024.06.07_14.30.14.png" type="image/png" width="600" />
-  <img src="assets/hardware-images/MISRC_v1.5_Sony_ILCE-7RM3_2024.06.07_14.30.14.jpg" width="600" height="" />
+<img src="assets/hardware-images/MISRC_V1.5_Tang_Nano_20k_Sony_ILCE-7RM3_2024.10.21_03.14.08-Small.png" width="600" height="" />
 </picture>
+
+> V1.5 with Tang Nano 20k on the FX3 to Tang adapter PCB. 
+
 
 ## Description
 
@@ -13,7 +15,7 @@ MISRC is a device to capture two signals at 12-bit and up to 40 MHz (could maybe
 
 It is intended to capture modulated tape deck RF for software demodulation, but also baseband CVBS/S-Video (Composite) video signals for software decoding, and can be used as a direct stream Oscilloscope but limited to 2vpp input voltage.
 
-The decode projects:
+The Decode Projects:
 
 - [VHS-Decode](https://github.com/oyvindln/vhs-decode/)
 - [HiFi-Decode](https://github.com/oyvindln/vhs-decode/wiki/hifi-decode)
@@ -70,8 +72,14 @@ Possible capture examples:
 
 -----
 
-- [Tang Nano 20k](https://s.click.aliexpress.com/e/_DcwBOX3) - buffer / data output over HDMI
-- [MS2130](https://s.click.aliexpress.com/e/_DBaBiOp) - HDMI data stream capture
+
+Originally the MISRC was based around the [FX3 Development Board](https://www.infineon.com/cms/en/product/evaluation-boards/cyusb3kit-003/) for a USB 3.0 connection, and using Sigronk for capture, this did not work perfectly, it has now switched to: 
+
+- [Tang Nano 20k](https://s.click.aliexpress.com/e/_DcwBOX3) - buffer / data output over HDMI.
+- [MS2130](https://s.click.aliexpress.com/e/_DBaBiOp) - HDMI raw data stream capture.
+
+> [!TIP]  
+> You can order pre-made [adapter PCBs here](https://ko-fi.com/s/617b72ab2c) for V1.5 boards with the headders for the FX3.  
 
 
 ## Software Setup 
@@ -124,9 +132,7 @@ There is a dedicated [sub-readme](/misrc_tools/README.md) for these tools.
 # Firmware Flashing 
 
 
-Originally the MISRC was based around the FX3 interface for a USB 3.0 connection, and using Sigronk for capture, this did not work perfectly.
-
-So today we are now using the more affordable [Tang Nano 20k](https://s.click.aliexpress.com/e/_DcwBOX3) sending the data over HDMI this only needs to be flashed once via usb connection and we have pre-compiled firmware see [releases](https://github.com/Stefan-Olt/MISRC/releases) for the latest version.
+Today we are now using the more affordable [Tang Nano 20k](https://s.click.aliexpress.com/e/_DcwBOX3) sending the data over HDMI this only needs to be flashed once via usb connection, we have pre-compiled firmware see [releases](https://github.com/Stefan-Olt/MISRC/releases) for the latest version.
 
 Install [openFPGALoader](https://github.com/trabucayre/openFPGALoader)
 
@@ -164,7 +170,7 @@ You have flashed your Tang Nano 20k!
 
 `misrc_capture` is a simple program to capture from MISRC using [hsdaoh](https://github.com/Stefan-Olt/hsdaoh) to which levrages data capture over HDMI with [MS2130](https://s.click.aliexpress.com/e/_DBaBiOp) "U3" cheep HDMI capture cards that have YUV support. 
 
-Create a folder which you wish to capture inside, open it inside terminal and then run `misrc_capture`
+Create a folder which you wish to capture inside, open it inside terminal and then run `misrc_capture`.
 
 Example RAW:
 
