@@ -59,6 +59,10 @@ Possible capture examples:
 
 - Parts 100-150USD
 
+- Single unit total production cost is currently 260-300USD.
+
+- [Order a V1.5 Development MISRC](https://www.pcbway.com/project/shareproject/MISRC_Multi_Input_Simultaneous_Raw_RF_Capture_Rev_1_0_998c1a4f.html)
+
 
 ## Hardware 
 
@@ -70,10 +74,10 @@ Possible capture examples:
 - 12-Bit, 20/40/65msps sampling
 - [AD8138](https://www.analog.com/media/en/technical-documentation/data-sheets/ad8138.pdf) Driver, Op-Amp / [SN74ls541](https://www.ti.com/lit/ds/symlink/sn74ls540.pdf) Buffer / [AD9235](https://www.analog.com/media/en/technical-documentation/data-sheets/AD9235.pdf) ADC
 
------
+------
 
-
-Originally the MISRC was based around the [FX3 Development Board](https://www.infineon.com/cms/en/product/evaluation-boards/cyusb3kit-003/) for a USB 3.0 connection, and using Sigronk for capture, this did not work perfectly, it has now switched to: 
+> [!NOTE]  
+> These are off-shelf PCBs and USB 3.0 devices that you add to the MISRC PCB.
 
 - [Tang Nano 20k](https://s.click.aliexpress.com/e/_DcwBOX3) - buffer / data output over HDMI.
 - [MS2130](https://s.click.aliexpress.com/e/_DBaBiOp) - HDMI raw data stream capture.
@@ -82,7 +86,7 @@ Originally the MISRC was based around the [FX3 Development Board](https://www.in
 > You can order pre-made [adapter PCBs here](https://ko-fi.com/s/617b72ab2c) for V1.5 boards with the headders for the FX3.  
 
 
-## Software Setup 
+# Software & Firmware 
 
 
 There are 2 tools currently and a few dependencies required to deploy a MISRC.
@@ -92,14 +96,19 @@ There are 2 tools currently and a few dependencies required to deploy a MISRC.
 
 <details closed>
 
-<summary>Software Install Guide</summary>
+<summary>Software Install</summary>
 <br>
 
-Depedencys 
+
+Tested and built on Linux Mint 21.03 and 22 / Ubuntu 22.04
+
+First install dependencies 
 
 - `apt install libflac-dev`
+- Install [hsdaoh](https://github.com/Stefan-Olt/hsdaoh) this allows you to use the MS2130 & MS2131 chips directly.
 
-Install [hsdaoh](https://github.com/Stefan-Olt/hsdaoh) this allows you to use the MS2130 & MS2131 chips directly. 
+> [!CAUTION]  
+> The main hsdaoh branch does not have the required changes merged yet, ensure the above liked repo is used for install or your application will not build.
 
 Restart and then continue
 
@@ -128,8 +137,10 @@ There is a dedicated [sub-readme](/misrc_tools/README.md) for these tools.
 
 </details>
 
+<details closed>
 
-# Firmware Flashing 
+<summary>Firmware Flashing </summary>
+<br>
 
 
 Today we are now using the more affordable [Tang Nano 20k](https://s.click.aliexpress.com/e/_DcwBOX3) sending the data over HDMI this only needs to be flashed once via usb connection, we have pre-compiled firmware see [releases](https://github.com/Stefan-Olt/MISRC/releases) for the latest version.
@@ -144,15 +155,18 @@ Run via terminal inside the firmware directory
 
 You have flashed your Tang Nano 20k! 
 
+</details>
+
 
 ## Capture
 
 
 > [!CAUTION]
-> NEVER use USB for any other heavy-load task (like external HDD/SSD drives, USB network adapters, YUV capture devices) during capture. Do not connect/disconnect any other USB device during capture, a dedicated USB 3.0 to 3.2 Gen 2 card is ideal for dedicated capture stations as it ensures dedicated bandwidth/power if you have other items that require USB.
+> - NEVER use USB for any other heavy-load task (like external HDD/SSD drives, USB network adapters, YUV capture devices) during capture. 
+> - Do not connect/disconnect any other USB device during capture, a dedicated USB 3.0 to 3.2 Gen 2 card is ideal for dedicated capture stations as it ensures dedicated bandwidth/power if you have other items that require USB.
 
 
-- Connect the desired sources to the BNC inputs and select suitable impedance and coupling
+- Connect the desired sources to the BNC inputs and select suitable impedance and AC or DC coupling.
 
 - Start the capturing process for setting the gain:
     - Reset clipping LEDs (always on after start)
@@ -184,6 +198,13 @@ You can also define its directory path of each RF stream manually:
 
     misrc_capture -f -a /mnt/my_video_storrage/video_rf.flac -b ../../this/is/a/relative/path/hifi_rf.flac
 
+Press <kbd>Ctrl</kbd>+<kbd>C</kbd> to copy and <kbd>Ctrl</kbd>+<kbd>P</kbd> to past your config from a notepad or txt file.
+
+Use <kbd><</kbd>+<kbd>></kbd> to move edit position on the command line to edit the name or command while in terminal and <kbd>Enter</kbd> to run the command.
+
+<kbd>Ctrl</kbd>+<kbd>C</kbd> Will kill the current process, use this to stop the capture manually.
+
+
 <details closed>
 
 <summary>Usage Arguments:</summary>
@@ -210,6 +231,7 @@ You can also define its directory path of each RF stream manually:
 
 `-v` enable verification of flac encoder output
 
+
 </details>
 
 
@@ -218,10 +240,11 @@ You can also define its directory path of each RF stream manually:
 
 MISRC is loosely based on the [Domesday Duplicator (DdD)](https://github.com/simoninns/DomesdayDuplicator). 
 
-Like the DdD it originally used the Cypress FX3 SuperSpeed Explorer board, with hopes to not use the DE0 FPGA. 
 
 It is built around the AD9235 analogue to digital converter by Analog Devices and is heavily based on the evaluation board circuit given in its datasheet with the AD8138 Op-Amp providing adjustable fixed gain.
 
+
+The MISRC like the DdD it originally used the [Cypress FX3 SuperSpeed Explorer board](https://www.infineon.com/cms/en/product/evaluation-boards/cyusb3kit-003/) for a USB 3.0 data connection, and using Sigronk for capture, with hopes to not use the DE0 FPGA, this ended with the adoption of the Tang Nano 20k and MS2130 "data over YUV" method being used. 
 
 
 ## License
