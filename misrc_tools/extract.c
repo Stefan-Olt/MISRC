@@ -30,7 +30,7 @@
 void extract_S_C(uint16_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB) {
 	for(size_t i = 0; i < len; i++)
 	{
-		outA[i]  = 2048 - ((int16_t)(in[i] & MASK_1));
+		outA[i]  = 2047 - ((int16_t)(in[i] & MASK_1));
 		aux[i]   = (in[i] & MASK_AUXS) >> 12;
 		clip[0] += ((in[i] >> 12) & 1);
 	}
@@ -39,7 +39,7 @@ void extract_S_C(uint16_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *
 void extract_A_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB) {
 	for(size_t i = 0; i < len; i++)
 	{
-		outA[i]  = 2048 - ((int16_t)(in[i] & MASK_1));
+		outA[i]  = 2047 - ((int16_t)(in[i] & MASK_1));
 		aux[i]   = (in[i] & MASK_AUX) >> 12;
 		clip[0] += ((in[i] >> 12) & 1);
 	}
@@ -48,7 +48,7 @@ void extract_A_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *
 void extract_B_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB) {
 	for(size_t i = 0; i < len; i++)
 	{
-		outB[i]  = 2048 - ((int16_t)((in[i] & MASK_2) >> 20));
+		outB[i]  = 2047 - ((int16_t)((in[i] & MASK_2) >> 20));
 		aux[i]   = (in[i] & MASK_AUX) >> 12;
 		clip[1] += ((in[i] >> 13) & 1);
 	}
@@ -57,8 +57,8 @@ void extract_B_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *
 void extract_AB_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB) {
 	for(size_t i = 0; i < len; i++)
 	{
-		outA[i]  = 2048 - ((int16_t)(in[i] & MASK_1));
-		outB[i]  = 2048 - ((int16_t)((in[i] & MASK_2) >> 20));
+		outA[i]  = 2047 - ((int16_t)(in[i] & MASK_1));
+		outB[i]  = 2047 - ((int16_t)((in[i] & MASK_2) >> 20));
 		aux[i]   = (in[i] & MASK_AUX) >> 12;
 		clip[0] += ((in[i] >> 12) & 1);
 		clip[1] += ((in[i] >> 13) & 1);
@@ -68,7 +68,7 @@ void extract_AB_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t 
 void extract_S_p_C(uint16_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB) {
 	for(size_t i = 0; i < len; i++)
 	{
-		outA[i]  = (2048 - ((int16_t)(in[i] & MASK_1)))<<4;
+		outA[i]  = (2047 - ((int16_t)(in[i] & MASK_1)))<<4;
 		aux[i]   = (in[i] & MASK_AUXS) >> 12;
 		clip[0] += ((in[i] >> 12) & 1);
 	}
@@ -77,7 +77,7 @@ void extract_S_p_C(uint16_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t
 void extract_A_p_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB) {
 	for(size_t i = 0; i < len; i++)
 	{
-		outA[i]  = (2048 - ((int16_t)(in[i] & MASK_1)))<<4;
+		outA[i]  = (2047 - ((int16_t)(in[i] & MASK_1)))<<4;
 		aux[i]   = (in[i] & MASK_AUX) >> 12;
 		clip[0] += ((in[i] >> 12) & 1);
 	}
@@ -85,7 +85,7 @@ void extract_A_p_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t
 void extract_B_p_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB) {
 	for(size_t i = 0; i < len; i++)
 	{
-		outB[i]  = (2048 - ((int16_t)((in[i] & MASK_2) >> 20)))<<4;
+		outB[i]  = (2047 - ((int16_t)((in[i] & MASK_2) >> 20)))<<4;
 		aux[i]   = (in[i] & MASK_AUX) >> 12;
 		clip[1] += ((in[i] >> 13) & 1);
 	}
@@ -94,8 +94,8 @@ void extract_B_p_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t
 void extract_AB_p_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB) {
 	for(size_t i = 0; i < len; i++)
 	{
-		outA[i]  = (2048 - ((int16_t)(in[i] & MASK_1)))<<4;
-		outB[i]  = (2048 - ((int16_t)((in[i] & MASK_2) >> 20)))<<4;
+		outA[i]  = (2047 - ((int16_t)(in[i] & MASK_1)))<<4;
+		outB[i]  = (2047 - ((int16_t)((in[i] & MASK_2) >> 20)))<<4;
 		aux[i]   = (in[i] & MASK_AUX) >> 12;
 		clip[0] += ((in[i] >> 12) & 1);
 		clip[1] += ((in[i] >> 13) & 1);
@@ -105,7 +105,7 @@ void extract_AB_p_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_
 void extract_S_32_C(uint16_t *in, size_t len, size_t *clip, uint8_t *aux, int32_t *outA, int32_t *outB) {
 	for(size_t i = 0; i < len; i++)
 	{
-		outA[i]  = 2048 - ((int32_t)(in[i] & MASK_1));
+		outA[i]  = 2047 - ((int32_t)(in[i] & MASK_1));
 		aux[i]   = (in[i] & MASK_AUXS) >> 12;
 		clip[0] += ((in[i] >> 12) & 1);
 	}
@@ -114,7 +114,7 @@ void extract_S_32_C(uint16_t *in, size_t len, size_t *clip, uint8_t *aux, int32_
 void extract_A_32_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int32_t *outA, int32_t *outB) {
 	for(size_t i = 0; i < len; i++)
 	{
-		outA[i]  = 2048 - ((int32_t)(in[i] & MASK_1));
+		outA[i]  = 2047 - ((int32_t)(in[i] & MASK_1));
 		aux[i]   = (in[i] & MASK_AUX) >> 12;
 		clip[0] += ((in[i] >> 12) & 1);
 	}
@@ -123,7 +123,7 @@ void extract_A_32_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int32_
 void extract_B_32_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int32_t *outA, int32_t *outB) {
 	for(size_t i = 0; i < len; i++)
 	{
-		outB[i]  = 2048 - ((int32_t)((in[i] & MASK_2) >> 20));
+		outB[i]  = 2047 - ((int32_t)((in[i] & MASK_2) >> 20));
 		aux[i]   = (in[i] & MASK_AUX) >> 12;
 		clip[1] += ((in[i] >> 13) & 1);
 	}
@@ -132,8 +132,8 @@ void extract_B_32_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int32_
 void extract_AB_32_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int32_t *outA, int32_t *outB) {
 	for(size_t i = 0; i < len; i++)
 	{
-		outA[i]  = 2048 - ((int32_t)(in[i] & MASK_1));
-		outB[i]  = 2048 - ((int32_t)((in[i] & MASK_2) >> 20));
+		outA[i]  = 2047 - ((int32_t)(in[i] & MASK_1));
+		outB[i]  = 2047 - ((int32_t)((in[i] & MASK_2) >> 20));
 		aux[i]   = (in[i] & MASK_AUX) >> 12;
 		clip[0] += ((in[i] >> 12) & 1);
 		clip[1] += ((in[i] >> 13) & 1);
@@ -143,7 +143,7 @@ void extract_AB_32_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int32
 void extract_S_p_32_C(uint16_t *in, size_t len, size_t *clip, uint8_t *aux, int32_t *outA, int32_t *outB) {
 	for(size_t i = 0; i < len; i++)
 	{
-		outA[i]  = (2048 - ((int32_t)(in[i] & MASK_1)))<<4;
+		outA[i]  = (2047 - ((int32_t)(in[i] & MASK_1)))<<4;
 		aux[i]   = (in[i] & MASK_AUXS) >> 12;
 		clip[0] += ((in[i] >> 12) & 1);
 	}
@@ -152,7 +152,7 @@ void extract_S_p_32_C(uint16_t *in, size_t len, size_t *clip, uint8_t *aux, int3
 void extract_A_p_32_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int32_t *outA, int32_t *outB) {
 	for(size_t i = 0; i < len; i++)
 	{
-		outA[i]  = (2048 - ((int32_t)(in[i] & MASK_1)))<<4;
+		outA[i]  = (2047 - ((int32_t)(in[i] & MASK_1)))<<4;
 		aux[i]   = (in[i] & MASK_AUX) >> 12;
 		clip[0] += ((in[i] >> 12) & 1);
 	}
@@ -160,7 +160,7 @@ void extract_A_p_32_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int3
 void extract_B_p_32_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int32_t *outA, int32_t *outB) {
 	for(size_t i = 0; i < len; i++)
 	{
-		outB[i]  = (2048 - ((int32_t)((in[i] & MASK_2) >> 20)))<<4;
+		outB[i]  = (2047 - ((int32_t)((in[i] & MASK_2) >> 20)))<<4;
 		aux[i]   = (in[i] & MASK_AUX) >> 12;
 		clip[1] += ((in[i] >> 13) & 1);
 	}
@@ -169,8 +169,8 @@ void extract_B_p_32_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int3
 void extract_AB_p_32_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int32_t *outA, int32_t *outB) {
 	for(size_t i = 0; i < len; i++)
 	{
-		outA[i]  = (2048 - ((int32_t)(in[i] & MASK_1)))<<4;
-		outB[i]  = (2048 - ((int32_t)((in[i] & MASK_2) >> 20)))<<4;
+		outA[i]  = (2047 - ((int32_t)(in[i] & MASK_1)))<<4;
+		outB[i]  = (2047 - ((int32_t)((in[i] & MASK_2) >> 20)))<<4;
 		aux[i]   = (in[i] & MASK_AUX) >> 12;
 		clip[0] += ((in[i] >> 12) & 1);
 		clip[1] += ((in[i] >> 13) & 1);
