@@ -125,7 +125,7 @@ loop_AB_32_0:
 	psubd xmm5, xmm2
 	movdqa [outA], xmm5
 	movdqa xmm2, xmm0
-	psrld xmm2, 24
+	psrld xmm2, 20
 	movdqa xmm5, [subval32]
 	psubd xmm5, xmm2
 	movdqa [outB], xmm5
@@ -160,7 +160,7 @@ loop_AB_p_32_0:
 	pslld xmm5, 4
 	movdqa [outA], xmm5
 	movdqa xmm2, xmm0
-	psrld xmm2, 24
+	psrld xmm2, 20
 	movdqa xmm5, [subval32]
 	psubd xmm5, xmm2
 	pslld xmm5, 4
@@ -247,7 +247,7 @@ extract_B_32_sse:
 loop_B_32_0:
 	movdqa xmm0, [in]
 	movdqa xmm2, xmm0
-	psrld xmm2, 24
+	psrld xmm2, 20
 	movdqa xmm5, [subval32]
 	psubd xmm5, xmm2
 	movdqa [outB], xmm5
@@ -277,7 +277,7 @@ extract_B_p_32_sse:
 loop_B_p_32_0:
 	movdqa xmm0, [in]
 	movdqa xmm2, xmm0
-	psrld xmm2, 24
+	psrld xmm2, 20
 	movdqa xmm5, [subval32]
 	psubd xmm5, xmm2
 	pslld xmm5, 4
