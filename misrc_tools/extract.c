@@ -229,8 +229,8 @@ conv_function_t get_conv_function(uint8_t single, uint8_t pad, uint8_t dword, vo
 		else {
 			if (pad==1) {
 				if (outA == NULL) return (conv_function_t) &extract_B_p_32_C;
-				else if (outB == NULL) return (conv_function_t) &extract_A_p_C;
-				else return (conv_function_t) &extract_AB_p_C;
+				else if (outB == NULL) return (conv_function_t) &extract_A_p_32_C;
+				else return (conv_function_t) &extract_AB_p_32_C;
 			}
 			else {
 				if (outA == NULL) return (conv_function_t) &extract_B_32_C;
