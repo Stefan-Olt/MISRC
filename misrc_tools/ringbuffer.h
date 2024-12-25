@@ -29,6 +29,9 @@
 
 typedef struct {
 	uint8_t      *buffer;
+#ifdef _WIN32
+	uint8_t      *_buffer2;
+#endif
 	size_t        buffer_size;
 	int           fd;
 	atomic_size_t head;
@@ -41,5 +44,6 @@ void* rb_read_ptr(ringbuffer_t *rb, size_t size);
 int   rb_read_finished(ringbuffer_t *rb, size_t size);
 void* rb_write_ptr(ringbuffer_t *rb, size_t size);
 int   rb_write_finished(ringbuffer_t *rb, size_t size);
+void  rb_close(ringbuffer_t *rb);
 
 #endif // RINGBUFFER_H

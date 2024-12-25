@@ -21,34 +21,94 @@
 * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifdef _WIN32
+#include <windows.h>
+#else
 #include "shm_anon.h"
 #include <string.h>
 #include <unistd.h>
 #include <sys/mman.h>
 #include <sys/types.h>
-
+#endif
 #include "ringbuffer.h"
 
 
 int rb_init(ringbuffer_t *rb, char *name, size_t size) {
 
+#ifdef _WIN32
+
+#if !defined(__STDC_VERSION__) || __STDC_VERSION__ < 202311L
+#define nullptr NULL
+#endif
+
+	SYSTEM_INFO sysInfo;
+	HANDLE h = nullptr;
+	void* maparea = nullptr;
+
 	// First, make sure the size is a multiple of the page size
-	if(size % getpagesize() != 0){
+	GetSystemInfo (&sysInfo);
+	if((size % sysInfo.dwAllocationGranularity) != 0) {
+		return 1;
+	}
+
+	if((maparea = (PCHAR)VirtualAlloc2(nullptr, nullptr, 2*size, MEM_RESERVE | MEM_RESERVE_PLACEHOLDER, PAGE_NOACCESS, nullptr, 0)) == nullptr) {
+		return 2;
+	}
+
+	if(VirtualFree(maparea, size, MEM_RELEASE | MEM_PRESERVE_PLACEHOLDER) == FALSE) {
+		return 3;
+	}
+
+	if((h = CreateFileMapping(INVALID_HANDLE_VALUE, nullptr, PAGE_READWRITE, 0, size, nullptr)) == nullptr) {
+		VirtualFree(maparea, 0, MEM_RELEASE);
+		VirtualFree(maparea+size, 0, MEM_RELEASE);
+		return 4;
+	} 
+
+	if((rb->buffer = MapViewOfFile3(h, nullptr, maparea, 0, size, MEM_REPLACE_PLACEHOLDER, PAGE_READWRITE, nullptr, 0)) == nullptr) {
+		CloseHandle(h);
+		VirtualFree(maparea, 0, MEM_RELEASE);
+		VirtualFree(maparea+size, 0, MEM_RELEASE);
+		return 5;
+	}
+
+	if((rb->_buffer2 = MapViewOfFile3(h, nullptr, maparea+size, 0, size, MEM_REPLACE_PLACEHOLDER, PAGE_READWRITE, nullptr, 0)) == nullptr) {
+		CloseHandle(h);
+		VirtualFree(maparea+size, 0, MEM_RELEASE);
+		UnmapViewOfFileEx(rb->buffer, 0);
+		return 6;
+	}
+	CloseHandle(h);
+#else
+	// First, make sure the size is a multiple of the page size
+	if(size % getpagesize() != 0) {
 		return 1;
 	}
 
 	// Make an anonymous file and set its size
-	rb->fd = memfd_create(name, 0);
-	ftruncate(rb->fd, size);
+	if((rb->fd = memfd_create(name, 0)) == -1) {
+		return 2;
+	}
+
+	if(ftruncate(rb->fd, size) == -1) {
+		return 3;
+	}
 
 	// Ask mmap for an address at a location where we can put both virtual copies of the buffer
-	rb->buffer = mmap(NULL, 2 * size, PROT_NONE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+	if((rb->buffer = mmap(NULL, 2 * size, PROT_NONE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0)) == MAP_FAILED) {
+		return 4;
+	}
 
 	// Map the buffer at that address
-	mmap(rb->buffer, size, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_FIXED, rb->fd, 0);
+	if(mmap(rb->buffer, size, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_FIXED, rb->fd, 0) == MAP_FAILED)  {
+		return 5;
+	}
 
 	// Now map it again, in the next virtual page
-	mmap(rb->buffer + size, size, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_FIXED, rb->fd, 0);
+	if(mmap(rb->buffer + size, size, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_FIXED, rb->fd, 0) == MAP_FAILED)  {
+		return 6;
+	}
+#endif
 
 	// Initialize our buffer indices
 	rb->buffer_size = size;
@@ -100,3 +160,12 @@ int rb_read_finished(ringbuffer_t *rb, size_t size) {
 	return 0;
 }
 
+void rb_close(ringbuffer_t *rb) {
+#ifdef _WIN32
+	UnmapViewOfFile(rb->buffer);
+	UnmapViewOfFile(rb->_buffer2);
+#else
+	munmap(rb->buffer, rb->buffer_size);
+	munmap(rb->buffer+rb->buffer_size, rb->buffer_size);
+#endif
+}

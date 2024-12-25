@@ -29,11 +29,11 @@
 #include <math.h>
 #include <stdint.h>
 #include <stdbool.h>
-#if __STDC_NO_THREADS__
+#if __STDC_VERSION__ >= 201112L && ! __STDC_NO_THREADS__ && ! _WIN32
+#include <threads.h>
+#else
 #include "cthreads.h"
 #warning "No C threads, fallback to pthreads"
-#else
-#include <threads.h>
 #endif
 #include <time.h>
 
