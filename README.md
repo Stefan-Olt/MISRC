@@ -91,8 +91,95 @@ Possible capture examples:
 
 There are 2 tools currently and a few dependencies required to deploy a MISRC.
 
+- hsdaoh Driver
 - MISRC Capture
 - MISRC Extract
+
+> [!WARNING]  
+> The main hsdaoh branch (steve-m) does not have the required changes merged yet, ensure the above liked repo is used for install or your application will not build.
+
+
+<details closed>
+
+<summary>hsdaoh Driver Install Linux</summary>
+<br>
+
+To install the build dependencies on a distribution based on Debian (e.g. Ubuntu), run the following command:
+
+    sudo apt-get install build-essential cmake pkgconf libusb-1.0-0-dev libuvc-dev
+
+To build hsdaoh:
+
+    git clone https://github.com/Stefan-Olt/hsdaoh.git
+    mkdir hsdaoh/build
+    cd hsdaoh/build
+    cmake ../ -DINSTALL_UDEV_RULES=ON
+    make -j 4
+    sudo make install
+    sudo ldconfig
+
+To be able to access the USB device as non-root, the udev rules need to be installed (either use -DINSTALL_UDEV_RULES=ON or manually copy hsdaoh.rules to /etc/udev/rules.d/).
+
+Before being able to use the device as a non-root user, the udev rules need to be reloaded:
+
+    sudo udevadm control -R
+    sudo udevadm trigger
+
+Furthermore, make sure your user is a member of the group 'plugdev'.
+To make sure the group exists and add your user to it, run:
+
+    sudo groupadd plugdev
+    sudo usermod -a -G plugdev <your username>
+
+If you haven't already been a member, you need to logout and login again for the group membership to become effective.
+
+
+</details>
+
+
+<details closed>
+
+<summary>hsdaoh Driver Install Windows</summary>
+<br>
+
+**Currently, this is highly experimental, noted here for testing and is not production implimented yet!**
+
+Firstly download [Zadig](https://zadig.akeo.ie/) to force the installation of `WinUSB` driver on your MS2130/MS2131 adapter.
+
+Install MSYS2 (https://www.msys2.org/)
+
+Start `MSYS2 MINGW64` terminal from the application menu. (Blue Icon) 
+
+Update all packages:
+
+    pacman -Suy
+
+Install the required dependencies:
+
+    pacman -S git zip mingw-w64-x86_64-libusb mingw-w64-x86_64-libwinpthread mingw-w64-x86_64-cc \ mingw-w64-x86_64-gcc-libs mingw-w64-x86_64-cmake mingw-w64-x86_64-ninja
+
+Clone & Build libuvc:
+
+    git clone https://github.com/steve-m/libuvc.git
+    mkdir libuvc/build && cd libuvc/build
+    cmake ../ -DCMAKE_INSTALL_PREFIX:PATH=/mingw64
+    cmake --build .
+    cmake --install .
+
+Build libhsdaoh
+
+    cd ~
+    git clone https://github.com/steve-m/hsdaoh.git
+    mkdir hsdaoh/build && cd hsdaoh/build
+    cmake ../
+    cmake --build .
+
+Gather all files required for release:
+
+    zip -j hsdaoh_win_release.zip src/*.exe src/*.dll /mingw64/bin/libusb-1.0.dll /mingw64/bin/libuvc.dll /mingw64/bin/libwinpthread-1.dll
+
+
+</details>
 
 <details closed>
 
@@ -105,10 +192,9 @@ Tested and built on Linux Mint 21.03 and 22 / Ubuntu 22.04
 First install dependencies 
 
 - `apt install libflac-dev`
-- Install [hsdaoh](https://github.com/Stefan-Olt/hsdaoh) this allows you to use the MS2130 & MS2131 chips directly.
+- `hsdaoh driver`
 
-> [!CAUTION]  
-> The main hsdaoh branch does not have the required changes merged yet, ensure the above liked repo is used for install or your application will not build.
+These allow you to use the MS2130 & MS2131 chips directly.
 
 Restart and then continue
 
@@ -137,8 +223,10 @@ There is a dedicated [sub-readme](/misrc_tools/README.md) for these tools.
 
 </details>
 
-<details closed>
 
+</details>
+
+<details closed>
 <summary>Firmware Flashing </summary>
 <br>
 
