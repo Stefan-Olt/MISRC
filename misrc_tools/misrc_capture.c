@@ -41,6 +41,7 @@
 	#include <getopt.h>
 	#include <unistd.h>
 	#define aligned_free(x) free(x)
+	#define sleep_ms(x) usleep(x*1000)
 #else
 	#include <windows.h>
 	#include <io.h>
@@ -48,6 +49,7 @@
 	#include "getopt/getopt.h"
 	#define aligned_free(x) _aligned_free(x)
 	#define aligned_alloc(a,s) _aligned_malloc(s,a)
+	#define sleep_ms(x) Sleep(x)
 #endif
 
 #include <hsdaoh.h>
@@ -150,7 +152,7 @@ static void hsdaoh_callback(unsigned char *buf, uint32_t len, uint8_t pack_state
 			if (do_exit) return;
 			fprintf(stderr,"Cannot write frame to buffer\n");
 			new_line = 1;
-			usleep(4000);
+			ms_sleep(4);
 		}
 		if (cap_ctx->samples_to_read > 0)
 			cap_ctx->samples_to_read -= len;
@@ -164,7 +166,7 @@ int raw_file_writer(void *ctx)
 	void *buf;
 	while(true) {
 		while(((buf = rb_read_ptr(&file_ctx->rb, len)) == NULL) && !do_exit) {
-			//usleep(10000);
+			//ms_sleep(10);
 			thrd_sleep(&(struct timespec){.tv_nsec=10000000}, NULL);
 		}
 		if (do_exit) {
@@ -472,7 +474,7 @@ int main(int argc, char **argv)
 			  (output_names[1] != NULL && ((buf_out2 = rb_write_ptr(&thread_out_ctx[1].rb, BUFFER_READ_SIZE*out_size)) == NULL))) && 
 			  !do_exit)
 		{
-			usleep(10000);
+			sleep_ms(10);
 		}
 		if (do_exit) break;
 		conv_function((uint32_t*)buf, BUFFER_READ_SIZE, clip, buf_aux, buf_out1, buf_out2);

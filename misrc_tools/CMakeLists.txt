@@ -62,8 +62,9 @@ set(INSTALL_TARGETS misrc_extract misrc_capture)
 target_link_libraries(misrc_capture hsdaoh ${LIBFLAC_LIBRARIES})
 
 if(WIN32)
-	add_compile_definitions(_WIN32_WINNT=_WIN32_WINNT_WIN10)
-	add_compile_definitions(NTDDI_VERSION=NTDDI_WIN10_RS4)
+	add_compile_definitions(_WIN32_WINNT=0x0A00)
+	add_compile_definitions(NTDDI_VERSION=0x0A000005)
+	target_link_libraries(misrc_capture onecore)
 endif()
 
 if(WIN32 AND NOT MINGW)
