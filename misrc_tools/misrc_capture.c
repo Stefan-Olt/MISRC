@@ -152,7 +152,7 @@ static void hsdaoh_callback(unsigned char *buf, uint32_t len, uint8_t pack_state
 			if (do_exit) return;
 			fprintf(stderr,"Cannot write frame to buffer\n");
 			new_line = 1;
-			ms_sleep(4);
+			sleep_ms(4);
 		}
 		if (cap_ctx->samples_to_read > 0)
 			cap_ctx->samples_to_read -= len;
