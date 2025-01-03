@@ -50,6 +50,8 @@
 	#define aligned_free(x) _aligned_free(x)
 	#define aligned_alloc(a,s) _aligned_malloc(s,a)
 	#define sleep_ms(x) Sleep(x)
+	#define F_OK 0
+	#define access _access
 #endif
 
 #include <hsdaoh.h>
@@ -391,9 +393,15 @@ int main(int argc, char **argv)
 			}
 			else
 			{
-			   thread_out_ctx[i].f = fopen(output_names[i], "wb");
+				if (access(output_names[i], F_OK) == 0) {
+					char ch = 0;
+					fprintf(stderr, "File '%s' already exists. Overwrite? (y/n) ", output_names[i]);
+					scanf("%c",&ch);
+					if (ch != 'y' && ch != 'Y') return -ENOENT;
+				}
+				thread_out_ctx[i].f = fopen(output_names[i], "wb");
 				if (!thread_out_ctx[i].f) {
-					fprintf(stderr, "(2) : Failed to open %s\n", output_names[i]);
+					fprintf(stderr, "Failed to open %s\n", output_names[i]);
 					return -ENOENT;
 				}
 			}
@@ -420,9 +428,15 @@ int main(int argc, char **argv)
 		}
 		else if(output_name_aux != NULL)
 		{
+			if (access(output_name_aux, F_OK) == 0) {
+				char ch = 0;
+				fprintf(stderr, "File '%s' already exists. Overwrite? (y/n) ", output_name_aux);
+				scanf("%c",&ch);
+				if (ch != 'y' && ch != 'Y') return -ENOENT;
+			}
 			output_aux = fopen(output_name_aux, "wb");
 			if (!output_aux) {
-				fprintf(stderr, "(2) : Failed to open %s\n", output_name_aux);
+				fprintf(stderr, "Failed to open %s\n", output_name_aux);
 				return -ENOENT;
 			}
 		}
@@ -437,9 +451,15 @@ int main(int argc, char **argv)
 		}
 		else if(output_name_raw != NULL)
 		{
+			if (access(output_name_raw, F_OK) == 0) {
+				char ch = 0;
+				fprintf(stderr, "File '%s' already exists. Overwrite? (y/n) ", output_name_raw);
+				scanf("%c",&ch);
+				if (ch != 'y' && ch != 'Y') return -ENOENT;
+			}
 			output_raw = fopen(output_name_raw, "wb");
 			if (!output_raw) {
-				fprintf(stderr, "(2) : Failed to open %s\n", output_name_raw);
+				fprintf(stderr, "Failed to open %s\n", output_name_raw);
 				return -ENOENT;
 			}
 		}
