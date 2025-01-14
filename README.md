@@ -5,7 +5,7 @@
 <img src="assets/hardware-images/MISRC_V1.5_Tang_Nano_20k_Sony_ILCE-7RM3_2024.10.21_03.14.08-Small.png" width="600" height="" />
 </picture>
 
-> V1.5 with Tang Nano 20k on the FX3 to Tang adapter PCB. 
+> V1.5 with Tang Nano 20k on the FX3 to Tang adaptor PCB. 
 
 
 ## Description
@@ -80,10 +80,10 @@ Possible capture examples:
 > These are off-shelf PCBs and USB 3.0 devices that you add to the MISRC PCB.
 
 - [Tang Nano 20k](https://s.click.aliexpress.com/e/_DcwBOX3) - buffer / data output over HDMI.
-- [MS2130](https://s.click.aliexpress.com/e/_DBaBiOp) - HDMI raw data stream capture.
+- [MS2130](http://en.macrosilicon.com/info.asp?base_id=2&third_id=75) [Order Link 1](https://s.click.aliexpress.com/e/_DBaBiOp) / [Order Link 2](https://s.click.aliexpress.com/e/_okDl2Vf) - HDMI raw data stream capture.
 
 > [!TIP]  
-> You can order pre-made [adapter PCBs here](https://ko-fi.com/s/617b72ab2c) for V1.5 boards with the headders for the FX3.  
+> You can order pre-made [adaptor PCBs here](https://ko-fi.com/s/617b72ab2c) for V1.5 boards with the headders for the FX3.  
 
 
 # Software & Firmware 
@@ -118,7 +118,7 @@ To build hsdaoh:
     sudo make install
     sudo ldconfig
 
-To be able to access the USB device as non-root, the udev rules need to be installed (either use -DINSTALL_UDEV_RULES=ON or manually copy hsdaoh.rules to /etc/udev/rules.d/).
+To be able to access the USB device as non-root, the udev rules need to be installed (either use -DINSTALL_UDEV_RULES=ON or manually copy hsdaoh rules to /etc/udev/rules.d/).
 
 Before being able to use the device as a non-root user, the udev rules need to be reloaded:
 
@@ -144,7 +144,14 @@ If you haven't already been a member, you need to logout and login again for the
 
 **Currently, this is highly experimental, noted here for testing and is not production implimented yet!**
 
-Firstly download [Zadig](https://zadig.akeo.ie/) to force the installation of `WinUSB` driver on your MS2130/MS2131 adapter.
+Firstly download [Zadig](https://zadig.akeo.ie/)
+
+Force the installation of `WinUSB (v6.1.7600.16385)` or `libusb-win32 (v1.2.6.0)` on your MS2130/MS2131 adapter, on `interface 0` leave `interface 4` alone. 
+
+```
+Interface 0 - USB Video
+Interface 4 - HIDDevice
+```
 
 Install MSYS2 (https://www.msys2.org/)
 
@@ -270,7 +277,7 @@ You have flashed your Tang Nano 20k!
 
 ---------
 
-`misrc_capture` is a simple program to capture from MISRC using [hsdaoh](https://github.com/Stefan-Olt/hsdaoh) to which levrages data capture over HDMI with [MS2130](https://s.click.aliexpress.com/e/_DBaBiOp) "U3" cheep HDMI capture cards that have YUV support. 
+`misrc_capture` is a simple program to capture from MISRC using [hsdaoh](https://github.com/Stefan-Olt/hsdaoh) to which leverages data capture over HDMI with [MS2130](https://s.click.aliexpress.com/e/_DBaBiOp) "U3" cheep HDMI capture cards that have YUV support. 
 
 Create a folder which you wish to capture inside, open it inside terminal and then run `misrc_capture`.
 
