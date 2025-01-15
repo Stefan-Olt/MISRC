@@ -80,7 +80,7 @@ Possible capture examples:
 > These are off-shelf PCBs and USB 3.0 devices that you add to the MISRC PCB.
 
 - [Tang Nano 20k](https://s.click.aliexpress.com/e/_DcwBOX3) - buffer / data output over HDMI.
-- [MS2130](http://en.macrosilicon.com/info.asp?base_id=2&third_id=75) [Order Link 1](https://s.click.aliexpress.com/e/_DBaBiOp) / [Order Link 2](https://s.click.aliexpress.com/e/_okDl2Vf) - HDMI raw data stream capture.
+- [MS2130](http://en.macrosilicon.com/info.asp?base_id=2&third_id=75) - [Order Link 1](https://s.click.aliexpress.com/e/_DBaBiOp) / [Order Link 2](https://s.click.aliexpress.com/e/_okDl2Vf) - HDMI raw data stream capture.
 
 > [!TIP]  
 > You can order pre-made [adaptor PCBs here](https://ko-fi.com/s/617b72ab2c) for V1.5 boards with the headders for the FX3.  
