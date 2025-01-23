@@ -55,13 +55,16 @@ Possible capture examples:
 ## Costs
 
 
+> [!TIP]  
+> You can support the development and production of the MISRC platform [here](https://github.com/Stefan-Olt/MISRC/wiki/Donations).
+
 - PCB: 20-30USD
 
 - Parts 100-150USD
 
 - Single unit total production cost is currently 260-300USD.
 
-- [Order a V1.5 Development MISRC](https://www.pcbway.com/project/shareproject/MISRC_Multi_Input_Simultaneous_Raw_RF_Capture_Rev_1_0_998c1a4f.html)
+- [Order a V1.5 Development MISRC](https://github.com/Stefan-Olt/MISRC/wiki/Fabrication)
 
 
 ## Hardware 
@@ -287,11 +290,15 @@ Example RAW:
 
 Example with FLAC compression:
     
-    misrc_capture -f -a video_rf.flac -b hifi_rf.flac 
+    misrc_capture -p -f -a video_rf.flac -b hifi_rf.flac 
+
+Example with AUX pins capture ([PCM1802 audio example](https://github.com/Stefan-Olt/MISRC/wiki/PCM-Extract))
+
+    misrc_capture -p -f -a video_rf.flac -b hifi_rf.flac -x pcm1802.bin
 
 You can also define its directory path of each RF stream manually: 
 
-    misrc_capture -f -a /mnt/my_video_storrage/video_rf.flac -b ../../this/is/a/relative/path/hifi_rf.flac
+    misrc_capture -p -f -a /mnt/my_video_storrage/video_rf.flac -b ../../this/is/a/relative/path/hifi_rf.flac
 
 Press <kbd>Ctrl</kbd>+<kbd>C</kbd> to copy and <kbd>Ctrl</kbd>+<kbd>P</kbd> to past your config from a notepad or txt file.
 
@@ -338,11 +345,10 @@ MISRC is loosely based on the [Domesday Duplicator (DdD)](https://github.com/sim
 
 It is built around the AD9235 analogue to digital converter by Analog Devices and is heavily based on the evaluation board circuit given in its datasheet with the AD8138 Op-Amp providing adjustable fixed gain.
 
-
 The MISRC like the DdD it originally used the [Cypress FX3 SuperSpeed Explorer board](https://www.infineon.com/cms/en/product/evaluation-boards/cyusb3kit-003/) for a USB 3.0 data connection, and using Sigronk for capture, with hopes to not use the DE0 FPGA, this ended with the adoption of the Tang Nano 20k and MS2130 "data over YUV" method being used. 
 
 
 ## License
 
 
-You can read the [License here](https://github.com/Stefan-Olt/MISRC/wiki/Licence).
+You can read the [License here](https://github.com/Stefan-Olt/MISRC/wiki/Licences).
