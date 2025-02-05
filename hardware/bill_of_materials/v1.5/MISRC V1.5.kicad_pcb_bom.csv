@@ -45,12 +45,12 @@ U1,1,4043,SO-16_3.9x9.9mm_P1.27mm,SMD,"HEF4043BT-Q100J",Exact Part Not Required
 "U2, U3, U4, U5",4,"74VHC541D,118",SOIC-20W_7.5x12.8mm_P1.27mm,SMD,"74VHC541D,118",Use Exact Part Yes,
 U6,1,TPS60401,SOT-23-5,SMD,"TPS60401DBVT",Use Exact Part Yes,
 U7,1,ADP7156ARDZ,SOIC-8-1EP_3.9x4.9mm_P1.27mm_EP2.29x3mm,SMD,ADP7156ARDZ-3.3-R7,Use Exact Part Yes,
-X1,1,40Mhz,Oscillator_SMD_EuroQuartz_XO53-4Pin_5.0x3.2mm,SMD,XO32050UITA-40.000,Use Exact Part Yes,Alternative: OT503240MJBA4SL
+X1,1,40Mhz,Oscillator_XO91_4Pin_7.0x5.0m,SMD,CB3LV-5I-40M0000,Use Exact Part Yes,Alternative: OT503240MJBA4SL
 ,,,,,,,
-PCBWay Friendly Version v1.5,,,,,,,
+PCBWay Friendly Version v1.6,,,,,,,
 Grand Total Parts: 192,,,,,,,
 Total Unique Parts: 50,,,,,,,
 ,,,,,,,
 Allow Substitutes yes.,,,,,,,
-Date: 15.08.2024 (DD.MM.YYYY),,,,,,,
+Date: 05.02.2025 (DD.MM.YYYY),,,,,,,
 Note: Mounting Holes 3.2mm M3,,,,,,,
