@@ -12405,6 +12405,80 @@
 			)
 		)
 	)
+	(footprint ""
+		(layer "F.Cu")
+		(uuid "5546944f-63e6-4f9c-99cc-586a4408a9b4")
+		(at 201.84 77.47)
+		(property "Reference" ""
+			(at 0 0 0)
+			(unlocked yes)
+			(layer "F.SilkS")
+			(uuid "aa0ce064-bd3c-4697-8658-06e617b746b4")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" ""
+			(at 0 0 0)
+			(unlocked yes)
+			(layer "F.Fab")
+			(uuid "255fe293-b700-40ce-9105-10ee38028f3d")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 0 0 0)
+			(unlocked yes)
+			(layer "F.Fab")
+			(hide yes)
+			(uuid "d6568c69-63f9-48c5-81c2-02dad10ce99e")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 0 0 0)
+			(unlocked yes)
+			(layer "F.Fab")
+			(hide yes)
+			(uuid "4d027e49-5e93-4951-af7e-9f82409f403d")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" ""
+			(at 0 0 0)
+			(unlocked yes)
+			(layer "F.Fab")
+			(hide yes)
+			(uuid "6876d7ed-305a-4d7c-86fa-25d1320bbec7")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pad "6" thru_hole oval
+			(at 0 0)
+			(size 1.7 1.7)
+			(drill 1)
+			(layers "*.Cu" "*.Mask")
+			(remove_unused_layers no)
+			(net 2 "GND")
+			(pinfunction "GND")
+			(pintype "power_in")
+			(uuid "5f19aa07-9b74-4f05-a8af-121b10a358a8")
+		)
+	)
 	(footprint "Resistor_SMD:R_0805_2012Metric"
 		(layer "F.Cu")
 		(uuid "555ae998-3237-4c02-986f-8be15fc15871")
@@ -16233,7 +16307,7 @@
 		(at 68.64 77.55)
 		(descr "BNC female PCB mount 4 pin straight chassis connector http://www.te.com/usa-en/product-1-1478204-0.html")
 		(tags "BNC female PCB mount 4 pin straight chassis connector ")
-		(property "Reference" "J201"
+		(property "Reference" "J202"
 			(at -0.02 -5.68 0)
 			(layer "F.SilkS")
 			(uuid "262d9dbd-5013-4395-889e-c7b695c7195d")
@@ -16245,7 +16319,7 @@
 			)
 		)
 		(property "Value" "DOSIN-801-0050"
-			(at 0.02 -5.67 0)
+			(at 0.19 1.82 0)
 			(layer "F.Fab")
 			(uuid "9e514807-0495-42db-9586-30de4b8b3fee")
 			(effects
@@ -17376,6 +17450,454 @@
 			)
 		)
 	)
+	(footprint "Package_SO:SOIC-20W_7.5x12.8mm_P1.27mm"
+		(layer "F.Cu")
+		(uuid "71c41980-3fb0-4c80-b2ab-9901b51422eb")
+		(at 143.86 86.615)
+		(descr "SOIC, 20 Pin (JEDEC MS-013AC, https://www.analog.com/media/en/package-pcb-resources/package/233848rw_20.pdf), generated with kicad-footprint-generator ipc_gullwing_generator.py")
+		(tags "SOIC SO")
+		(property "Reference" "U4"
+			(at 0 -7.35 0)
+			(layer "F.SilkS")
+			(uuid "20e6f0a9-ef40-4080-81f6-db27732f8a21")
+			(effects
+				(font
+					(size 0.8 0.8)
+					(thickness 0.12)
+				)
+			)
+		)
+		(property "Value" "74VHC541"
+			(at 0 7.35 0)
+			(layer "F.Fab")
+			(uuid "73ac13f9-8c97-4f3c-94c7-d45ab4f71c27")
+			(effects
+				(font
+					(size 1 1)
+					(thickness 0.15)
+				)
+			)
+		)
+		(property "Footprint" "Package_SO:SOIC-20W_7.5x12.8mm_P1.27mm"
+			(at 0 0 0)
+			(unlocked yes)
+			(layer "F.Fab")
+			(hide yes)
+			(uuid "63fd5406-ce1c-4ba7-b628-6baa0f7a1220")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 0 0 0)
+			(unlocked yes)
+			(layer "F.Fab")
+			(hide yes)
+			(uuid "cf481b6a-a1ff-4b20-a9a3-f7775f8d6c93")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "8-bit Buffer/Line Driver 3-state outputs"
+			(at 0 0 0)
+			(unlocked yes)
+			(layer "F.Fab")
+			(hide yes)
+			(uuid "2aa2c8c7-9c82-48df-b386-cab889910764")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(attr smd)
+		(fp_line
+			(start -3.86 -6.51)
+			(end -3.86 -6.275)
+			(stroke
+				(width 0.12)
+				(type solid)
+			)
+			(layer "F.SilkS")
+			(uuid "4c71c00a-8930-4095-93d7-60538c92a4c9")
+		)
+		(fp_line
+			(start -3.86 -6.275)
+			(end -5.675 -6.275)
+			(stroke
+				(width 0.12)
+				(type solid)
+			)
+			(layer "F.SilkS")
+			(uuid "2725885b-a3d1-43e1-9c15-7a375198ba8a")
+		)
+		(fp_line
+			(start -3.86 6.51)
+			(end -3.86 6.275)
+			(stroke
+				(width 0.12)
+				(type solid)
+			)
+			(layer "F.SilkS")
+			(uuid "6c261d7e-d12e-489e-b93b-6b9f10a64339")
+		)
+		(fp_line
+			(start 0 -6.51)
+			(end -3.86 -6.51)
+			(stroke
+				(width 0.12)
+				(type solid)
+			)
+			(layer "F.SilkS")
+			(uuid "6d6d2259-1ff8-4ab6-b7e6-3cfbc4f21526")
+		)
+		(fp_line
+			(start 0 -6.51)
+			(end 3.86 -6.51)
+			(stroke
+				(width 0.12)
+				(type solid)
+			)
+			(layer "F.SilkS")
+			(uuid "cc426b5d-53a2-4006-ac88-eeb419b75854")
+		)
+		(fp_line
+			(start 0 6.51)
+			(end -3.86 6.51)
+			(stroke
+				(width 0.12)
+				(type solid)
+			)
+			(layer "F.SilkS")
+			(uuid "50db3ded-ca26-4a55-af74-4644a338afe5")
+		)
+		(fp_line
+			(start 0 6.51)
+			(end 3.86 6.51)
+			(stroke
+				(width 0.12)
+				(type solid)
+			)
+			(layer "F.SilkS")
+			(uuid "7b0a686d-bfee-452a-b251-0273d6ac2ee8")
+		)
+		(fp_line
+			(start 3.86 -6.51)
+			(end 3.86 -6.275)
+			(stroke
+				(width 0.12)
+				(type solid)
+			)
+			(layer "F.SilkS")
+			(uuid "54ebb8e8-4812-47bb-99e7-41fc6262a938")
+		)
+		(fp_line
+			(start 3.86 6.51)
+			(end 3.86 6.275)
+			(stroke
+				(width 0.12)
+				(type solid)
+			)
+			(layer "F.SilkS")
+			(uuid "a9ac7147-a685-4391-9fbf-82f8ff5f2baf")
+		)
+		(fp_line
+			(start -5.93 -6.65)
+			(end -5.93 6.65)
+			(stroke
+				(width 0.05)
+				(type solid)
+			)
+			(layer "F.CrtYd")
+			(uuid "9ef67e6f-4d98-4a4e-b6b3-90d19abe0373")
+		)
+		(fp_line
+			(start -5.93 6.65)
+			(end 5.93 6.65)
+			(stroke
+				(width 0.05)
+				(type solid)
+			)
+			(layer "F.CrtYd")
+			(uuid "abd5d904-8e9e-443d-98a2-0916ccd4f889")
+		)
+		(fp_line
+			(start 5.93 -6.65)
+			(end -5.93 -6.65)
+			(stroke
+				(width 0.05)
+				(type solid)
+			)
+			(layer "F.CrtYd")
+			(uuid "9a3ef1e6-9cce-40bc-8999-85a3d74a28d6")
+		)
+		(fp_line
+			(start 5.93 6.65)
+			(end 5.93 -6.65)
+			(stroke
+				(width 0.05)
+				(type solid)
+			)
+			(layer "F.CrtYd")
+			(uuid "56bb2f1e-46b4-469d-b444-b35fe366e4ec")
+		)
+		(fp_line
+			(start -3.75 -5.4)
+			(end -2.75 -6.4)
+			(stroke
+				(width 0.1)
+				(type solid)
+			)
+			(layer "F.Fab")
+			(uuid "ec2d1a70-e55c-4ac5-a75b-ab833e8e55d1")
+		)
+		(fp_line
+			(start -3.75 6.4)
+			(end -3.75 -5.4)
+			(stroke
+				(width 0.1)
+				(type solid)
+			)
+			(layer "F.Fab")
+			(uuid "263d9549-2036-4091-8285-bfea2e12a6cc")
+		)
+		(fp_line
+			(start -2.75 -6.4)
+			(end 3.75 -6.4)
+			(stroke
+				(width 0.1)
+				(type solid)
+			)
+			(layer "F.Fab")
+			(uuid "d1585871-ba1b-4532-b74f-e857955c89d1")
+		)
+		(fp_line
+			(start 3.75 -6.4)
+			(end 3.75 6.4)
+			(stroke
+				(width 0.1)
+				(type solid)
+			)
+			(layer "F.Fab")
+			(uuid "3c53e0db-a549-4d44-9375-be7bfd029d60")
+		)
+		(fp_line
+			(start 3.75 6.4)
+			(end -3.75 6.4)
+			(stroke
+				(width 0.1)
+				(type solid)
+			)
+			(layer "F.Fab")
+			(uuid "89226e76-162c-4faf-b7cb-3a46580b915d")
+		)
+		(fp_text user "${REFERENCE}"
+			(at 0 0 0)
+			(layer "F.Fab")
+			(uuid "0befdcc2-439a-4265-bf23-752bd9930a72")
+			(effects
+				(font
+					(size 1 1)
+					(thickness 0.15)
+				)
+			)
+		)
+		(pad "1" smd roundrect
+			(at -4.65 -5.715)
+			(size 2.05 0.6)
+			(layers "F.Cu" "F.Paste" "F.Mask")
+			(roundrect_rratio 0.25)
+			(pinfunction "G1")
+			(pintype "input")
+			(uuid "095d8de1-1e20-41f3-b6c8-85c962080814")
+		)
+		(pad "2" smd roundrect
+			(at -4.65 -4.445)
+			(size 2.05 0.6)
+			(layers "F.Cu" "F.Paste" "F.Mask")
+			(roundrect_rratio 0.25)
+			(pinfunction "A0")
+			(pintype "input")
+			(uuid "9bb47685-0d7c-41ab-9e1d-e5018b0e02eb")
+		)
+		(pad "3" smd roundrect
+			(at -4.65 -3.175)
+			(size 2.05 0.6)
+			(layers "F.Cu" "F.Paste" "F.Mask")
+			(roundrect_rratio 0.25)
+			(pinfunction "A1")
+			(pintype "input")
+			(uuid "be29db08-2246-4ec8-86b8-452f07afd17b")
+		)
+		(pad "4" smd roundrect
+			(at -4.65 -1.905)
+			(size 2.05 0.6)
+			(layers "F.Cu" "F.Paste" "F.Mask")
+			(roundrect_rratio 0.25)
+			(pinfunction "A2")
+			(pintype "input")
+			(uuid "66841c1f-64fa-4658-a56d-be74da3d5745")
+		)
+		(pad "5" smd roundrect
+			(at -4.65 -0.635)
+			(size 2.05 0.6)
+			(layers "F.Cu" "F.Paste" "F.Mask")
+			(roundrect_rratio 0.25)
+			(pinfunction "A3")
+			(pintype "input")
+			(uuid "e7a90334-1a15-43cd-9510-5a1c1ee86535")
+		)
+		(pad "6" smd roundrect
+			(at -4.65 0.635)
+			(size 2.05 0.6)
+			(layers "F.Cu" "F.Paste" "F.Mask")
+			(roundrect_rratio 0.25)
+			(pinfunction "A4")
+			(pintype "input")
+			(uuid "327e829c-fa6c-4fb5-9d58-b0a5361ecf2e")
+		)
+		(pad "7" smd roundrect
+			(at -4.65 1.905)
+			(size 2.05 0.6)
+			(layers "F.Cu" "F.Paste" "F.Mask")
+			(roundrect_rratio 0.25)
+			(pinfunction "A5")
+			(pintype "input")
+			(uuid "2bf73d16-0cc5-44ee-937f-0439021b69a1")
+		)
+		(pad "8" smd roundrect
+			(at -4.65 3.175)
+			(size 2.05 0.6)
+			(layers "F.Cu" "F.Paste" "F.Mask")
+			(roundrect_rratio 0.25)
+			(pinfunction "A6")
+			(pintype "input")
+			(uuid "24ec7753-4040-4082-89c5-6a99cc9fa649")
+		)
+		(pad "9" smd roundrect
+			(at -4.65 4.445)
+			(size 2.05 0.6)
+			(layers "F.Cu" "F.Paste" "F.Mask")
+			(roundrect_rratio 0.25)
+			(pinfunction "A7")
+			(pintype "input")
+			(uuid "6dc3c603-e04c-4181-b4c2-c4feb5934867")
+		)
+		(pad "10" smd roundrect
+			(at -4.65 5.715)
+			(size 2.05 0.6)
+			(layers "F.Cu" "F.Paste" "F.Mask")
+			(roundrect_rratio 0.25)
+			(pinfunction "GND")
+			(pintype "power_in")
+			(uuid "7481563a-2c38-48d1-b8bf-15a57d635bb2")
+		)
+		(pad "11" smd roundrect
+			(at 4.65 5.715)
+			(size 2.05 0.6)
+			(layers "F.Cu" "F.Paste" "F.Mask")
+			(roundrect_rratio 0.25)
+			(pinfunction "Y7")
+			(pintype "tri_state")
+			(uuid "4aef6fe6-0df5-41e4-b658-bbf55a0ec553")
+		)
+		(pad "12" smd roundrect
+			(at 4.65 4.445)
+			(size 2.05 0.6)
+			(layers "F.Cu" "F.Paste" "F.Mask")
+			(roundrect_rratio 0.25)
+			(pinfunction "Y6")
+			(pintype "tri_state")
+			(uuid "86a77994-b085-4032-b126-b738bbc042ab")
+		)
+		(pad "13" smd roundrect
+			(at 4.65 3.175)
+			(size 2.05 0.6)
+			(layers "F.Cu" "F.Paste" "F.Mask")
+			(roundrect_rratio 0.25)
+			(pinfunction "Y5")
+			(pintype "tri_state")
+			(uuid "5a672877-9e89-402d-a5bf-52c626160deb")
+		)
+		(pad "14" smd roundrect
+			(at 4.65 1.905)
+			(size 2.05 0.6)
+			(layers "F.Cu" "F.Paste" "F.Mask")
+			(roundrect_rratio 0.25)
+			(pinfunction "Y4")
+			(pintype "tri_state")
+			(uuid "8417bf6a-75fc-4e01-becd-e4d0b3986246")
+		)
+		(pad "15" smd roundrect
+			(at 4.65 0.635)
+			(size 2.05 0.6)
+			(layers "F.Cu" "F.Paste" "F.Mask")
+			(roundrect_rratio 0.25)
+			(pinfunction "Y3")
+			(pintype "tri_state")
+			(uuid "b874ddf4-b654-4953-9dfe-81d3c6cc122b")
+		)
+		(pad "16" smd roundrect
+			(at 4.65 -0.635)
+			(size 2.05 0.6)
+			(layers "F.Cu" "F.Paste" "F.Mask")
+			(roundrect_rratio 0.25)
+			(pinfunction "Y2")
+			(pintype "tri_state")
+			(uuid "2e6ffe66-ad06-4bce-ac91-302cbc689f14")
+		)
+		(pad "17" smd roundrect
+			(at 4.65 -1.905)
+			(size 2.05 0.6)
+			(layers "F.Cu" "F.Paste" "F.Mask")
+			(roundrect_rratio 0.25)
+			(pinfunction "Y1")
+			(pintype "tri_state")
+			(uuid "210830b8-09a8-4856-8804-af814ee683ec")
+		)
+		(pad "18" smd roundrect
+			(at 4.65 -3.175)
+			(size 2.05 0.6)
+			(layers "F.Cu" "F.Paste" "F.Mask")
+			(roundrect_rratio 0.25)
+			(pinfunction "Y0")
+			(pintype "tri_state")
+			(uuid "8fe7e83e-cf3e-4d9e-b797-24af1434c113")
+		)
+		(pad "19" smd roundrect
+			(at 4.65 -4.445)
+			(size 2.05 0.6)
+			(layers "F.Cu" "F.Paste" "F.Mask")
+			(roundrect_rratio 0.25)
+			(pinfunction "G2")
+			(pintype "input")
+			(uuid "cd2bbe94-b888-4db3-8951-ea39c59bea2f")
+		)
+		(pad "20" smd roundrect
+			(at 4.65 -5.715)
+			(size 2.05 0.6)
+			(layers "F.Cu" "F.Paste" "F.Mask")
+			(roundrect_rratio 0.25)
+			(pinfunction "VCC")
+			(pintype "power_in")
+			(uuid "a0f7af0b-6af9-48c9-915c-79ffc127588e")
+		)
+		(model "${KICAD6_3DMODEL_DIR}/Package_SO.3dshapes/SOIC-20W_7.5x12.8mm_P1.27mm.wrl"
+			(offset
+				(xyz 0 0 0)
+			)
+			(scale
+				(xyz 1 1 1)
+			)
+			(rotate
+				(xyz 0 0 0)
+			)
+		)
+	)
 	(footprint "Button_Switch_SMD:SW_DIP_SPSTx02_Slide_6.7x6.64mm_W8.61mm_P2.54mm_LowProfile"
 		(layer "F.Cu")
 		(uuid "73eab7f9-649b-4d94-a50d-f68b88d88307")
@@ -18347,7 +18869,7 @@
 		(descr "Capacitor SMD 0805 (2012 Metric), square (rectangular) end terminal, IPC_7351 nominal, (Body size source: IPC-SM-782 page 76, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf, https://docs.google.com/spreadsheets/d/1BsfQQcO9C6DZCsRaXUlFlo91Tg2WpOkGARC1WS5S8t0/edit?usp=sharing), generated with kicad-footprint-generator")
 		(tags "capacitor")
 		(property "Reference" "C224"
-			(at -2.413 0 180)
+			(at -0.153 -1.329 90)
 			(layer "F.SilkS")
 			(uuid "9688411a-4d4c-4bcc-9219-b0300b69d759")
 			(effects
@@ -23492,6 +24014,80 @@
 			(uuid "3e5c4941-2374-45aa-9e8e-3a22b9fbfc9e")
 		)
 	)
+	(footprint ""
+		(layer "F.Cu")
+		(uuid "a0d7a3f0-38a9-4a54-b7b6-044919179504")
+		(at 159.75 77.47)
+		(property "Reference" ""
+			(at 0 0 0)
+			(unlocked yes)
+			(layer "F.SilkS")
+			(uuid "3a2b2a5a-9d87-48ad-b573-6de76c5b1f59")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" ""
+			(at 0 0 0)
+			(unlocked yes)
+			(layer "F.Fab")
+			(uuid "4fa4f467-e886-4dd7-8d93-85b9c781ca42")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 0 0 0)
+			(unlocked yes)
+			(layer "F.Fab")
+			(hide yes)
+			(uuid "32084765-0602-4261-9cf3-7b338b2d5d1c")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 0 0 0)
+			(unlocked yes)
+			(layer "F.Fab")
+			(hide yes)
+			(uuid "c0db36c0-94e2-4604-8922-39f2e87e73ad")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" ""
+			(at 0 0 0)
+			(unlocked yes)
+			(layer "F.Fab")
+			(hide yes)
+			(uuid "9a47dd13-2c54-4032-9ed4-8b7d8db25e3c")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pad "6" thru_hole oval
+			(at 0 0)
+			(size 1.7 1.7)
+			(drill 1)
+			(layers "*.Cu" "*.Mask")
+			(remove_unused_layers no)
+			(net 2 "GND")
+			(pinfunction "GND")
+			(pintype "power_in")
+			(uuid "5f19aa07-9b74-4f05-a8af-121b10a358a8")
+		)
+	)
 	(footprint "Capacitor_SMD:C_0805_2012Metric"
 		(layer "F.Cu")
 		(uuid "a187b85b-6de2-4220-916a-1eb33166025b")
@@ -24335,7 +24931,7 @@
 		(descr "BNC female PCB mount 4 pin straight chassis connector http://www.te.com/usa-en/product-1-1478204-0.html")
 		(tags "BNC female PCB mount 4 pin straight chassis connector ")
 		(property "Reference" "J201"
-			(at 0.125 -7.44 0)
+			(at 0.055 -6.13 0)
 			(layer "F.SilkS")
 			(uuid "efdb00da-c8a6-43d8-8eb4-b37ec3b4d29a")
 			(effects
@@ -24346,7 +24942,7 @@
 			)
 		)
 		(property "Value" "DOSIN-801-0050"
-			(at 0.02 -5.67 0)
+			(at 0.195 1.65 0)
 			(layer "F.Fab")
 			(uuid "28983dbf-a14f-477e-a138-6843ccb7e73f")
 			(effects
@@ -56476,8 +57072,8 @@
 			(justify left bottom)
 		)
 	)
-	(gr_text "AUX"
-		(at 137.795 100.203 90)
+	(gr_text "AUX Inputs\n"
+		(at 137.88 102.76 90)
 		(layer "F.SilkS")
 		(uuid "214b8402-a8ca-4634-b9ac-2f546434bc1f")
 		(effects
@@ -56490,7 +57086,7 @@
 		)
 	)
 	(gr_text "CPL A"
-		(at 85.471 71.628 90)
+		(at 85.45 72.1 90)
 		(layer "F.SilkS")
 		(uuid "2620e186-2be1-460e-bb10-1481b7662a17")
 		(effects
@@ -56670,13 +57266,13 @@
 			(justify left bottom)
 		)
 	)
-	(gr_text "CLOCK"
-		(at 123.444 89.916 0)
+	(gr_text "CLOCK OUT"
+		(at 120.03 90.26 0)
 		(layer "F.SilkS")
 		(uuid "7589736c-514a-4aba-8ec6-3cfeaa07a7b1")
 		(effects
 			(font
-				(size 1.2 1.2)
+				(size 1 1)
 				(thickness 0.25)
 				(bold yes)
 			)
@@ -56931,7 +57527,7 @@
 		)
 	)
 	(gr_text "CPL B"
-		(at 96.393 71.628 90)
+		(at 96.35 72.12 90)
 		(layer "F.SilkS")
 		(uuid "fe642362-8f62-457a-882d-ed412aa5895e")
 		(effects
@@ -80770,7 +81366,7 @@
 		(uuid "638a505b-619f-48de-8032-f03f9a87471c")
 	)
 	(via
-		(at 73.914 65.659)
+		(at 73.82 65.83)
 		(size 0.8)
 		(drill 0.4)
 		(layers "F.Cu" "B.Cu")
@@ -81010,7 +81606,7 @@
 		(uuid "778a7aa0-93a5-4b39-b9be-386b2d470b5a")
 	)
 	(via
-		(at 75.184 66.421)
+		(at 75.32 66.68)
 		(size 0.8)
 		(drill 0.4)
 		(layers "F.Cu" "B.Cu")
@@ -81666,7 +82262,7 @@
 		(uuid "b6bc3d54-89b0-41aa-9ae0-9bddb72fdc43")
 	)
 	(via
-		(at 82.55 65.532)
+		(at 83.05 66.36)
 		(size 0.8)
 		(drill 0.4)
 		(layers "F.Cu" "B.Cu")
