@@ -16704,7 +16704,7 @@
 		(descr "BNC female PCB mount 4 pin straight chassis connector http://www.te.com/usa-en/product-1-1478204-0.html")
 		(tags "BNC female PCB mount 4 pin straight chassis connector ")
 		(property "Reference" "J201"
-			(at -0.02 -5.68 0)
+			(at 0.01 -5.34 0)
 			(layer "F.SilkS")
 			(uuid "262d9dbd-5013-4395-889e-c7b695c7195d")
 			(effects
@@ -16715,7 +16715,7 @@
 			)
 		)
 		(property "Value" "DOSIN-801-0050"
-			(at 0.31 -1.69 0)
+			(at 0.55 -2.01 0)
 			(layer "F.Fab")
 			(uuid "9e514807-0495-42db-9586-30de4b8b3fee")
 			(effects
@@ -24804,8 +24804,8 @@
 		(at 68.645 111.96)
 		(descr "BNC female PCB mount 4 pin straight chassis connector http://www.te.com/usa-en/product-1-1478204-0.html")
 		(tags "BNC female PCB mount 4 pin straight chassis connector ")
-		(property "Reference" "J201"
-			(at 0.125 -7.44 0)
+		(property "Reference" "J101"
+			(at -0.045 -5.34 0)
 			(layer "F.SilkS")
 			(uuid "efdb00da-c8a6-43d8-8eb4-b37ec3b4d29a")
 			(effects
@@ -24816,7 +24816,7 @@
 			)
 		)
 		(property "Value" "DOSIN-801-0050"
-			(at 0.02 -5.67 0)
+			(at -0.265 -2.32 0)
 			(layer "F.Fab")
 			(uuid "28983dbf-a14f-477e-a138-6843ccb7e73f")
 			(effects
@@ -56972,7 +56972,7 @@
 		)
 	)
 	(gr_text "INPUT 2"
-		(at 64.3 86.33 0)
+		(at 64.14 85.11 0)
 		(layer "F.SilkS")
 		(uuid "28bcc559-80e0-434b-8cc1-bdcd4d469b69")
 		(effects
@@ -57011,7 +57011,7 @@
 		)
 	)
 	(gr_text "INPUT 1"
-		(at 64.38 120.37 0)
+		(at 64.33 119.52 0)
 		(layer "F.SilkS")
 		(uuid "3eadfd54-47e0-420a-b067-1d30ba950036")
 		(effects
