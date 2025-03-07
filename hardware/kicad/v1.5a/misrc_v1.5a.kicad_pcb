@@ -16808,7 +16808,7 @@
 			(drill 1.5)
 			(layers "*.Cu" "*.Mask")
 			(remove_unused_layers no)
-			(net 50 "Net-(J101-Signal)")
+			(net 66 "Net-(J201-Signal)")
 			(uuid "f1561b8e-ca23-404c-9ef3-e6bc6e82c971")
 		)
 		(pad "2" thru_hole circle
