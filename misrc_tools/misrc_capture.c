@@ -59,9 +59,9 @@
 #if LIBFLAC_ENABLED == 1
 #include "FLAC/metadata.h"
 #include "FLAC/stream_encoder.h"
-#define GETOPT_STRING "d:a:b:fl:vx:r:ph"
+#define GETOPT_STRING "d:a:b:fl:vx:r:wABph:n:t:"
 #else
-#define GETOPT_STRING "d:a:b:x:r:ph"
+#define GETOPT_STRING "d:a:b:x:r:wABph:n:t:"
 #endif
 
 #include "ringbuffer.h"
@@ -102,11 +102,15 @@ void usage(void)
 		"Usage:\n"
 		"\t[-d device_index (default: 0)]\n"
 		"\t[-n number of samples to read (default: 0, infinite)]\n"
+		"\t[-t seconds to capture (-n takes priority, assumes 40msps with a single ADC)]\n"
+		"\t[-w overwrite any files without asking]\n"
 		"\t[-a ADC A output file (use '-' to write on stdout)]\n"
 		"\t[-b ADC B output file (use '-' to write on stdout)]\n"
 		"\t[-x AUX output file (use '-' to write on stdout)]\n"
 		"\t[-r raw data output file (use '-' to write on stdout)]\n"
 		"\t[-p pad lower 4 bits of 16 bit output with 0 instead of upper 4]\n"
+		"\t[-A suppress clipping messages for ADC A (need to specify -a or -r as well)]\n"
+		"\t[-B suppress clipping messages for ADC B (need to specify -b or -r as well)]\n"
 #if LIBFLAC_ENABLED == 1
 		"\t[-f compress ADC output as FLAC]\n"
 		"\t[-l LEVEL set flac compression level (default: 1)]\n"
@@ -310,6 +314,16 @@ int main(int argc, char **argv)
 	char *output_name_aux = NULL;
 	char *output_name_raw = NULL;
 
+	//show clipping messages
+	bool suppress_a_clipping = false;
+	bool suppress_b_clipping = false;
+
+	//overwrite option
+	bool overwrite_files = false;
+
+	//number of samples to take
+	uint64_t total_samples_before_exit = 0;
+
 	//output files
 	FILE *output_aux = NULL;
 	FILE *output_raw = NULL;
@@ -362,6 +376,23 @@ int main(int argc, char **argv)
 		case 'p':
 			pad = 1;
 			break;
+		case 'w':
+			overwrite_files = true;
+			break;
+		case 'n':
+			total_samples_before_exit = (uint64_t)atoi(optarg);
+			break;
+		case 't':
+			if(total_samples_before_exit == 0) {
+				total_samples_before_exit = ((uint64_t)atoi(optarg)) * 40000000;
+			}
+			break;
+		case 'A':
+			suppress_a_clipping = true;
+			break;
+		case 'B':
+			suppress_b_clipping = true;
+			break;
 		case 'h':
 		default:
 			usage();
@@ -369,9 +400,19 @@ int main(int argc, char **argv)
 		}
 	}
 
-	if(output_names[0] == NULL && output_names[1] == NULL && output_name_aux == NULL && output_name_raw == NULL)
+	if((output_names[0] == NULL && output_names[1] == NULL && output_name_aux == NULL && output_name_raw == NULL))
 	{
 		usage();
+	}
+
+	if(suppress_a_clipping) {
+		fprintf(stderr, "Suppressing clipping messages from ADC A\n");
+	}
+	if(suppress_b_clipping) {
+		fprintf(stderr, "Suppressing clipping messages from ADC B\n");
+	}
+	if(total_samples_before_exit > 0) {
+		fprintf(stderr, "Capturing %ld samples before exiting\n", total_samples_before_exit);
 	}
 
 #ifndef _WIN32
@@ -393,7 +434,7 @@ int main(int argc, char **argv)
 			}
 			else
 			{
-				if (access(output_names[i], F_OK) == 0) {
+				if (access(output_names[i], F_OK) == 0 && !overwrite_files) {
 					char ch = 0;
 					fprintf(stderr, "File '%s' already exists. Overwrite? (y/n) ", output_names[i]);
 					scanf("%c",&ch);
@@ -428,7 +469,7 @@ int main(int argc, char **argv)
 		}
 		else if(output_name_aux != NULL)
 		{
-			if (access(output_name_aux, F_OK) == 0) {
+			if (access(output_name_aux, F_OK) == 0 && !overwrite_files) {
 				char ch = 0;
 				fprintf(stderr, "File '%s' already exists. Overwrite? (y/n) ", output_name_aux);
 				scanf("%c",&ch);
@@ -451,7 +492,7 @@ int main(int argc, char **argv)
 		}
 		else if(output_name_raw != NULL)
 		{
-			if (access(output_name_raw, F_OK) == 0) {
+			if (access(output_name_raw, F_OK) == 0 && !overwrite_files) {
 				char ch = 0;
 				fprintf(stderr, "File '%s' already exists. Overwrite? (y/n) ", output_name_raw);
 				scanf("%c",&ch);
@@ -506,14 +547,14 @@ int main(int argc, char **argv)
 
 		total_samples += BUFFER_READ_SIZE;
 
-		if(clip[0] > 0)
+		if(clip[0] > 0 && !suppress_a_clipping)
 		{
 			fprintf(stderr,"ADC A : %ld samples clipped\n",clip[0]);
 			clip[0] = 0;
 			new_line = 1;
 		}
 
-		if(clip[1] > 0)
+		if(clip[1] > 0 && !suppress_b_clipping)
 		{
 			fprintf(stderr,"ADC B : %ld samples clipped\n",clip[1]);
 			clip[1] = 0;
@@ -524,6 +565,10 @@ int main(int argc, char **argv)
 			new_line = 0;
 			fprintf(stderr,"\033[A\33[2K\r Progress: %13lu samples, %2uh %2um %2us\n", total_samples, (uint32_t)(total_samples/(144000000000)), (uint32_t)((total_samples/(2400000000)) % 60), (uint32_t)((total_samples/(40000000)) % 60));
 			fflush(stdout);
+		}
+		if (total_samples >= total_samples_before_exit && total_samples_before_exit != 0) {
+			fprintf(stderr, "%ld total samples have been collected, exiting early!\n", total_samples);
+			do_exit = true;
 		}
 	}
 
