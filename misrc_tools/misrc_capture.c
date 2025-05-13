@@ -21,6 +21,14 @@
 * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#if defined(__linux__)
+#define _GNU_SOURCE
+#include <sched.h>
+#elif defined(__APPLE__) || defined(__MACH__) || defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__) || defined(__DragonFly__)
+#include <sys/types.h>
+#include <sys/sysctl.h>
+#endif
+
 #include <errno.h>
 #include <signal.h>
 #include <string.h>
@@ -59,7 +67,17 @@
 #if LIBFLAC_ENABLED == 1
 #include "FLAC/metadata.h"
 #include "FLAC/stream_encoder.h"
-#define GETOPT_STRING "d:a:b:fl:vx:r:ph"
+# if defined(FLAC_API_VERSION_CURRENT) && FLAC_API_VERSION_CURRENT >= 14
+# define GETOPT_STRING "d:a:b:c:fl:vx:r:ph"
+static const char* const _FLAC_StreamEncoderSetNumThreadsStatusString[] = {
+	"FLAC__STREAM_ENCODER_SET_NUM_THREADS_OK",
+	"FLAC__STREAM_ENCODER_SET_NUM_THREADS_NOT_COMPILED_WITH_MULTITHREADING_ENABLED",
+	"FLAC__STREAM_ENCODER_SET_NUM_THREADS_ALREADY_INITIALIZED",
+	"FLAC__STREAM_ENCODER_SET_NUM_THREADS_TOO_MANY_THREADS"
+};
+# else
+# define GETOPT_STRING "d:a:b:fl:vx:r:ph"
+# endif
 #else
 #define GETOPT_STRING "d:a:b:x:r:ph"
 #endif
@@ -87,6 +105,7 @@ typedef struct {
 #if LIBFLAC_ENABLED == 1
 	uint32_t flac_level;
 	bool flac_verify;
+	uint32_t flac_threads;
 #endif
 } filewriter_ctx_t;
 
@@ -111,6 +130,9 @@ void usage(void)
 		"\t[-f compress ADC output as FLAC]\n"
 		"\t[-l LEVEL set flac compression level (default: 1)]\n"
 		"\t[-v enable verification of flac encoder output]\n"
+#if defined(FLAC_API_VERSION_CURRENT) && FLAC_API_VERSION_CURRENT >= 14
+		"\t[-c number of encoding threads per file (default: auto)]\n"
+#endif
 #endif
 	);
 	exit(1);
@@ -189,6 +211,7 @@ int flac_file_writer(void *ctx)
 	filewriter_ctx_t *file_ctx = ctx;
 	size_t len = BUFFER_READ_SIZE;
 	void *buf;
+	uint32_t ret;
 	FLAC__bool ok = true;
 	FLAC__StreamEncoder *encoder = NULL;
 	FLAC__StreamEncoderInitStatus init_status;
@@ -211,7 +234,12 @@ int flac_file_writer(void *ctx)
 		do_exit = 1;
 		return 0;
 	}
-	
+#if defined(FLAC_API_VERSION_CURRENT) && FLAC_API_VERSION_CURRENT >= 14
+	ret = FLAC__stream_encoder_set_num_threads(encoder, file_ctx->flac_threads);
+	if (ret != FLAC__STREAM_ENCODER_SET_NUM_THREADS_OK) {
+		fprintf(stderr, "ERROR: failed to set FLAC threads: %s\n", _FLAC_StreamEncoderSetNumThreadsStatusString[ret]);
+	}
+#endif
 	if((seektable = FLAC__metadata_object_new(FLAC__METADATA_TYPE_SEEKTABLE)) == NULL
 		|| FLAC__metadata_object_seektable_template_append_spaced_points(seektable, 1<<18, (uint64_t)1<<41) != true
 		|| FLAC__stream_encoder_set_metadata(encoder, &seektable, 1) != true) {
@@ -252,10 +280,12 @@ int flac_file_writer(void *ctx)
 	}
 	FLAC__metadata_object_seektable_template_sort(seektable, false);
 	/* bug in libflac, fix seektable manually */
+#if !defined(FLAC_API_VERSION_CURRENT) || FLAC_API_VERSION_CURRENT < 14
 	for(int i = seektable->data.seek_table.num_points-1; i>=0; i--) {
 		if (seektable->data.seek_table.points[i].stream_offset != 0) break;
 		seektable->data.seek_table.points[i].sample_number = 0xFFFFFFFFFFFFFFFF;
 	}
+#endif
 	ok = FLAC__stream_encoder_finish(encoder);
 	if(!ok) {
 		fprintf(stderr, "ERROR: FLAC encoder did not finish correctly: %s\n", FLAC__StreamEncoderStateString[FLAC__stream_encoder_get_state(encoder)]);
@@ -274,6 +304,55 @@ void print_hsdaoh_message(int msg_type, int msg, void *additional, void *ctx)
 	new_line = 1;
 }
 
+#if LIBFLAC_ENABLED == 1 && defined(FLAC_API_VERSION_CURRENT) && FLAC_API_VERSION_CURRENT >= 14
+uint32_t get_num_cores() {
+	uint32_t numberOfCores = 0;
+#if defined(_WIN32) || defined(_WIN64)
+	DWORD_PTR processAffinityMask;
+	DWORD_PTR systemAffinityMask;
+	if (GetProcessAffinityMask(GetCurrentProcess(), &processAffinityMask, &systemAffinityMask)) {
+		while (processAffinityMask) {
+			numberOfCores += processAffinityMask & 1;
+			processAffinityMask >>= 1;
+		}
+		return numberOfCores;
+	} else {
+		// Handle error
+		SYSTEM_INFO sysInfo;
+		fprintf(stderr, "GetProcessAffinityMask failed with error to get number of cores: %lu, fallback to GetSystemInfo\n", GetLastError());
+		GetSystemInfo(&sysInfo);
+		return sysInfo.dwNumberOfProcessors;
+	}
+#elif defined(__linux__)
+	cpu_set_t mask;
+	if (sched_getaffinity(0, sizeof(cpu_set_t), &mask) == 0) {
+		return CPU_COUNT(&mask);
+	} else {
+		// Handle error
+		fprintf(stderr, "sched_getaffinity failed to get number of cores, fallback to sysconf\n");
+		 // cores in deep-sleep are not counted with _SC_NPROCESSORS_ONLN, therefore using _CONF instead
+		return sysconf(_SC_NPROCESSORS_CONF);
+	}
+#elif defined(__APPLE__) || defined(__MACH__) || defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__) || defined(__DragonFly__)
+    size_t size = sizeof(numberOfCores);
+#if defined(__APPLE__) || defined(__MACH__)
+	if (sysctlbyname("hw.logicalcpu", &numberOfCores, &size, NULL, 0) == 0) {
+#else
+	if (sysctlbyname("hw.ncpu", &numberOfCores, &size, NULL, 0) == 0) {
+#endif
+		return numberOfCores;
+	} else {
+		// Handle error
+		fprintf(stderr, "failed to get number of cores\n");
+		return 0;
+	}
+#else
+	#warning "No code to get number of cores on this platform!"
+	return 0;
+#endif
+}
+#endif
+
 int main(int argc, char **argv)
 {
 //set pipe mode to binary in windows
@@ -288,6 +367,7 @@ int main(int argc, char **argv)
 #if LIBFLAC_ENABLED == 1
 	int flac_level = 1;
 	bool flac_verify = false;
+	uint32_t flac_threads = 0;
 #endif
 	thrd_start_t output_thread_func = raw_file_writer;
 	capture_ctx_t cap_ctx;
@@ -342,6 +422,11 @@ int main(int argc, char **argv)
 			output_names[1] = optarg;
 			break;
 #if LIBFLAC_ENABLED == 1
+#if defined(FLAC_API_VERSION_CURRENT) && FLAC_API_VERSION_CURRENT >= 14
+		case 'c':
+			flac_threads = (uint32_t)atoi(optarg);
+			break;
+#endif
 		case 'f':
 			output_thread_func = flac_file_writer;
 			out_size = 4;
@@ -373,6 +458,17 @@ int main(int argc, char **argv)
 	{
 		usage();
 	}
+
+#if LIBFLAC_ENABLED == 1 && defined(FLAC_API_VERSION_CURRENT) && FLAC_API_VERSION_CURRENT >= 14
+	if (flac_threads == 0) {
+		int out_cnt = ((output_names[0] == NULL) ? 0 : 1) + ((output_names[1] == NULL) ? 0 : 1);
+		flac_threads = get_num_cores();
+		fprintf(stderr,"Detected %d cores in the system available to the process\n",flac_threads);
+		flac_threads = (flac_threads - 2 - out_cnt) / out_cnt;
+		if (flac_threads == 0) flac_threads = 1;
+		if (flac_threads > 128) flac_threads = 128;
+	}
+#endif
 
 #ifndef _WIN32
 	sigact.sa_handler = sighandler;
@@ -408,6 +504,7 @@ int main(int argc, char **argv)
 #if LIBFLAC_ENABLED == 1
 			thread_out_ctx[i].flac_level = flac_level;
 			thread_out_ctx[i].flac_verify = flac_verify;
+			thread_out_ctx[i].flac_threads = flac_threads;
 #endif
 			outbuffer_name[3] = (char)(i+48);
 			rb_init(&thread_out_ctx[i].rb, outbuffer_name, BUFFER_TOTAL_SIZE);
