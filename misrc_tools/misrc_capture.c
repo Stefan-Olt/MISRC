@@ -462,11 +462,13 @@ int main(int argc, char **argv)
 #if LIBFLAC_ENABLED == 1 && defined(FLAC_API_VERSION_CURRENT) && FLAC_API_VERSION_CURRENT >= 14
 	if (flac_threads == 0) {
 		int out_cnt = ((output_names[0] == NULL) ? 0 : 1) + ((output_names[1] == NULL) ? 0 : 1);
-		flac_threads = get_num_cores();
-		fprintf(stderr,"Detected %d cores in the system available to the process\n",flac_threads);
-		flac_threads = (flac_threads - 2 - out_cnt) / out_cnt;
-		if (flac_threads == 0) flac_threads = 1;
-		if (flac_threads > 128) flac_threads = 128;
+		if (out_cnt != 0) {
+			flac_threads = get_num_cores();
+			fprintf(stderr,"Detected %d cores in the system available to the process\n",flac_threads);
+			flac_threads = (flac_threads - 2 - out_cnt) / out_cnt;
+			if (flac_threads == 0) flac_threads = 1;
+			if (flac_threads > 128) flac_threads = 128;
+		}
 	}
 #endif
 
