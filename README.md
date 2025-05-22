@@ -351,4 +351,4 @@ The MISRC like the DdD it originally used the [Cypress FX3 SuperSpeed Explorer b
 ## License
 
 
-You can read the [License here](https://github.com/Stefan-Olt/MISRC/wiki/Licences).
+You can read the [License here](https://github.com/Stefan-Olt/MISRC/wiki/Licenses)
