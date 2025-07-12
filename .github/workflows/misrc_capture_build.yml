@@ -1,4 +1,4 @@
-name: "Build and release misrc_capture binary"
+name: "Build Windows Release"
 
 on:
   workflow_dispatch:
