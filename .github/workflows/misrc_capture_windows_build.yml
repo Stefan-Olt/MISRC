@@ -55,6 +55,7 @@ jobs:
             exit 1
           }
           7z x ".\libusb.7z" "-o.\libusb" | Out-Null
+          Get-ChildItem .\libusb -Recurse | Write-Host # Debug: display extracted files
           if (-not (Test-Path ".\libusb")) {
             Write-Error "libusb extraction failed"
             exit 1
@@ -68,8 +69,14 @@ jobs:
             $libusbInclude = Split-Path (Join-Path .\libusb $libusbIncludePath) -Parent
             Write-Host "Found libusb.h at: $libusbInclude"
           } else {
-            Write-Error "libusb.h not found"
-            exit 1
+            # Fallback to known location
+            $libusbInclude = ".\libusb\include\libusb-1.0"
+            if (Test-Path "$libusbInclude\libusb.h") {
+              Write-Host "Using fallback include path: $libusbInclude"
+            } else {
+              Write-Error "libusb.h not found even in fallback location"
+              exit 1
+            }
           }
           
           if ($libusbLibPath) {
@@ -84,7 +91,8 @@ jobs:
           git clone https://github.com/Stefan-Olt/hsdaoh.git .\hsdaoh_src
           
           # Configure and build hsdaoh
-          cmake -B .\hsdaoh_build -S .\hsdaoh_src `
+          Write-Host "libusb include path: $libusbInclude" # Debug: print include path
+          cmake -B .\hsdaoh_build -S .\hsdaoh_src `\
             -G "Visual Studio 17 2022" `
             -A x64 `
             -DLIBUSB_INCLUDE_DIRS="$libusbInclude" `
