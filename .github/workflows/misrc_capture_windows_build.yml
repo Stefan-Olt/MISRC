@@ -92,7 +92,7 @@ jobs:
           
           # Configure and build hsdaoh
           Write-Host "libusb include path: $libusbInclude" # Debug: print include path
-          cmake -B .\hsdaoh_build -S .\hsdaoh_src `\
+          cmake -B .\hsdaoh_build -S .\hsdaoh_src `
             -G "Visual Studio 17 2022" `
             -A x64 `
             -DLIBUSB_INCLUDE_DIRS="$libusbInclude" `
