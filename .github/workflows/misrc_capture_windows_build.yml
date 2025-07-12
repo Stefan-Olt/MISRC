@@ -37,6 +37,7 @@ jobs:
             mingw-w64-x86_64-nasm
             mingw-w64-x86_64-flac
             mingw-w64-x86_64-pkgconf
+            mingw-w64-x86_64-binutils
             make
 
       - name: Setup hsdaoh environment from pre-built binaries
@@ -89,7 +90,16 @@ jobs:
           EOF
           
           # Create import library using dlltool
+          echo "Creating import library with dlltool..."
+          which dlltool || echo "dlltool not found"
+          dlltool --help | head -5 || echo "dlltool help failed"
+          
+          # Try to create the import library
           dlltool -d hsdaoh_deps/lib/hsdaoh.def -D libhsdaoh.dll -l hsdaoh_deps/lib/libhsdaoh.dll.a
+          
+          # Verify files were created
+          ls -la hsdaoh_deps/lib/
+          ls -la hsdaoh_deps/include/
           
           # Create a proper hsdaoh.h header
           cat > hsdaoh_deps/include/hsdaoh.h << 'EOF'
