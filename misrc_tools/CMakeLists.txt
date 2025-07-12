@@ -74,6 +74,12 @@ if(MISRC__CPU_X86_64)
 		#Add leading underscore when building macho64 object files
 		string(APPEND CMAKE_ASM_NASM_FLAGS "--prefix _") # is that correct for C code?
 	endif(APPLE)
+	# Set NASM specific flags, avoiding C compiler flags
+	if(WIN32)
+		set(CMAKE_ASM_NASM_OBJECT_FORMAT win64)
+		set_property(SOURCE extract.asm PROPERTY LANGUAGE ASM_NASM)
+		set_property(SOURCE extract.asm PROPERTY COMPILE_FLAGS "-fwin64")
+	endif()
 	add_executable(misrc_extract misrc_extract.c extract.c extract.asm)
 	add_executable(misrc_capture misrc_capture.c extract.c ringbuffer.c extract.asm)
 else()
