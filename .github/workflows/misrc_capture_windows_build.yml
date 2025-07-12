@@ -39,6 +39,8 @@ jobs:
             mingw-w64-x86_64-ninja
             mingw-w64-x86_64-nasm
             mingw-w64-x86_64-flac
+            mingw-w64-x86_64-pkgconf
+            make
 
       - name: Build libuvc (dependency for hsdaoh)
         run: |
@@ -50,7 +52,7 @@ jobs:
 
       - name: Build hsdaoh
         run: |
-          git clone https://github.com/Stefan-Olt/hsdaoh.git
+          git clone https://github.com/steve-m/hsdaoh.git
           mkdir hsdaoh/build && cd hsdaoh/build
           cmake ../
           cmake --build .
