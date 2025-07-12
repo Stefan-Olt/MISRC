@@ -34,7 +34,7 @@ endif()
 # For Windows, look for hsdaoh in HSDAOH_ROOT environment variable
 if(WIN32 AND NOT LIBHSDAOH_FOUND)
     if(DEFINED ENV{HSDAOH_ROOT})
-        find_library(HSDAOH_LIBRARY NAMES hsdaoh libhsdaoh PATHS $ENV{HSDAOH_ROOT} PATH_SUFFIXES lib)
+        find_library(HSDAOH_LIBRARY NAMES hsdaoh libhsdaoh libhsdaoh.dll.a PATHS $ENV{HSDAOH_ROOT} PATH_SUFFIXES lib)
         find_path(HSDAOH_INCLUDE_DIR hsdaoh.h PATHS $ENV{HSDAOH_ROOT} PATH_SUFFIXES include)
         
         if(HSDAOH_LIBRARY AND HSDAOH_INCLUDE_DIR)
