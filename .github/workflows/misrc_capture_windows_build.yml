@@ -173,11 +173,19 @@ jobs:
           cd misrc_tools
           mkdir build && cd build
           
+          # Debug environment variables
+          echo "HSDAOH_ROOT: $HSDAOH_ROOT"
+          echo "Contents of HSDAOH_ROOT:"
+          ls -la "$HSDAOH_ROOT" || echo "HSDAOH_ROOT directory not found"
+          ls -la "$HSDAOH_ROOT/lib" || echo "HSDAOH_ROOT/lib directory not found"
+          ls -la "$HSDAOH_ROOT/include" || echo "HSDAOH_ROOT/include directory not found"
+          
           # Configure with hsdaoh library
           cmake .. -G "Ninja" \
             -DCMAKE_PREFIX_PATH="${HSDAOH_ROOT}" \
-            -DLIBHSDAOH_LIBRARIES="${HSDAOH_ROOT}/lib/libhsdaoh.dll.a" \
-            -DLIBHSDAOH_INCLUDE_DIRS="${HSDAOH_ROOT}/include"
+            -DHSDAOH_LIBRARY="${HSDAOH_ROOT}/lib/libhsdaoh.dll.a" \
+            -DHSDAOH_INCLUDE_DIR="${HSDAOH_ROOT}/include" \
+            -DCMAKE_VERBOSE_MAKEFILE=ON
           
           # Build the tools
           ninja misrc_capture misrc_extract
