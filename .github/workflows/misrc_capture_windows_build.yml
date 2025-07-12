@@ -13,9 +13,6 @@ jobs:
   build-windows:
     name: Build Windows
     runs-on: windows-latest
-    defaults:
-      run:
-        shell: msys2 {0}
 
     steps:
       - uses: actions/checkout@v4
@@ -23,83 +20,28 @@ jobs:
           fetch-depth: 0
           fetch-tags: true
 
-      - name: Setup MSYS2
-        uses: msys2/setup-msys2@v2
-        with:
-          msystem: MINGW64
-          update: true
-          install: >
-            git
-            zip
-            mingw-w64-x86_64-libusb
-            mingw-w64-x86_64-libwinpthread
-            mingw-w64-x86_64-gcc
-            mingw-w64-x86_64-gcc-libs
-            mingw-w64-x86_64-cmake
-            mingw-w64-x86_64-ninja
-            mingw-w64-x86_64-nasm
-            mingw-w64-x86_64-flac
-            mingw-w64-x86_64-pkgconf
-            make
-
-      - name: Build libuvc (dependency for hsdaoh)
-        run: |
-          git clone https://github.com/steve-m/libuvc.git
-          mkdir libuvc/build && cd libuvc/build
-          cmake ../ -DCMAKE_INSTALL_PREFIX:PATH=/mingw64 -DCMAKE_POLICY_VERSION_MINIMUM=3.5
-          cmake --build .
-          cmake --install .
-
-      - name: Build hsdaoh
-        run: |
-          git clone https://github.com/steve-m/hsdaoh.git
-          mkdir hsdaoh/build && cd hsdaoh/build
-          cmake ../
-          cmake --build .
-
       - name: Download pcm_extract v1.0.0
-        shell: pwsh
         run: |
           Invoke-WebRequest "https://github.com/namazso/pcm_extract/releases/download/v1.0.0/pcm_extract.exe" -OutFile .\pcm_extract.exe
 
-      - name: Build MISRC tools
-        run: |
-          cd misrc_tools
-          mkdir build && cd build
-          cmake ..
-          make
-
       - name: Create binary archive
         run: |
-          # Create bundle directory and gather all built files
-          mkdir -p bundle
+          # Create bundle directory and gather all pre-built files
+          New-Item -ItemType Directory -Path .\bundle -Force
           
-          # Copy MISRC tools
-          cp misrc_tools/build/misrc_capture.exe bundle/ || true
-          cp misrc_tools/build/misrc_extract.exe bundle/ || true
+          # Copy pre-built Windows binaries
+          Copy-Item .\windows-binaries\* .\bundle\ -Force
           
-          # Copy hsdaoh binaries  
-          cp hsdaoh/build/src/*.exe bundle/ || true
-          
-          # Copy required DLLs following the README instructions
-          cp /mingw64/bin/libusb-1.0.dll bundle/ || true
-          cp /mingw64/bin/libuvc.dll bundle/ || true
-          cp /mingw64/bin/libwinpthread-1.dll bundle/ || true
-          cp /mingw64/bin/libgcc_s_seh-1.dll bundle/ || true
-          cp /mingw64/bin/libstdc++-6.dll bundle/ || true
-          cp /mingw64/bin/libFLAC.dll bundle/ || true
-          cp /mingw64/bin/libogg-0.dll bundle/ || true
-          
-          # Copy hsdaoh DLLs
-          cp hsdaoh/build/src/*.dll bundle/ || true
+          # Copy pcm_extract.exe
+          if (Test-Path ".\pcm_extract.exe") {
+            Copy-Item .\pcm_extract.exe .\bundle\
+          }
           
           # List what we have
-          ls -la bundle/
+          Get-ChildItem .\bundle\
           
-          # Create the archive 
-          cd bundle
-          zip -r ../${{ env.ARCHIVE_NAME_WINDOWS }} *
-          cd ..
+          # Create the archive with all files
+          Compress-Archive -Path .\bundle\* -DestinationPath ${{ env.ARCHIVE_NAME_WINDOWS }}
 
       - name: Upload binary artifact
         uses: actions/upload-artifact@v4
