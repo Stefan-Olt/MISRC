@@ -70,7 +70,7 @@ jobs:
             Write-Host "Found libusb.h at: $libusbInclude"
           } else {
             # Fallback to known location
-            $libusbInclude = ".\libusb\include\libusb-1.0"
+            $libusbInclude = ".\libusb\include"
             if (Test-Path "$libusbInclude\libusb.h") {
               Write-Host "Using fallback include path: $libusbInclude"
             } else {
