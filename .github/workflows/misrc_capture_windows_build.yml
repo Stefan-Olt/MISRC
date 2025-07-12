@@ -91,6 +91,16 @@ jobs:
             exit 1
           }
           
+          # Configure and build hsdaoh
+          Write-Host "libusb include path: $libusbInclude" # Debug: print include path
+          Write-Host "libusb library path: $libusbLib\libusb-1.0.lib" # Debug: print library path
+          
+          # Convert to absolute paths
+          $absoluteIncludePath = (Resolve-Path $libusbInclude).Path
+          $absoluteLibPath = (Resolve-Path "$libusbLib\libusb-1.0.lib").Path
+          Write-Host "Absolute include path: $absoluteIncludePath"
+          Write-Host "Absolute library path: $absoluteLibPath"
+          
           # Clone and build libuvc
           git clone https://github.com/libuvc/libuvc.git .\libuvc_src
           
@@ -119,16 +129,6 @@ jobs:
           
           # Clone and build libhsdaoh
           git clone https://github.com/Stefan-Olt/hsdaoh.git .\hsdaoh_src
-          
-          # Configure and build hsdaoh
-          Write-Host "libusb include path: $libusbInclude" # Debug: print include path
-          Write-Host "libusb library path: $libusbLib\libusb-1.0.lib" # Debug: print library path
-          
-          # Convert to absolute paths
-          $absoluteIncludePath = (Resolve-Path $libusbInclude).Path
-          $absoluteLibPath = (Resolve-Path "$libusbLib\libusb-1.0.lib").Path
-          Write-Host "Absolute include path: $absoluteIncludePath"
-          Write-Host "Absolute library path: $absoluteLibPath"
           
           cmake -B .\hsdaoh_build -S .\hsdaoh_src `
             -G "Visual Studio 17 2022" `
