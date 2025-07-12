@@ -11,6 +11,9 @@ include(FindLibFLAC)
 
 #Set C language version
 set(CMAKE_C_STANDARD 11)
+if(MSVC)
+  add_compile_options(/std:c11)
+endif()
 
 find_package(PkgConfig)
 
@@ -24,8 +27,29 @@ else()
     set(LIBHSDAOH_INCLUDE_DIRS "" CACHE STRING "manual libhsdaoh includepath")
 endif()
 
-if(PKG_CONFIG_FOUND AND NOT LIBHSDAOH_FOUND)
+if(PKG_CONFIG_FOUND AND NOT LIBHSDAOH_FOUND AND NOT WIN32)
     message(FATAL_ERROR "libhsdaoh required to build misrc_capture")
+endif()
+
+# For Windows, look for hsdaoh in HSDAOH_ROOT environment variable
+if(WIN32 AND NOT LIBHSDAOH_FOUND)
+    if(DEFINED ENV{HSDAOH_ROOT})
+        find_library(HSDAOH_LIBRARY NAMES hsdaoh libhsdaoh PATHS $ENV{HSDAOH_ROOT} PATH_SUFFIXES lib)
+        find_path(HSDAOH_INCLUDE_DIR hsdaoh.h PATHS $ENV{HSDAOH_ROOT} PATH_SUFFIXES include)
+        
+        if(HSDAOH_LIBRARY AND HSDAOH_INCLUDE_DIR)
+            set(LIBHSDAOH_LIBRARIES ${HSDAOH_LIBRARY})
+            set(LIBHSDAOH_INCLUDE_DIRS ${HSDAOH_INCLUDE_DIR})
+            set(LIBHSDAOH_FOUND TRUE)
+            message(STATUS "Found hsdaoh: ${HSDAOH_LIBRARY}")
+        else()
+            message(WARNING "hsdaoh library or headers not found in HSDAOH_ROOT")
+        endif()
+    else()
+        message(WARNING "libhsdaoh not found on Windows, attempting to build without it")
+        set(LIBHSDAOH_LIBRARIES "")
+        set(LIBHSDAOH_INCLUDE_DIRS "")
+    endif()
 endif()
 
 if(LIBFLAC_FOUND)
@@ -59,7 +83,18 @@ endif()
 
 set(INSTALL_TARGETS misrc_extract misrc_capture)
 
-target_link_libraries(misrc_capture hsdaoh ${LIBFLAC_LIBRARIES})
+if(LIBFLAC_FOUND)
+    target_include_directories(misrc_capture PRIVATE ${LIBFLAC_INCLUDE_DIRS})
+    if(NOT WIN32)
+        target_link_libraries(misrc_capture hsdaoh ${LIBFLAC_LIBRARIES})
+    else()
+        target_link_libraries(misrc_capture ${LIBFLAC_LIBRARIES})
+    endif()
+else()
+    if(NOT WIN32)
+        target_link_libraries(misrc_capture hsdaoh)
+    endif()
+endif()
 
 if(WIN32)
 	add_compile_definitions(_WIN32_WINNT=0x0A00)
