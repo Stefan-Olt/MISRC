@@ -91,6 +91,32 @@ jobs:
             exit 1
           }
           
+          # Clone and build libuvc
+          git clone https://github.com/libuvc/libuvc.git .\libuvc_src
+          
+          # Build libuvc
+          cmake -B .\libuvc_build -S .\libuvc_src `
+            -G "Visual Studio 17 2022" `
+            -A x64 `
+            -DLIBUSB_INCLUDE_DIRS="$absoluteIncludePath" `
+            -DLIBUSB_LIBRARIES="$absoluteLibPath" `
+            -DCMAKE_C_FLAGS="/I`"$absoluteIncludePath`"" `
+            -DCMAKE_CXX_FLAGS="/I`"$absoluteIncludePath`""
+          
+          cmake --build .\libuvc_build --config Release
+          
+          # Find libuvc paths
+          $libuvcInclude = ".\libuvc_src\include"
+          $libuvcLib = ".\libuvc_build\Release"
+          Write-Host "libuvc include path: $libuvcInclude"
+          Write-Host "libuvc library path: $libuvcLib"
+          
+          # Convert libuvc paths to absolute
+          $absoluteLibuvcIncludePath = (Resolve-Path $libuvcInclude).Path
+          $absoluteLibuvcLibPath = (Resolve-Path $libuvcLib).Path
+          Write-Host "Absolute libuvc include path: $absoluteLibuvcIncludePath"
+          Write-Host "Absolute libuvc library path: $absoluteLibuvcLibPath"
+          
           # Clone and build libhsdaoh
           git clone https://github.com/Stefan-Olt/hsdaoh.git .\hsdaoh_src
           
@@ -111,8 +137,10 @@ jobs:
             -DLIBUSB_LIBRARIES="$absoluteLibPath" `
             -DLIBUSB_INCLUDE_DIR="$absoluteIncludePath" `
             -DLIBUSB_LIBRARY="$absoluteLibPath" `
-            -DCMAKE_C_FLAGS="/I`"$absoluteIncludePath`"" `
-            -DCMAKE_CXX_FLAGS="/I`"$absoluteIncludePath`""
+            -DLIBUVC_INCLUDE_DIRS="$absoluteLibuvcIncludePath" `
+            -DLIBUVC_LIBRARIES="$absoluteLibuvcLibPath\libuvc.lib" `
+            -DCMAKE_C_FLAGS="/I`"$absoluteIncludePath`" /I`"$absoluteLibuvcIncludePath`"" `
+            -DCMAKE_CXX_FLAGS="/I`"$absoluteIncludePath`" /I`"$absoluteLibuvcIncludePath`""
           
           cmake --build .\hsdaoh_build --config Release
           
