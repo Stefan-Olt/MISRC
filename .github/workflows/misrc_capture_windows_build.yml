@@ -54,7 +54,7 @@ jobs:
             Write-Error "libusb.7z download failed"
             exit 1
           }
-          7z x .\libusb.7z -o.\libusb | Out-Null
+          7z x ".\libusb.7z" "-o.\libusb" | Out-Null
           if (-not (Test-Path ".\libusb")) {
             Write-Error "libusb extraction failed"
             exit 1
