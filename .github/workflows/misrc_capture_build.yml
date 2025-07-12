@@ -1,0 +1,53 @@
+name: "Build and release misrc_capture binary"
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "misrc_capture-*"
+
+env:
+  ARCHIVE_NAME_WINDOWS: ${{ github.ref_name }}-win-x86_64.zip
+
+jobs:
+  build-windows:
+    name: Build Windows
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Install MSVC
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Install NASM
+        env:
+          WINDOWS_NASM_URL: https://www.nasm.us/pub/nasm/releasebuilds/2.16.01/win64/nasm-2.16.01-win64.zip
+          WINDOWS_NASM_DIR: nasm-2.16.01
+        run: |
+          Invoke-WebRequest ${{ env.WINDOWS_NASM_URL }} -OutFile .\nasm.zip
+          Expand-Archive .\nasm.zip -DestinationPath .
+          Write-Output .\${{ env.WINDOWS_NASM_DIR }} | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+
+      - name: Build
+        run: |
+          cmake -B ${{ github.workspace }}\misrc_tools/build `
+            ${{ github.workspace }}\misrc_tools
+          cmake --build ${{ github.workspace }}\misrc_tools/build --target misrc_capture --config Release
+
+      - name: Create binary archive
+        run: |
+          Compress-Archive `
+          -Path ${{ github.workspace }}\misrc_tools\build\Release\misrc_capture.exe `
+          ${{ env.ARCHIVE_NAME_WINDOWS }}
+
+      - name: Upload binary artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: misrc_capture-windows
+          path: ${{ env.ARCHIVE_NAME_WINDOWS }}
+          if-no-files-found: error
+
