@@ -44,7 +44,7 @@ jobs:
         run: |
           git clone https://github.com/steve-m/libuvc.git
           mkdir libuvc/build && cd libuvc/build
-          cmake ../ -DCMAKE_INSTALL_PREFIX:PATH=/mingw64
+          cmake ../ -DCMAKE_INSTALL_PREFIX:PATH=/mingw64 -DCMAKE_POLICY_VERSION_MINIMUM=3.5
           cmake --build .
           cmake --install .
 
