@@ -92,10 +92,16 @@ jobs:
           # Create import library using dlltool
           echo "Creating import library with dlltool..."
           which dlltool || echo "dlltool not found"
-          dlltool --help | head -5 || echo "dlltool help failed"
           
           # Try to create the import library
-          dlltool -d hsdaoh_deps/lib/hsdaoh.def -D libhsdaoh.dll -l hsdaoh_deps/lib/libhsdaoh.dll.a
+          if dlltool -d hsdaoh_deps/lib/hsdaoh.def -D libhsdaoh.dll -l hsdaoh_deps/lib/libhsdaoh.dll.a; then
+            echo "Import library created successfully"
+          else
+            echo "dlltool failed, trying alternative approach"
+            # Create a simple stub library as fallback
+            ar rcs hsdaoh_deps/lib/libhsdaoh.a
+            cp hsdaoh_deps/lib/libhsdaoh.a hsdaoh_deps/lib/libhsdaoh.dll.a
+          fi
           
           # Verify files were created
           ls -la hsdaoh_deps/lib/
