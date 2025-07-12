@@ -96,13 +96,23 @@ jobs:
           
           # Configure and build hsdaoh
           Write-Host "libusb include path: $libusbInclude" # Debug: print include path
+          Write-Host "libusb library path: $libusbLib\libusb-1.0.lib" # Debug: print library path
+          
+          # Convert to absolute paths
+          $absoluteIncludePath = (Resolve-Path $libusbInclude).Path
+          $absoluteLibPath = (Resolve-Path "$libusbLib\libusb-1.0.lib").Path
+          Write-Host "Absolute include path: $absoluteIncludePath"
+          Write-Host "Absolute library path: $absoluteLibPath"
+          
           cmake -B .\hsdaoh_build -S .\hsdaoh_src `
             -G "Visual Studio 17 2022" `
             -A x64 `
-            -DLIBUSB_INCLUDE_DIRS="$libusbInclude" `
-            -DLIBUSB_LIBRARIES="$libusbLib\libusb-1.0.lib" `
-            -DCMAKE_C_FLAGS="/I`"$libusbInclude`"" `
-            -DCMAKE_CXX_FLAGS="/I`"$libusbInclude`""
+            -DLIBUSB_INCLUDE_DIRS="$absoluteIncludePath" `
+            -DLIBUSB_LIBRARIES="$absoluteLibPath" `
+            -DLIBUSB_INCLUDE_DIR="$absoluteIncludePath" `
+            -DLIBUSB_LIBRARY="$absoluteLibPath" `
+            -DCMAKE_C_FLAGS="/I`"$absoluteIncludePath`"" `
+            -DCMAKE_CXX_FLAGS="/I`"$absoluteIncludePath`""
           
           cmake --build .\hsdaoh_build --config Release
           
