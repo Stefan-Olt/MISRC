@@ -13,6 +13,9 @@ jobs:
   build-windows:
     name: Build Windows
     runs-on: windows-latest
+    defaults:
+      run:
+        shell: msys2 {0}
 
     steps:
       - uses: actions/checkout@v4
@@ -20,95 +23,81 @@ jobs:
           fetch-depth: 0
           fetch-tags: true
 
-      - name: Install MSVC
-        uses: ilammy/msvc-dev-cmd@v1
+      - name: Setup MSYS2
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          update: true
+          install: >
+            git
+            zip
+            mingw-w64-x86_64-libusb
+            mingw-w64-x86_64-libwinpthread
+            mingw-w64-x86_64-gcc
+            mingw-w64-x86_64-gcc-libs
+            mingw-w64-x86_64-cmake
+            mingw-w64-x86_64-ninja
+            mingw-w64-x86_64-nasm
+            mingw-w64-x86_64-flac
 
-      - name: Install NASM
-        env:
-          WINDOWS_NASM_URL: https://www.nasm.us/pub/nasm/releasebuilds/2.16.01/win64/nasm-2.16.01-win64.zip
-          WINDOWS_NASM_DIR: nasm-2.16.01
+      - name: Build libuvc (dependency for hsdaoh)
         run: |
-          Invoke-WebRequest ${{ env.WINDOWS_NASM_URL }} -OutFile .\nasm.zip
-          Expand-Archive .\nasm.zip -DestinationPath .
-          Write-Output .\${{ env.WINDOWS_NASM_DIR }} | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          git clone https://github.com/steve-m/libuvc.git
+          mkdir libuvc/build && cd libuvc/build
+          cmake ../ -DCMAKE_INSTALL_PREFIX:PATH=/mingw64
+          cmake --build .
+          cmake --install .
 
-      - name: Install 7-Zip
-        run: choco install 7zip --no-progress -y
-
-      - name: Install FLAC v1.5.0
-        env:
-          FLAC_URL: https://github.com/xiph/flac/releases/download/1.5.0/flac-1.5.0-win.zip
-          FLAC_DIR: flac-1.5.0-win
+      - name: Build hsdaoh
         run: |
-          Invoke-WebRequest ${{ env.FLAC_URL }} -OutFile .\flac.zip
-          Expand-Archive .\flac.zip -DestinationPath .
-          # Set environment variables for CMake to find FLAC
-          Write-Output "FLAC_ROOT=${{ github.workspace }}\${{ env.FLAC_DIR }}" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-          Write-Output "${{ github.workspace }}\${{ env.FLAC_DIR }}\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-
-      - name: Setup dependencies (Windows build without hsdaoh)
-        run: |
-          # Create empty hsdaoh_deps directory to satisfy CMake checks
-          New-Item -ItemType Directory -Path .\hsdaoh_deps -Force
-          
-          # Set environment for main build (empty path since we're building without hsdaoh)
-          Write-Output "HSDAOH_ROOT=${{ github.workspace }}\hsdaoh_deps" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-          Write-Output "${{ github.workspace }}\hsdaoh_deps" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-          
-          Write-Host "Building MISRC tools without hsdaoh dependency for Windows"
+          git clone https://github.com/Stefan-Olt/hsdaoh.git
+          mkdir hsdaoh/build && cd hsdaoh/build
+          cmake ../
+          cmake --build .
 
       - name: Download pcm_extract v1.0.0
+        shell: pwsh
         run: |
           Invoke-WebRequest "https://github.com/namazso/pcm_extract/releases/download/v1.0.0/pcm_extract.exe" -OutFile .\pcm_extract.exe
 
-      - name: Build
+      - name: Build MISRC tools
         run: |
-          cmake -B ${{ github.workspace }}\misrc_tools/build `
-            ${{ github.workspace }}\misrc_tools `
-            -G "Visual Studio 17 2022" `
-            -A x64
-          # Build both misrc_capture and misrc_extract
-          cmake --build ${{ github.workspace }}\misrc_tools/build --target misrc_capture --config Release
-          cmake --build ${{ github.workspace }}\misrc_tools/build --target misrc_extract --config Release
+          cd misrc_tools
+          mkdir build && cd build
+          cmake ..
+          make
 
       - name: Create binary archive
         run: |
-          # Create a temporary directory for bundling
-          New-Item -ItemType Directory -Path .\bundle -Force
+          # Create bundle directory and gather all built files
+          mkdir -p bundle
           
-          # Copy main executables
-          Copy-Item ${{ github.workspace }}\misrc_tools\build\Release\misrc_capture.exe .\bundle\
-          Copy-Item ${{ github.workspace }}\misrc_tools\build\Release\misrc_extract.exe .\bundle\
+          # Copy MISRC tools
+          cp misrc_tools/build/misrc_capture.exe bundle/ || true
+          cp misrc_tools/build/misrc_extract.exe bundle/ || true
           
-          # Copy pcm_extract.exe
-          if (Test-Path ".\pcm_extract.exe") {
-            Copy-Item .\pcm_extract.exe .\bundle\
-          }
+          # Copy hsdaoh binaries  
+          cp hsdaoh/build/src/*.exe bundle/ || true
           
-          # Copy FLAC executables and DLLs
-          if (Test-Path "${{ github.workspace }}\flac-1.5.0-win\bin") {
-            $flacBin = "${{ github.workspace }}\flac-1.5.0-win\bin"
-            # FLAC executables
-            if (Test-Path "$flacBin\flac.exe") { Copy-Item "$flacBin\flac.exe" .\bundle\ }
-            if (Test-Path "$flacBin\metaflac.exe") { Copy-Item "$flacBin\metaflac.exe" .\bundle\ }
-            # FLAC DLLs
-            if (Test-Path "$flacBin\libFLAC.dll") { Copy-Item "$flacBin\libFLAC.dll" .\bundle\ }
-            if (Test-Path "$flacBin\libFLAC++.dll") { Copy-Item "$flacBin\libFLAC++.dll" .\bundle\ }
-            if (Test-Path "$flacBin\libogg-0.dll") { Copy-Item "$flacBin\libogg-0.dll" .\bundle\ }
-          }
+          # Copy required DLLs following the README instructions
+          cp /mingw64/bin/libusb-1.0.dll bundle/ || true
+          cp /mingw64/bin/libuvc.dll bundle/ || true
+          cp /mingw64/bin/libwinpthread-1.dll bundle/ || true
+          cp /mingw64/bin/libgcc_s_seh-1.dll bundle/ || true
+          cp /mingw64/bin/libstdc++-6.dll bundle/ || true
+          cp /mingw64/bin/libFLAC.dll bundle/ || true
+          cp /mingw64/bin/libogg-0.dll bundle/ || true
           
-          # Copy hsdaoh dependencies
-          if (Test-Path ".\hsdaoh_deps") {
-            Get-ChildItem .\hsdaoh_deps -Filter "*.dll" | ForEach-Object {
-              Copy-Item $_.FullName .\bundle\
-            }
-            Get-ChildItem .\hsdaoh_deps -Filter "*.exe" | ForEach-Object {
-              Copy-Item $_.FullName .\bundle\
-            }
-          }
+          # Copy hsdaoh DLLs
+          cp hsdaoh/build/src/*.dll bundle/ || true
           
-          # Create the archive with all files
-          Compress-Archive -Path .\bundle\* -DestinationPath ${{ env.ARCHIVE_NAME_WINDOWS }}
+          # List what we have
+          ls -la bundle/
+          
+          # Create the archive 
+          cd bundle
+          zip -r ../${{ env.ARCHIVE_NAME_WINDOWS }} *
+          cd ..
 
       - name: Upload binary artifact
         uses: actions/upload-artifact@v4
