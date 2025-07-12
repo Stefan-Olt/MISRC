@@ -63,7 +63,11 @@ jobs:
           
           # Find libusb files dynamically
           $libusbIncludePath = Get-ChildItem .\libusb -Recurse -Name "libusb.h" | Select-Object -First 1
-          $libusbLibPath = Get-ChildItem .\libusb -Recurse -Name "libusb-1.0.lib" | Select-Object -First 1
+          # Prioritize 64-bit libraries over 32-bit ones
+          $libusbLibPath = Get-ChildItem .\libusb -Recurse -Name "libusb-1.0.lib" | Where-Object { $_ -like "*64*" -or $_ -like "*MS64*" } | Select-Object -First 1
+          if (-not $libusbLibPath) {
+            $libusbLibPath = Get-ChildItem .\libusb -Recurse -Name "libusb-1.0.lib" | Select-Object -First 1
+          }
           
           if ($libusbIncludePath) {
             $libusbInclude = Split-Path (Join-Path .\libusb $libusbIncludePath) -Parent
