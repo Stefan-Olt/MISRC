@@ -50,6 +50,10 @@ jobs:
           # Extract using 7z (available on Windows runners)
           7z x .\libusb.7z -o.\libusb
           
+          # Debug: Show libusb directory structure
+          Write-Host "libusb directory structure:"
+          Get-ChildItem .\libusb -Recurse | Select-Object FullName | ForEach-Object { Write-Host "  $($_.FullName)" }
+          
           # Download libuvc dependencies (we'll build this too)
           git clone https://github.com/libuvc/libuvc.git .\libuvc_src
 
@@ -58,14 +62,27 @@ jobs:
           # Clone libhsdaoh repository
           git clone https://github.com/Stefan-Olt/hsdaoh.git .\hsdaoh_src
           
-          # Set up environment for libusb
-          $env:LIBUSB_ROOT = "${{ github.workspace }}\libusb\libusb-1.0.27"
+          # Set up libusb paths
+          $libusbRoot = "${{ github.workspace }}\libusb\libusb-1.0.27"
+          $libusbInclude = "$libusbRoot\include\libusb-1.0"
+          $libusbLib = "$libusbRoot\MS64\dll"
           
-          # Build libhsdaoh
+          # Verify libusb paths exist
+          Write-Host "Checking libusb paths:"
+          Write-Host "  Root: $libusbRoot"
+          Write-Host "  Include: $libusbInclude"
+          Write-Host "  Lib: $libusbLib"
+          if (Test-Path $libusbInclude) { Write-Host "  ✓ Include path exists" } else { Write-Host "  ✗ Include path missing" }
+          if (Test-Path $libusbLib) { Write-Host "  ✓ Library path exists" } else { Write-Host "  ✗ Library path missing" }
+          
+          # Build libhsdaoh with proper libusb paths
           cmake -B .\hsdaoh_build -S .\hsdaoh_src `
             -G "Visual Studio 17 2022" `
             -A x64 `
-            -DLIBUSB_ROOT="$env:LIBUSB_ROOT"
+            -DLIBUSB_ROOT="$libusbRoot" `
+            -DLIBUSB_INCLUDE_DIRS="$libusbInclude" `
+            -DLIBUSB_LIBRARIES="$libusbLib\libusb-1.0.lib" `
+            -DCMAKE_PREFIX_PATH="$libusbRoot"
           cmake --build .\hsdaoh_build --config Release
           
           # Create dependencies directory and copy built files
@@ -80,7 +97,7 @@ jobs:
           }
           
           # Copy libusb DLLs
-          $libusbDll = "$env:LIBUSB_ROOT\MS64\dll\libusb-1.0.dll"
+          $libusbDll = "$libusbLib\libusb-1.0.dll"
           if (Test-Path $libusbDll) {
             Copy-Item $libusbDll .\hsdaoh_deps\
           }
