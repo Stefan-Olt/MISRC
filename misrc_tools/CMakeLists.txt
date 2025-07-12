@@ -11,6 +11,9 @@ include(FindLibFLAC)
 
 #Set C language version
 set(CMAKE_C_STANDARD 11)
+if(MSVC)
+  add_compile_options(/std:c11)
+endif()
 
 find_package(PkgConfig)
 
@@ -24,8 +27,15 @@ else()
     set(LIBHSDAOH_INCLUDE_DIRS "" CACHE STRING "manual libhsdaoh includepath")
 endif()
 
-if(PKG_CONFIG_FOUND AND NOT LIBHSDAOH_FOUND)
+if(PKG_CONFIG_FOUND AND NOT LIBHSDAOH_FOUND AND NOT WIN32)
     message(FATAL_ERROR "libhsdaoh required to build misrc_capture")
+endif()
+
+# For Windows, we'll try to build without libhsdaoh for now
+if(WIN32 AND NOT LIBHSDAOH_FOUND)
+    message(WARNING "libhsdaoh not found on Windows, attempting to build without it")
+    set(LIBHSDAOH_LIBRARIES "")
+    set(LIBHSDAOH_INCLUDE_DIRS "")
 endif()
 
 if(LIBFLAC_FOUND)
@@ -59,7 +69,11 @@ endif()
 
 set(INSTALL_TARGETS misrc_extract misrc_capture)
 
-target_link_libraries(misrc_capture hsdaoh ${LIBFLAC_LIBRARIES})
+if(LIBHSDAOH_FOUND OR NOT WIN32)
+    target_link_libraries(misrc_capture hsdaoh ${LIBFLAC_LIBRARIES})
+else()
+    target_link_libraries(misrc_capture ${LIBFLAC_LIBRARIES})
+endif()
 
 if(WIN32)
 	add_compile_definitions(_WIN32_WINNT=0x0A00)

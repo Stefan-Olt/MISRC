@@ -35,7 +35,9 @@ jobs:
       - name: Build
         run: |
           cmake -B ${{ github.workspace }}\misrc_tools/build `
-            ${{ github.workspace }}\misrc_tools
+            ${{ github.workspace }}\misrc_tools `
+            -G "Visual Studio 17 2022" `
+            -A x64
           cmake --build ${{ github.workspace }}\misrc_tools/build --target misrc_capture --config Release
 
       - name: Create binary archive
