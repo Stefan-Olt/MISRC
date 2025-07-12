@@ -32,6 +32,17 @@ jobs:
           Expand-Archive .\nasm.zip -DestinationPath .
           Write-Output .\${{ env.WINDOWS_NASM_DIR }} | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
+      - name: Install FLAC v1.5.0
+        env:
+          FLAC_URL: https://github.com/xiph/flac/releases/download/1.5.0/flac-1.5.0-win.zip
+          FLAC_DIR: flac-1.5.0-win
+        run: |
+          Invoke-WebRequest ${{ env.FLAC_URL }} -OutFile .\flac.zip
+          Expand-Archive .\flac.zip -DestinationPath .
+          # Set environment variables for CMake to find FLAC
+          Write-Output "FLAC_ROOT=${{ github.workspace }}\${{ env.FLAC_DIR }}" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          Write-Output "${{ github.workspace }}\${{ env.FLAC_DIR }}\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+
       - name: Build
         run: |
           cmake -B ${{ github.workspace }}\misrc_tools/build `
@@ -42,9 +53,16 @@ jobs:
 
       - name: Create binary archive
         run: |
-          Compress-Archive `
-          -Path ${{ github.workspace }}\misrc_tools\build\Release\misrc_capture.exe `
-          ${{ env.ARCHIVE_NAME_WINDOWS }}
+          # Create a temporary directory for bundling
+          New-Item -ItemType Directory -Path .\bundle -Force
+          # Copy the executable
+          Copy-Item ${{ github.workspace }}\misrc_tools\build\Release\misrc_capture.exe .\bundle\
+          # Copy FLAC DLL if it exists
+          if (Test-Path "${{ github.workspace }}\flac-1.5.0-win\bin\libFLAC.dll") {
+            Copy-Item ${{ github.workspace }}\flac-1.5.0-win\bin\libFLAC.dll .\bundle\
+          }
+          # Create the archive with all files
+          Compress-Archive -Path .\bundle\* -DestinationPath ${{ env.ARCHIVE_NAME_WINDOWS }}
 
       - name: Upload binary artifact
         uses: actions/upload-artifact@v4
