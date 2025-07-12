@@ -43,24 +43,71 @@ jobs:
           Write-Output "FLAC_ROOT=${{ github.workspace }}\${{ env.FLAC_DIR }}" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           Write-Output "${{ github.workspace }}\${{ env.FLAC_DIR }}\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
+      - name: Install libhsdaoh dependencies
+        run: |
+          # Download pre-built hsdaoh Windows release (contains libhsdaoh.dll, libusb-1.0.dll, libuvc.dll, libwinpthread-1.dll)
+          Invoke-WebRequest "https://github.com/Stefan-Olt/hsdaoh/releases/latest/download/hsdaoh_win_release.zip" -OutFile .\hsdaoh.zip -ErrorAction SilentlyContinue
+          if (Test-Path .\hsdaoh.zip) {
+            Expand-Archive .\hsdaoh.zip -DestinationPath .\hsdaoh_deps
+          } else {
+            Write-Host "Warning: Could not download hsdaoh dependencies, continuing without them"
+            New-Item -ItemType Directory -Path .\hsdaoh_deps -Force
+          }
+
+      - name: Download pcm_extract v1.0.0
+        run: |
+          Invoke-WebRequest "https://github.com/namazso/pcm_extract/releases/download/v1.0.0/pcm_extract.exe" -OutFile .\pcm_extract.exe
+
       - name: Build
         run: |
           cmake -B ${{ github.workspace }}\misrc_tools/build `
             ${{ github.workspace }}\misrc_tools `
             -G "Visual Studio 17 2022" `
             -A x64
+          # Build both misrc_capture and misrc_extract
           cmake --build ${{ github.workspace }}\misrc_tools/build --target misrc_capture --config Release
+          cmake --build ${{ github.workspace }}\misrc_tools/build --target misrc_extract --config Release
 
       - name: Create binary archive
         run: |
           # Create a temporary directory for bundling
           New-Item -ItemType Directory -Path .\bundle -Force
-          # Copy the executable
+          
+          # Copy main executables
           Copy-Item ${{ github.workspace }}\misrc_tools\build\Release\misrc_capture.exe .\bundle\
-          # Copy FLAC DLL if it exists
-          if (Test-Path "${{ github.workspace }}\flac-1.5.0-win\bin\libFLAC.dll") {
-            Copy-Item ${{ github.workspace }}\flac-1.5.0-win\bin\libFLAC.dll .\bundle\
+          Copy-Item ${{ github.workspace }}\misrc_tools\build\Release\misrc_extract.exe .\bundle\
+          
+          # Copy pcm_extract.exe
+          if (Test-Path ".\pcm_extract.exe") {
+            Copy-Item .\pcm_extract.exe .\bundle\
           }
+          
+          # Copy FLAC executables and DLLs
+          if (Test-Path "${{ github.workspace }}\flac-1.5.0-win\bin") {
+            $flacBin = "${{ github.workspace }}\flac-1.5.0-win\bin"
+            # FLAC executables
+            if (Test-Path "$flacBin\flac.exe") { Copy-Item "$flacBin\flac.exe" .\bundle\ }
+            if (Test-Path "$flacBin\metaflac.exe") { Copy-Item "$flacBin\metaflac.exe" .\bundle\ }
+            # FLAC DLLs
+            if (Test-Path "$flacBin\libFLAC.dll") { Copy-Item "$flacBin\libFLAC.dll" .\bundle\ }
+            if (Test-Path "$flacBin\libFLAC++.dll") { Copy-Item "$flacBin\libFLAC++.dll" .\bundle\ }
+            if (Test-Path "$flacBin\libogg-0.dll") { Copy-Item "$flacBin\libogg-0.dll" .\bundle\ }
+          }
+          
+          # Copy hsdaoh dependencies
+          if (Test-Path ".\hsdaoh_deps") {
+            Get-ChildItem .\hsdaoh_deps -Filter "*.dll" | ForEach-Object {
+              Copy-Item $_.FullName .\bundle\
+            }
+            Get-ChildItem .\hsdaoh_deps -Filter "*.exe" | ForEach-Object {
+              Copy-Item $_.FullName .\bundle\
+            }
+          }
+          
+          # List all files being bundled for verification
+          Write-Host "Files being bundled:"
+          Get-ChildItem .\bundle | ForEach-Object { Write-Host "  $_" }
+          
           # Create the archive with all files
           Compress-Archive -Path .\bundle\* -DestinationPath ${{ env.ARCHIVE_NAME_WINDOWS }}
 
