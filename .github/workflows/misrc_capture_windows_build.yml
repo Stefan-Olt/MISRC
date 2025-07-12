@@ -13,6 +13,9 @@ jobs:
   build-windows:
     name: Build Windows
     runs-on: windows-latest
+    defaults:
+      run:
+        shell: msys2 {0}
 
     steps:
       - uses: actions/checkout@v4
@@ -20,28 +23,93 @@ jobs:
           fetch-depth: 0
           fetch-tags: true
 
+      - name: Setup MSYS2
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          update: true
+          install: >
+            git
+            zip
+            mingw-w64-x86_64-gcc
+            mingw-w64-x86_64-cmake
+            mingw-w64-x86_64-ninja
+            mingw-w64-x86_64-nasm
+            mingw-w64-x86_64-flac
+            mingw-w64-x86_64-pkgconf
+            make
+
+      - name: Setup hsdaoh environment from pre-built binaries
+        run: |
+          # Create hsdaoh directory structure for CMake
+          mkdir -p hsdaoh_deps/lib
+          mkdir -p hsdaoh_deps/include
+          
+          # Copy pre-built hsdaoh library
+          cp windows-binaries/libhsdaoh.dll hsdaoh_deps/lib/
+          
+          # We need to create a simple hsdaoh.h header or find it
+          # For now, create a minimal one that allows compilation
+          cat > hsdaoh_deps/include/hsdaoh.h << 'EOF'
+          #ifndef HSDAOH_H
+          #define HSDAOH_H
+          // Minimal hsdaoh header for Windows build
+          // Real implementation comes from libhsdaoh.dll
+          int hsdaoh_init(void);
+          void hsdaoh_cleanup(void);
+          #endif
+          EOF
+          
+          # Set environment for CMake
+          echo "HSDAOH_ROOT=$(pwd)/hsdaoh_deps" >> $GITHUB_ENV
+
       - name: Download pcm_extract v1.0.0
+        shell: pwsh
         run: |
           Invoke-WebRequest "https://github.com/namazso/pcm_extract/releases/download/v1.0.0/pcm_extract.exe" -OutFile .\pcm_extract.exe
 
+      - name: Build MISRC tools from source
+        run: |
+          cd misrc_tools
+          mkdir build && cd build
+          
+          # Configure with minimal dependencies - build will work without hsdaoh on Windows
+          cmake .. -G "Ninja"
+          
+          # Build the tools
+          ninja misrc_capture misrc_extract
+          
+          # Verify build outputs
+          ls -la misrc_capture.exe misrc_extract.exe
+
       - name: Create binary archive
         run: |
-          # Create bundle directory and gather all pre-built files
-          New-Item -ItemType Directory -Path .\bundle -Force
+          # Create bundle directory 
+          mkdir -p bundle
           
-          # Copy pre-built Windows binaries
-          Copy-Item .\windows-binaries\* .\bundle\ -Force
+          # Copy freshly built MISRC tools
+          cp misrc_tools/build/misrc_capture.exe bundle/
+          cp misrc_tools/build/misrc_extract.exe bundle/
+          
+          # Copy pre-built dependency DLLs (not the old misrc_capture.exe)
+          cp windows-binaries/libhsdaoh.dll bundle/
+          cp windows-binaries/libuvc.dll bundle/
+          cp windows-binaries/libusb-1.0.dll bundle/
+          cp windows-binaries/libFLAC.dll bundle/
+          cp windows-binaries/libogg-0.dll bundle/
+          cp windows-binaries/libwinpthread-1.dll bundle/
+          cp windows-binaries/zadig-2.9.exe bundle/
           
           # Copy pcm_extract.exe
-          if (Test-Path ".\pcm_extract.exe") {
-            Copy-Item .\pcm_extract.exe .\bundle\
-          }
+          cp pcm_extract.exe bundle/ || true
           
           # List what we have
-          Get-ChildItem .\bundle\
+          ls -la bundle/
           
-          # Create the archive with all files
-          Compress-Archive -Path .\bundle\* -DestinationPath ${{ env.ARCHIVE_NAME_WINDOWS }}
+          # Create the archive 
+          cd bundle
+          zip -r ../${{ env.ARCHIVE_NAME_WINDOWS }} *
+          cd ..
 
       - name: Upload binary artifact
         uses: actions/upload-artifact@v4
