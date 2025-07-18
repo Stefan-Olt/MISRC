@@ -94,9 +94,9 @@ Possible capture examples:
 
 There are 2 tools currently and a few dependencies required to deploy a MISRC.
 
-- hsdaoh Driver
 - MISRC Capture
 - MISRC Extract
+- hsdaoh library
 
 > [!WARNING]  
 > The main hsdaoh branch (steve-m) does not have the required changes merged yet, ensure the above liked repo is used for install or your application will not build.
@@ -104,7 +104,7 @@ There are 2 tools currently and a few dependencies required to deploy a MISRC.
 
 <details closed>
 
-<summary>hsdaoh Driver Install Linux</summary>
+<summary>hsdaoh Install Linux</summary>
 <br>
 
 To install the build dependencies on a distribution based on Debian (e.g. Ubuntu), run the following command:
@@ -142,14 +142,14 @@ If you haven't already been a member, you need to logout and login again for the
 
 <details closed>
 
-<summary>hsdaoh Driver Install Windows</summary>
+<summary>hsdaoh Install Windows</summary>
 <br>
 
 **Currently, this is highly experimental, noted here for testing and is not production implimented yet!**
 
 Firstly download [Zadig](https://zadig.akeo.ie/)
 
-Force the installation of `WinUSB (v6.1.7600.16385)` or `libusb-win32 (v1.2.6.0)` on your MS2130/MS2131 adapter, on `interface 0` leave `interface 4` alone. 
+Force the installation of `WinUSB (v6.1.7600.16385)` or `libusb-win32 (v1.2.6.0)` driver on your MS2130/MS2131 adapter, on `interface 0` leave `interface 4` alone. 
 
 ```
 Interface 0 - USB Video
@@ -350,5 +350,5 @@ The MISRC like the DdD it originally used the [Cypress FX3 SuperSpeed Explorer b
 
 ## License
 
-
-You can read the [License here](https://github.com/Stefan-Olt/MISRC/wiki/Licences).
+The hardware, firmware and software is released under different open-source licenses.
+You can read the [License here](https://github.com/Stefan-Olt/MISRC/wiki/Licenses)
