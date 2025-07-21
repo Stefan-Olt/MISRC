@@ -52,6 +52,7 @@ Mkfile.old
 dkms.conf
 
 **/build
+!build/build-static.sh
 
 # KiCAD
 

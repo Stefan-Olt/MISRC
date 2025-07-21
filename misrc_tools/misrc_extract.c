@@ -22,6 +22,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdint.h>
+#include <inttypes.h>
 
 #ifndef _WIN32
 	#include <getopt.h>
@@ -245,13 +246,13 @@ int main(int argc, char **argv)
 
 			if(clip[0] > 0)
 			{
-				fprintf(stderr,"ADC A : %ld samples clipped\n",clip[0]);
+				fprintf(stderr,"ADC A : %zu samples clipped\n",clip[0]);
 				clip[0] = 0; 
 			}
 			
 			if(clip[1] > 0)
 			{
-				fprintf(stderr,"ADC B : %ld samples clipped\n",clip[1]);
+				fprintf(stderr,"ADC B : %zu samples clipped\n",clip[1]);
 				clip[1] = 0; 
 			}
 #if PERF_MEASURE

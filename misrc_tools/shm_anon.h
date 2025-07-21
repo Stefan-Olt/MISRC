@@ -3,6 +3,12 @@
 // Copyright 2019 Lassi Kortela
 // SPDX-License-Identifier: ISC
 
+#if defined(__GNUC__)
+# define SHM_ANON_UNUSED(x) x __attribute__((unused))
+#else
+# define SHM_ANON_UNUSED(x) x
+#endif
+
 #ifdef __linux__
 #define _GNU_SOURCE
 #include <linux/memfd.h>
@@ -62,7 +68,7 @@ shm_unlink_or_close(const char *name, int fd)
 
 #ifdef IMPL_POSIX
 static int
-memfd_create(const char *_name, unsigned int flags)
+memfd_create(const char SHM_ANON_UNUSED(*_name), unsigned int SHM_ANON_UNUSED(flags))
 {
 	char name[16] = "/shm-";
 	struct timespec tv;
@@ -92,7 +98,7 @@ memfd_create(const char *_name, unsigned int flags)
 
 #ifdef IMPL_SHM_MKSTEMP
 static int
-memfd_create(const char *_name, unsigned int flags)
+memfd_create(const char SHM_ANON_UNUSED(*_name), unsigned int SHM_ANON_UNUSED(flags))
 {
 	char name[16] = "/shm-XXXXXXXXXX";
 	int fd;

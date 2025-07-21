@@ -36,12 +36,13 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdint.h>
+#include <inttypes.h>
 #include <stdbool.h>
 #if __STDC_VERSION__ >= 201112L && ! __STDC_NO_THREADS__ && ! _WIN32
 #include <threads.h>
 #else
 #include "cthreads.h"
-#warning "No C threads, fallback to pthreads"
+#warning "No C threads, fallback to pthreads/winthreads"
 #endif
 #include <time.h>
 
@@ -93,6 +94,12 @@ static const char* const _FLAC_StreamEncoderSetNumThreadsStatusString[] = {
 
 #define _FILE_OFFSET_BITS 64
 
+#if defined(__GNUC__)
+# define UNUSED(x) x __attribute__((unused))
+#else
+# define UNUSED(x) x
+#endif
+
 typedef struct {
 	ringbuffer_t rb;
 	uint64_t samples_to_read;
@@ -135,7 +142,7 @@ void usage(void)
 		"\t[-l LEVEL set flac compression level (default: 1)]\n"
 		"\t[-v enable verification of flac encoder output]\n"
 #if defined(FLAC_API_VERSION_CURRENT) && FLAC_API_VERSION_CURRENT >= 14
-		"\t[-c number of encoding threads per file (default: auto)]\n"
+		"\t[-c number of flac encoding threads per file (default: auto)]\n"
 #endif
 #endif
 	);
@@ -155,7 +162,7 @@ sighandler(int signum)
 	return FALSE;
 }
 #else
-static void sighandler(int signum)
+static void sighandler(int UNUSED(signum))
 {
 	signal(SIGPIPE, SIG_IGN);
 	fprintf(stderr, "Signal caught, exiting!\n");
@@ -164,7 +171,7 @@ static void sighandler(int signum)
 }
 #endif
 
-static void hsdaoh_callback(unsigned char *buf, uint32_t len, uint8_t pack_state, void *ctx)
+static void hsdaoh_callback(unsigned char *buf, uint32_t len, uint8_t UNUSED(pack_state), void *ctx)
 {
 	capture_ctx_t *cap_ctx = ctx;
 	if (ctx) {
@@ -268,13 +275,6 @@ int flac_file_writer(void *ctx)
 			if (len == 0) break;
 			buf = rb_read_ptr(&file_ctx->rb, len);
 		}
-		/*int y=0, x=0;
-		for (int i=0; i<len>>2; i++) {
-			int32_t val = ((int32_t*)buf)[i];
-			if (val < -4096) y++;
-			if (val > 4096) x++;
-		}
-		if(x>0 || y>0) fprintf(stderr, "(%p) Out-of-range samples, below: %i above: %i\n", file_ctx->f, y, x); */
 		ok = FLAC__stream_encoder_process_interleaved(encoder, buf, len>>2);
 		if(!ok) {
 			fprintf(stderr, "ERROR: (%p) FLAC encoder could not process data: %s\n", file_ctx->f, FLAC__StreamEncoderStateString[FLAC__stream_encoder_get_state(encoder)]);
@@ -283,7 +283,7 @@ int flac_file_writer(void *ctx)
 		rb_read_finished(&file_ctx->rb, len);
 	}
 	FLAC__metadata_object_seektable_template_sort(seektable, false);
-	/* bug in libflac, fix seektable manually */
+	/* bug in libflac < 1.5, fix seektable manually */
 #if !defined(FLAC_API_VERSION_CURRENT) || FLAC_API_VERSION_CURRENT < 14
 	for(int i = seektable->data.seek_table.num_points-1; i>=0; i--) {
 		if (seektable->data.seek_table.points[i].stream_offset != 0) break;
@@ -302,7 +302,7 @@ int flac_file_writer(void *ctx)
 }
 #endif
 
-void print_hsdaoh_message(int msg_type, int msg, void *additional, void *ctx)
+void print_hsdaoh_message(int msg_type, int msg, void *additional, void UNUSED(*ctx))
 {
 	hsdaoh_get_message_string(msg_type, msg, additional, NULL);
 	new_line = 1;
@@ -373,7 +373,7 @@ int main(int argc, char **argv)
 	bool flac_verify = false;
 	uint32_t flac_threads = 0;
 #endif
-	thrd_start_t output_thread_func = raw_file_writer;
+	thrd_start_t output_thread_func = (thrd_start_t)raw_file_writer;
 	capture_ctx_t cap_ctx;
 	memset(&cap_ctx,0,sizeof(cap_ctx));
 
@@ -442,7 +442,7 @@ int main(int argc, char **argv)
 			break;
 #endif
 		case 'f':
-			output_thread_func = flac_file_writer;
+			output_thread_func = (thrd_start_t)flac_file_writer;
 			out_size = 4;
 			break;
 		case 'l':
@@ -498,7 +498,7 @@ int main(int argc, char **argv)
 		fprintf(stderr, "Suppressing clipping messages from ADC B\n");
 	}
 	if(total_samples_before_exit > 0) {
-		fprintf(stderr, "Capturing %ld samples before exiting\n", total_samples_before_exit);
+		fprintf(stderr, "Capturing %" PRIu64 " samples before exiting\n", total_samples_before_exit);
 	}
 
 #if LIBFLAC_ENABLED == 1 && defined(FLAC_API_VERSION_CURRENT) && FLAC_API_VERSION_CURRENT >= 14
@@ -650,25 +650,25 @@ int main(int argc, char **argv)
 
 		if(clip[0] > 0 && !suppress_a_clipping)
 		{
-			fprintf(stderr,"ADC A : %ld samples clipped\n",clip[0]);
+			fprintf(stderr,"ADC A : %zu samples clipped\n",clip[0]);
 			clip[0] = 0;
 			new_line = 1;
 		}
 
 		if(clip[1] > 0 && !suppress_b_clipping)
 		{
-			fprintf(stderr,"ADC B : %ld samples clipped\n",clip[1]);
+			fprintf(stderr,"ADC B : %zu samples clipped\n",clip[1]);
 			clip[1] = 0;
 			new_line = 1;
 		}
 		if (total_samples % (BUFFER_READ_SIZE<<2) == 0) {
 			if(new_line) fprintf(stderr,"\n");
 			new_line = 0;
-			fprintf(stderr,"\033[A\33[2K\r Progress: %13lu samples, %2uh %2um %2us\n", total_samples, (uint32_t)(total_samples/(144000000000)), (uint32_t)((total_samples/(2400000000)) % 60), (uint32_t)((total_samples/(40000000)) % 60));
+			fprintf(stderr,"\033[A\33[2K\r Progress: %13" PRIu64 " samples, %2uh %2um %2us\n", total_samples, (uint32_t)(total_samples/(144000000000)), (uint32_t)((total_samples/(2400000000)) % 60), (uint32_t)((total_samples/(40000000)) % 60));
 			fflush(stdout);
 		}
 		if (total_samples >= total_samples_before_exit && total_samples_before_exit != 0) {
-			fprintf(stderr, "%ld total samples have been collected, exiting early!\n", total_samples);
+			fprintf(stderr, "%" PRIu64 " total samples have been collected, exiting early!\n", total_samples);
 			do_exit = true;
 		}
 	}
