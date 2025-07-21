@@ -34,7 +34,7 @@ jobs:
       - name: Build
         run: |
           cd ${{ github.workspace }}/build
-          ./build-static
+          ./build-static.sh
 
       - name: Create binary archive
         run: >-
@@ -82,7 +82,7 @@ jobs:
       - name: Build
         run: |
           cd ${{ github.workspace }}/build
-          ./build-static
+          ./build-static.sh
 
       - name: Create binary archive
         run: >-
@@ -119,16 +119,17 @@ jobs:
             base-devel
             zip
             git
-            mingw-w64-clang-aarch64-clang
-            mingw-w64-clang-aarch64-pkgconf
-            mingw-w64-clang-aarch64-meson
-            mingw-w64-clang-aarch64-ninja
-            mingw-w64-clang-aarch64-cmake
+            mingw-w64-ucrt-x86_64-gcc
+            mingw-w64-ucrt-x86_64-pkg-config
+            mingw-w64-ucrt-x86_64-meson
+            mingw-w64-ucrt-x86_64-ninja
+            mingw-w64-ucrt-x86_64-cmake
+            mingw-w64-ucrt-x86_64-nasm
 
       - name: Build
         run: |
           cd ${{ github.workspace }}/build
-          ./build-static
+          ./build-static.sh
 
       - name: Create binary archive
         run: >-
@@ -164,18 +165,16 @@ jobs:
             base-devel
             zip
             git
-            mingw-w64-ucrt-x86_64-jq
-            mingw-w64-ucrt-x86_64-gcc
-            mingw-w64-ucrt-x86_64-pkg-config
-            mingw-w64-ucrt-x86_64-meson
-            mingw-w64-ucrt-x86_64-ninja
-            mingw-w64-ucrt-x86_64-cmake
-            mingw-w64-ucrt-x86_64-nasm
+            mingw-w64-clang-aarch64-clang
+            mingw-w64-clang-aarch64-pkgconf
+            mingw-w64-clang-aarch64-meson
+            mingw-w64-clang-aarch64-ninja
+            mingw-w64-clang-aarch64-cmake
 
       - name: Build
         run: |
           cd ${{ github.workspace }}/build
-          ./build-static
+          ./build-static.sh
 
       - name: Create binary archive
         run: >-
@@ -207,7 +206,7 @@ jobs:
       - name: Build
         run: |
           cd ${{ github.workspace }}/build
-          ./build-static
+          ./build-static.sh
 
       - name: Create binary archive
         run: >-
@@ -240,7 +239,7 @@ jobs:
       - name: Build
         run: |
           cd ${{ github.workspace }}/build
-          ./build-static
+          ./build-static.sh
 
       - name: Create binary archive
         run: >-
