@@ -28,7 +28,7 @@ jobs:
 
       - uses: awalsh128/cache-apt-pkgs-action@latest
         with:
-          packages: cmake nasm build-essential libusb-1.0-0-dev curl meson ninja
+          packages: cmake nasm build-essential libusb-1.0-0-dev curl meson ninja-build
           version: 1.0
 
       - name: Build
@@ -76,7 +76,7 @@ jobs:
 
       - uses: awalsh128/cache-apt-pkgs-action@latest
         with:
-          packages: cmake nasm build-essential libusb-1.0-0-dev curl meson ninja
+          packages: cmake nasm build-essential libusb-1.0-0-dev curl meson ninja-build
           version: 1.0
 
       - name: Build
@@ -128,7 +128,7 @@ jobs:
 
       - name: Build
         run: |
-          cd ${{ github.workspace }}/build
+          cd ${{ github.workspace }}\build
           ./build-static.sh
 
       - name: Create binary archive
@@ -173,7 +173,7 @@ jobs:
 
       - name: Build
         run: |
-          cd ${{ github.workspace }}/build
+          cd ${{ github.workspace }}\build
           ./build-static.sh
 
       - name: Create binary archive
