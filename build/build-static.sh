@@ -5,8 +5,7 @@ WORKSPACE="$CWD/workspace"
 CFLAGS="-I$WORKSPACE/include"
 LDFLAGS="-L$WORKSPACE/lib"
 export PATH="${WORKSPACE}/bin:$PATH"
-PKG_CONFIG_PATH="$WORKSPACE/lib/pkgconfig:/usr/local/lib/x86_64-linux-gnu/pkgconfig:/usr/local/lib/pkgconfig"
-PKG_CONFIG_PATH+=":/usr/local/share/pkgconfig:/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig:/usr/lib64/pkgconfig"
+PKG_CONFIG_PATH="$WORKSPACE/lib/pkgconfig:/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/lib/aarch64-linux-gnu/pkgconfig:/usr/local/lib/pkgconfig"
 export PKG_CONFIG_PATH
 
 if [[ ("$OSTYPE" == "darwin"*) ]]; then
@@ -20,7 +19,7 @@ fi
 
 mkdir -p "$WORKSPACE"
 
-if [[ ("$OSTYPE" != "cygwin"*) ]]; then
+if [[ ("$OSTYPE" != "cygwin"*) && ("$OSTYPE" != "msys"*) ]]; then
   curl -L --silent -o pkg-config-0.29.2.tar.gz "https://pkgconfig.freedesktop.org/releases/pkg-config-0.29.2.tar.gz"
   tar xzf pkg-config-0.29.2.tar.gz
   cd pkg-config-0.29.2
@@ -33,7 +32,7 @@ if [[ ("$OSTYPE" != "cygwin"*) ]]; then
   cd ../
 fi
 
-if [[ ("$OSTYPE" == "darwin"*) || ("$OSTYPE" == "cygwin"*) ]]; then
+if [[ ("$OSTYPE" == "darwin"*) || ("$OSTYPE" == "cygwin"*) || ("$OSTYPE" == "msys"*) ]]; then
   curl -L --silent -o "libusb-1.0.29.tar.bz2" "https://github.com/libusb/libusb/releases/download/v1.0.29/libusb-1.0.29.tar.bz2"
   tar xjf libusb-1.0.29.tar.bz2
   cd libusb-1.0.29

@@ -108,6 +108,10 @@ if host_system == 'windows'
   ldflags_capture += [ '-lonecore', '-static' ]
 endif
 
+if host_system == 'linux':
+  ldflags_capture += [ '-lm' ]
+endif
+
 executable('misrc_extract',
               sources_extract,
               dependencies: [],
