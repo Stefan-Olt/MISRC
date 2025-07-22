@@ -108,7 +108,7 @@ if host_system == 'windows'
   ldflags_capture += [ '-lonecore', '-static' ]
 endif
 
-if host_system == 'linux':
+if host_system == 'linux'
   ldflags_capture += [ '-lm' ]
 endif
 
