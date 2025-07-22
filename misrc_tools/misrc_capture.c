@@ -128,7 +128,7 @@ void usage(void)
 		"Usage:\n"
 		"\t[-d device_index (default: 0)]\n"
 		"\t[-n number of samples to read (default: 0, infinite)]\n"
-		"\t[-t seconds to capture (-n takes priority, assumes 40msps with a single ADC)]\n"
+		"\t[-t time to capture (seconds, m:s or h:m:s; -n takes priority, assumes 40msps)]\n"
 		"\t[-w overwrite any files without asking]\n"
 		"\t[-a ADC A output file (use '-' to write on stdout)]\n"
 		"\t[-b ADC B output file (use '-' to write on stdout)]\n"
@@ -465,11 +465,18 @@ int main(int argc, char **argv)
 			overwrite_files = true;
 			break;
 		case 'n':
-			total_samples_before_exit = (uint64_t)atoi(optarg);
+			total_samples_before_exit = (uint64_t)strtoull(optarg,NULL,0);
 			break;
 		case 't':
 			if(total_samples_before_exit == 0) {
-				total_samples_before_exit = ((uint64_t)atoi(optarg)) * 40000000;
+				char *tp;
+				tp = strtok(optarg, ":");
+				while (tp != NULL) {
+					total_samples_before_exit *= 60;
+					total_samples_before_exit += (uint64_t)strtoull(tp,NULL,10);
+					tp = strtok(NULL, ":");
+				}
+				total_samples_before_exit *= 40000000;
 			}
 			break;
 		case 'A':

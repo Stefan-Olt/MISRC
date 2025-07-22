@@ -38,10 +38,12 @@ jobs:
 
       - name: Create binary archive
         run: |
+          cp LICENSE.GPL ./build/workspace/bin/
+          cp ./build/LEGAL.txt ./build/workspace/bin/
           tar -cvzf ~/${{ env.ARCHIVE_NAME_LINUX }} \
           --owner=root --group=root \
           -C ${{ github.workspace }}/build/workspace/bin \
-          misrc_capture misrc_extract
+          misrc_capture misrc_extract LICENSE.GPL LEGAL.txt
 
       - name: Create source archive
         run: |
@@ -86,11 +88,12 @@ jobs:
 
       - name: Create binary archive
         run: |
-          cd
+          cp LICENSE.GPL ./build/workspace/bin/
+          cp ./build/LEGAL.txt ./build/workspace/bin/
           tar -cvzf ~/${{ env.ARCHIVE_NAME_LINUX_ARM }} \
           --owner=root --group=root \
           -C ${{ github.workspace }}/build/workspace/bin \
-          misrc_capture misrc_extract
+          misrc_capture misrc_extract LICENSE.GPL LEGAL.txt
 
       - name: Upload binary artifact
         uses: actions/upload-artifact@v4
@@ -137,7 +140,9 @@ jobs:
           ws="${GITHUB_WORKSPACE//\\//}"
           zip -9 -j ${{ env.ARCHIVE_NAME_WINDOWS }} \
           "${ws}/build/workspace/bin/misrc_capture.exe" \
-          "${ws}/build/workspace/bin/misrc_extract.exe"
+          "${ws}/build/workspace/bin/misrc_extract.exe" \
+          "${ws}/LICENSE.GPL" \
+          "${ws}/build/LEGAL.txt"
 
       - name: Upload binary artifact
         uses: actions/upload-artifact@v4
@@ -183,7 +188,9 @@ jobs:
           ws="${GITHUB_WORKSPACE//\\//}"
           zip -9 -j ${{ env.ARCHIVE_NAME_WINDOWS_ARM }} \
           "${ws}/build/workspace/bin/misrc_capture.exe" \
-          "${ws}/build/workspace/bin/misrc_extract.exe"
+          "${ws}/build/workspace/bin/misrc_extract.exe" \
+          "${ws}/LICENSE.GPL" \
+          "${ws}/build/LEGAL.txt"
 
       - name: Upload binary artifact
         uses: actions/upload-artifact@v4
@@ -212,11 +219,13 @@ jobs:
           ./build-static.sh
 
       - name: Create binary archive
-        run: >-
-          tar -cvzf ${{ env.ARCHIVE_NAME_MACOS_INTEL }}
-          --uid 0 --gid 0 --no-acls
-          -C ${{ github.workspace }}/build/workspace/bin
-          misrc_capture misrc_extract
+        run: |
+          cp LICENSE.GPL ./build/workspace/bin/
+          cp ./build/LEGAL.txt ./build/workspace/bin/
+          tar -cvzf ${{ env.ARCHIVE_NAME_MACOS_INTEL }} \
+          --uid 0 --gid 0 --no-acls \
+          -C ${{ github.workspace }}/build/workspace/bin \
+          misrc_capture misrc_extract LICENSE.GPL LEGAL.txt
 
       - name: Upload binary artifact
         uses: actions/upload-artifact@v4
@@ -245,11 +254,13 @@ jobs:
           ./build-static.sh
 
       - name: Create binary archive
-        run: >-
-          tar -cvzf ${{ env.ARCHIVE_NAME_MACOS_ARM }}
-          --uid 0 --gid 0 --no-acls
-          -C ${{ github.workspace }}/build/workspace/bin
-          misrc_capture misrc_extract
+        run: |
+          cp LICENSE.GPL ./build/workspace/bin/
+          cp ./build/LEGAL.txt ./build/workspace/bin/
+          tar -cvzf ${{ env.ARCHIVE_NAME_MACOS_ARM }} \
+          --uid 0 --gid 0 --no-acls \
+          -C ${{ github.workspace }}/build/workspace/bin \
+          misrc_capture misrc_extract LICENSE.GPL LEGAL.txt
 
       - name: Upload binary artifact
         uses: actions/upload-artifact@v4

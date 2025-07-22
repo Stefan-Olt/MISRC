@@ -1,0 +1,10 @@
+misrc_tools
+licensed under GNU GPL v3 or later, (c) 2024-2025 vrunk11, stefan_o
+
+misrc_capture contains statically linked:
+ hsdaoh  - Copyright (C) 2024       Steve Markgraf
+ libuvc  - Copyright (C) 2010-2015  Ken Tossell
+ libflac - Copyright (C) 2000-2025  Josh Coalson, Xiph.Org Foundation
+ libusb* - Copyright (C) 2001-2023  Johannes Erdfelt, Daniel Drake, Nathan Hjelm
+ 
+ *) libusb is not contained in Linux builds
