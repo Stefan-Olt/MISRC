@@ -133,10 +133,11 @@ jobs:
           ./build-static.sh
 
       - name: Create binary archive
-        run: >-
-          zip -9 -j ${{ env.ARCHIVE_NAME_WINDOWS }}
-          '${{ github.workspace | regex_replace("\\", "/") }}/build/workspace/bin/misrc_capture.exe'
-          '${{ github.workspace | regex_replace("\\", "/") }}/build/workspace/bin/misrc_extract.exe'
+        run: |
+          ws="${GITHUB_WORKSPACE//\\//}"
+          zip -9 -j ${{ env.ARCHIVE_NAME_WINDOWS }} \
+          '${ws}/build/workspace/bin/misrc_capture.exe' \
+          '${ws}/build/workspace/bin/misrc_extract.exe'
 
       - name: Upload binary artifact
         uses: actions/upload-artifact@v4
@@ -178,10 +179,11 @@ jobs:
           ./build-static.sh
 
       - name: Create binary archive
-        run: >-
-          zip -9 -j ${{ env.ARCHIVE_NAME_WINDOWS_ARM }}
-          '${{ github.workspace | regex_replace("\\", "/") }}/build/workspace/bin/misrc_capture.exe'
-          '${{ github.workspace | regex_replace("\\", "/") }}/build/workspace/bin/misrc_extract.exe'
+        run: |
+          ws="${GITHUB_WORKSPACE//\\//}"
+          zip -9 -j ${{ env.ARCHIVE_NAME_WINDOWS_ARM }} \
+          '${ws}/build/workspace/bin/misrc_capture.exe' \
+          '${ws}/build/workspace/bin/misrc_extract.exe'
 
       - name: Upload binary artifact
         uses: actions/upload-artifact@v4
