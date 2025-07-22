@@ -98,7 +98,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: misrc_tools-linux-arm
-          path: ${{ env.ARCHIVE_NAME_LINUX }}
+          path: ${{ env.ARCHIVE_NAME_LINUX_ARM }}
           if-no-files-found: error
 
   build-windows:
@@ -137,8 +137,8 @@ jobs:
       - name: Create binary archive
         run: >-
           zip -9 -j ${{ env.ARCHIVE_NAME_WINDOWS_ARM }}
-          ${{ github.workspace }}/build/workspace/bin/misrc_capture.exe
-          ${{ github.workspace }}/build/workspace/bin/misrc_extract.exe
+          ${{ github.workspace }}\build\workspace\bin\misrc_capture.exe
+          ${{ github.workspace }}\build\workspace\bin\misrc_extract.exe
 
       - name: Upload binary artifact
         uses: actions/upload-artifact@v4
@@ -182,8 +182,8 @@ jobs:
       - name: Create binary archive
         run: >-
           zip -9 -j ${{ env.ARCHIVE_NAME_WINDOWS }}
-          ${{ github.workspace }}/build/workspace/bin/misrc_capture.exe
-          ${{ github.workspace }}/build/workspace/bin/misrc_extract.exe
+          ${{ github.workspace }}\build\workspace\bin\misrc_capture.exe
+          ${{ github.workspace }}\build\workspace\bin\misrc_extract.exe
 
       - name: Upload binary artifact
         uses: actions/upload-artifact@v4
