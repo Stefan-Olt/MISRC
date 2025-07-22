@@ -37,19 +37,19 @@ jobs:
           ./build-static.sh
 
       - name: Create binary archive
-        run: >-
+        run: |
           cd
-          tar -cvzf ${{ env.ARCHIVE_NAME_LINUX }}
-          --owner=root --group=root
-          -C ${{ github.workspace }}/build/workspace/bin
+          tar -cvzf ${{ env.ARCHIVE_NAME_LINUX }} \
+          --owner=root --group=root \
+          -C ${{ github.workspace }}/build/workspace/bin \
           misrc_capture misrc_extract
 
       - name: Create source archive
-        run: >-
+        run: |
           cd
-          tar -cvzf ${{ env.ARCHIVE_NAME_SRC }}
-          --owner=root --group=root
-          --exclude=build
+          tar -cvzf ${{ env.ARCHIVE_NAME_SRC }} \
+          --owner=root --group=root \
+          --exclude=build \
           misrc_tools
 
       - name: Upload binary artifact
@@ -87,11 +87,11 @@ jobs:
           ./build-static.sh
 
       - name: Create binary archive
-        run: >-
+        run: |
           cd
-          tar -cvzf ${{ env.ARCHIVE_NAME_LINUX_ARM }}
-          --owner=root --group=root
-          -C ${{ github.workspace }}/build/workspace/bin
+          tar -cvzf ${{ env.ARCHIVE_NAME_LINUX_ARM }} \
+          --owner=root --group=root \
+          -C ${{ github.workspace }}/build/workspace/bin \
           misrc_capture misrc_extract
 
       - name: Upload binary artifact
@@ -137,8 +137,8 @@ jobs:
       - name: Create binary archive
         run: >-
           zip -9 -j ${{ env.ARCHIVE_NAME_WINDOWS_ARM }}
-          ${{ github.workspace }}/build/workspace/bin/misrc_capture
-          ${{ github.workspace }}/build/workspace/bin/misrc_extract
+          ${{ github.workspace }}/build/workspace/bin/misrc_capture.exe
+          ${{ github.workspace }}/build/workspace/bin/misrc_extract.exe
 
       - name: Upload binary artifact
         uses: actions/upload-artifact@v4
@@ -182,8 +182,8 @@ jobs:
       - name: Create binary archive
         run: >-
           zip -9 -j ${{ env.ARCHIVE_NAME_WINDOWS }}
-          ${{ github.workspace }}/build/workspace/bin/misrc_capture
-          ${{ github.workspace }}/build/workspace/bin/misrc_extract
+          ${{ github.workspace }}/build/workspace/bin/misrc_capture.exe
+          ${{ github.workspace }}/build/workspace/bin/misrc_extract.exe
 
       - name: Upload binary artifact
         uses: actions/upload-artifact@v4

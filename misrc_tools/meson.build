@@ -106,6 +106,9 @@ if host_system == 'windows'
   sources_capture += [ 'getopt/getopt.c' ]
   cflags += [ '-DNTDDI_VERSION=NTDDI_WIN10_RS4', '-D_WIN32_WINNT=_WIN32_WINNT_WIN10' ]
   ldflags_capture += [ '-lonecore', '-static' ]
+  if host_cpu_family == 'aarch64'
+    ldflags_capture += [ '-lwinpthread' ]
+  endif
 endif
 
 if host_system == 'linux'
