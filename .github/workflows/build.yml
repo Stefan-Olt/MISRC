@@ -136,8 +136,8 @@ jobs:
         run: |
           ws="${GITHUB_WORKSPACE//\\//}"
           zip -9 -j ${{ env.ARCHIVE_NAME_WINDOWS }} \
-          ${ws}/build/workspace/bin/misrc_capture.exe \
-          ${ws}/build/workspace/bin/misrc_extract.exe
+          "${ws}/build/workspace/bin/misrc_capture.exe" \
+          "${ws}/build/workspace/bin/misrc_extract.exe"
 
       - name: Upload binary artifact
         uses: actions/upload-artifact@v4
@@ -182,8 +182,8 @@ jobs:
         run: |
           ws="${GITHUB_WORKSPACE//\\//}"
           zip -9 -j ${{ env.ARCHIVE_NAME_WINDOWS_ARM }} \
-          ${ws}/build/workspace/bin/misrc_capture.exe \
-          ${ws}/build/workspace/bin/misrc_extract.exe
+          "${ws}/build/workspace/bin/misrc_capture.exe" \
+          "${ws}/build/workspace/bin/misrc_extract.exe"
 
       - name: Upload binary artifact
         uses: actions/upload-artifact@v4
