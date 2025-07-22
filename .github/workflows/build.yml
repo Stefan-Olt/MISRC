@@ -38,16 +38,14 @@ jobs:
 
       - name: Create binary archive
         run: |
-          cd
-          tar -cvzf ${{ env.ARCHIVE_NAME_LINUX }} \
+          tar -cvzf ~/${{ env.ARCHIVE_NAME_LINUX }} \
           --owner=root --group=root \
           -C ${{ github.workspace }}/build/workspace/bin \
           misrc_capture misrc_extract
 
       - name: Create source archive
         run: |
-          cd
-          tar -cvzf ${{ env.ARCHIVE_NAME_SRC }} \
+          tar -cvzf ~/${{ env.ARCHIVE_NAME_SRC }} \
           --owner=root --group=root \
           --exclude=build \
           misrc_tools
@@ -56,14 +54,14 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: misrc_tools-linux
-          path: ${{ env.ARCHIVE_NAME_LINUX }}
+          path: ~/${{ env.ARCHIVE_NAME_LINUX }}
           if-no-files-found: error
 
       - name: Upload source artifact
         uses: actions/upload-artifact@v4
         with:
           name: misrc_tools-src
-          path: ${{ env.ARCHIVE_NAME_SRC }}
+          path: ~/${{ env.ARCHIVE_NAME_SRC }}
           if-no-files-found: error
 
   build-linux-arm:
@@ -89,7 +87,7 @@ jobs:
       - name: Create binary archive
         run: |
           cd
-          tar -cvzf ${{ env.ARCHIVE_NAME_LINUX_ARM }} \
+          tar -cvzf ~/${{ env.ARCHIVE_NAME_LINUX_ARM }} \
           --owner=root --group=root \
           -C ${{ github.workspace }}/build/workspace/bin \
           misrc_capture misrc_extract
@@ -98,7 +96,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: misrc_tools-linux-arm
-          path: ${{ env.ARCHIVE_NAME_LINUX_ARM }}
+          path: ~/${{ env.ARCHIVE_NAME_LINUX_ARM }}
           if-no-files-found: error
 
   build-windows:
@@ -136,15 +134,15 @@ jobs:
 
       - name: Create binary archive
         run: >-
-          zip -9 -j ${{ env.ARCHIVE_NAME_WINDOWS_ARM }}
-          ${{ github.workspace }}\build\workspace\bin\misrc_capture.exe
-          ${{ github.workspace }}\build\workspace\bin\misrc_extract.exe
+          zip -9 -j ${{ env.ARCHIVE_NAME_WINDOWS }}
+          '${{ github.workspace | regex_replace("\\", "/") }}/build/workspace/bin/misrc_capture.exe'
+          '${{ github.workspace | regex_replace("\\", "/") }}/build/workspace/bin/misrc_extract.exe'
 
       - name: Upload binary artifact
         uses: actions/upload-artifact@v4
         with:
-          name: misrc_tools-windows-arm
-          path: ${{ env.ARCHIVE_NAME_WINDOWS_ARM }}
+          name: misrc_tools-windows
+          path: ${{ env.ARCHIVE_NAME_WINDOWS }}
           if-no-files-found: error
 
   build-windows-arm:
@@ -181,15 +179,15 @@ jobs:
 
       - name: Create binary archive
         run: >-
-          zip -9 -j ${{ env.ARCHIVE_NAME_WINDOWS }}
-          ${{ github.workspace }}\build\workspace\bin\misrc_capture.exe
-          ${{ github.workspace }}\build\workspace\bin\misrc_extract.exe
+          zip -9 -j ${{ env.ARCHIVE_NAME_WINDOWS_ARM }}
+          '${{ github.workspace | regex_replace("\\", "/") }}/build/workspace/bin/misrc_capture.exe'
+          '${{ github.workspace | regex_replace("\\", "/") }}/build/workspace/bin/misrc_extract.exe'
 
       - name: Upload binary artifact
         uses: actions/upload-artifact@v4
         with:
-          name: misrc_tools-windows
-          path: ${{ env.ARCHIVE_NAME_WINDOWS }}
+          name: misrc_tools-windows-arm
+          path: ${{ env.ARCHIVE_NAME_WINDOWS_ARM }}
           if-no-files-found: error
 
   build-macos-intel:
