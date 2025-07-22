@@ -38,6 +38,7 @@ jobs:
 
       - name: Create binary archive
         run: >-
+          cd
           tar -cvzf ${{ env.ARCHIVE_NAME_LINUX }}
           --owner=root --group=root
           -C ${{ github.workspace }}/build/workspace/bin
@@ -45,6 +46,7 @@ jobs:
 
       - name: Create source archive
         run: >-
+          cd
           tar -cvzf ${{ env.ARCHIVE_NAME_SRC }}
           --owner=root --group=root
           --exclude=build
@@ -86,6 +88,7 @@ jobs:
 
       - name: Create binary archive
         run: >-
+          cd
           tar -cvzf ${{ env.ARCHIVE_NAME_LINUX_ARM }}
           --owner=root --group=root
           -C ${{ github.workspace }}/build/workspace/bin
@@ -128,7 +131,7 @@ jobs:
 
       - name: Build
         run: |
-          cd ${{ github.workspace }}\build
+          cd '${{ github.workspace }}/build'
           ./build-static.sh
 
       - name: Create binary archive
@@ -173,7 +176,7 @@ jobs:
 
       - name: Build
         run: |
-          cd ${{ github.workspace }}\build
+          cd '${{ github.workspace }}/build'
           ./build-static.sh
 
       - name: Create binary archive
