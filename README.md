@@ -70,6 +70,13 @@ Possible capture examples:
 ## Hardware 
 
 
+| Media RF Type | MISRC Support |
+| ------------- | ------------- |
+| Video FM RF   | Yes           |
+| HiFi FM RF    | Yes           |
+| CVBS RF       | Yes           |
+| S-Video RF    | Yes           |
+
 - External Clock Source Output
 - 6 Extra Aux inputs for audio ADC modules etc
 - Duel ADC / Duel Input (BNC Connectors)
@@ -90,6 +97,18 @@ Possible capture examples:
 
 
 # Software & Firmware 
+
+
+> [!TIP]  
+> Pre-built Binaries is available on the [releases tab](https://github.com/Stefan-Olt/MISRC/releases).
+
+| Operating System  | MISRC Support          |
+| ----------------- | ---------------------- |
+| Microsoft Windows | Yes (10/11)            |
+| Apple MacOS       | Yes                    |
+| Apple MacOS ARM   | Yes                    |
+| Linux             | Yes                    |
+| Linux Arm         | Yes                    |
 
 
 There are 2 tools currently and a few dependencies required to deploy a MISRC.
@@ -259,46 +278,29 @@ You have flashed your Tang Nano 20k!
 ## Capture
 
 
-> [!CAUTION]
-> - NEVER use USB for any other heavy-load task (like external HDD/SSD drives, USB network adapters, YUV capture devices) during capture. 
-> - Do not connect/disconnect any other USB device during capture, a dedicated USB 3.0 to 3.2 Gen 2 card is ideal for dedicated capture stations as it ensures dedicated bandwidth/power if you have other items that require USB.
+> [!TIP]  
+> Pre-built Binaries is available on the [releases tab](https://github.com/Stefan-Olt/MISRC/releases).
 
-
-- Connect the desired sources to the BNC inputs and select suitable impedance and AC or DC coupling.
-
-- Start the capturing process for setting the gain:
-    - Reset clipping LEDs (always on after start)
-    - Increase gain during capture until clipping LED lights up
-    - Decrease gain one step and reset clipping LED
-    - Repeat for the second channel if in use
-
-- Stop capture and verify levels are acceptable in an audio editor (Audacity/Audition etc)
-
-- Start capture.
-
-- Stop capture.
-
----------
-
-`misrc_capture` is a simple program to capture from MISRC using [hsdaoh](https://github.com/Stefan-Olt/hsdaoh) to which leverages data capture over HDMI with [MS2130](https://s.click.aliexpress.com/e/_DBaBiOp) "U3" cheep HDMI capture cards that have YUV support. 
+`misrc_capture` is a simple command line interface program to capture from MISRC boards using [hsdaoh](https://github.com/Stefan-Olt/hsdaoh) to which leverages data capture over HDMI with [MS2130](https://s.click.aliexpress.com/e/_DBaBiOp) "U3" cheep HDMI capture cards that have YUV support and full-frame signal acesses. 
 
 Create a folder which you wish to capture inside, open it inside terminal and then run `misrc_capture`.
+
+Example with FLAC compression:
+    
+    misrc_capture -p -f -l 8 -a video_rf.flac -b hifi_rf.flac 
 
 Example RAW:
 
     misrc_capture -a video_rf.s16 -b hifi_rf.s16
 
-Example with FLAC compression:
-    
-    misrc_capture -p -f -a video_rf.flac -b hifi_rf.flac 
 
 Example with AUX pins capture ([PCM1802 audio example](https://github.com/Stefan-Olt/MISRC/wiki/PCM-Extract))
 
-    misrc_capture -p -f -a video_rf.flac -b hifi_rf.flac -x pcm1802.bin
+    misrc_capture -p -f -l 8 -a video_rf.flac -b hifi_rf.flac -x pcm1802.bin
 
 You can also define its directory path of each RF stream manually: 
 
-    misrc_capture -p -f -a /mnt/my_video_storrage/video_rf.flac -b ../../this/is/a/relative/path/hifi_rf.flac
+    misrc_capture -p -f -l 8 -a /mnt/my_video_storrage/video_rf.flac -b ../../this/is/a/relative/path/hifi_rf.flac
 
 Press <kbd>Ctrl</kbd>+<kbd>C</kbd> to copy and <kbd>Ctrl</kbd>+<kbd>P</kbd> to past your config from a notepad or txt file.
 
@@ -313,34 +315,69 @@ Use <kbd><</kbd>+<kbd>></kbd> to move edit position on the command line to edit 
 <br>
 
 
-`-d` device_index (default: 0)
+Example:
 
-`-n` number of samples to read (default: 0, infinite)
+    misrc_capture -p -f -l 8 -a video_rf.flac -b hifi_rf.flac -x baseband_audio.bin
 
-`-a` ADC A output file (use '-' to write on stdout)
+Usage:
 
-`-b` ADC B output file (use '-' to write on stdout)
-
-`-x` AUX output file (use '-' to write on stdout)
-
-`-r` raw data output file (use '-' to write on stdout)
-
-`-p` pad lower 4 bits of 16 bit output with 0 instead of upper 4
-
-`-f` compress ADC output as FLAC
-	
-`-l` LEVEL set flac compression level (default: 1)
-
-`-v` enable verification of flac encoder output
-
+- `-d` device_index (default: 0) (select target MS21xx device for capture)
+- `-n` number of samples to read (default: 0, infinite)
+- `-t` time to capture (seconds, m:s or h:m:s; -n takes priority, assumes 40msps)
+- `-w` overwrite any files without asking
+- `-a` ADC A output file (use '-' to write on stdout)  
+- `-b` ADC B output file (use '-' to write on stdout)  
+- `-x` AUX output file (use '-' to write on stdout)  
+- `-r` RAW 32-Bit data output file (use '-' to write on stdout)  
+- `-p` pad lower 4 bits of 16 bit output with 0 instead of upper 4
+- `-A` suppress clipping messages for ADC A (need to specify -a or -r as well)
+- `-B` suppress clipping messages for ADC B (need to specify -a or -r as well)
+- `-f` compress ADC output as FLAC  
+- `-l` LEVEL set flac compression level (default: 1) 
+- `-v` enable verification of flac encoder output  
+- `-c` number of flac encoding threads per file (default: auto)
 
 </details>
+
+
+## Setting Up the MISRC
+
+
+- Connect your 5v USB-C to the Tang Nano for power. 
+
+- Connect your HDMI cable (copper or fibre) to your Tang Nano for data output to the MS2130 or MS2131. 
+
+- Connect the desired sources to the BNC inputs and select suitable impedance and AC or DC coupling.
+
+> [!NOTE]
+> You will want to use 2vpp range rather than 1vpp range to make use of the 12-bits range.
+
+Install [OCENAudio](https://www.ocenaudio.com/) or alternatives like [Audacity](https://www.audacityteam.org/download/) it will see captures as a `40khz 16-bit` file.
+
+Run a 3-second test capture in FLAC, to be automatically reloaded for viewing. 
+
+    misrc_capture -p -f -B -t 3 -a test.flac
+
+Start the capturing process for setting the DC offset then gain:
+    
+    - Reset clipping LEDs (always on after start or major adjustment) 
+    - Increase gain during capture until clipping LED lights up
+    - Decrease gain one step and reset clipping LED
+    - Repeat for the second channel if in use.
+
+- Stop capture and verify levels are acceptable in your audio DAW and the signal is centred.
+
+Once happy, then do a full test capture to verify. 
+
+> [!CAUTION]
+> - NEVER use USB for any other heavy-load task (like external HDD/SSD drives, USB network adaptors, YUV capture devices) during capture. 
+> - Do not connect/disconnect any other USB device during capture, a dedicated USB 3.0 to 3.2 Gen 2 card is ideal for dedicated capture stations as it ensures dedicated bandwidth/power if you have other items that require USB.
 
 
 ## Design
 
 
-MISRC is loosely based on the [Domesday Duplicator (DdD)](https://github.com/simoninns/DomesdayDuplicator). 
+MISRC is loosely based on the [Domesday Duplicator (DdD)](https://github.com/simoninns/DomesdayDuplicator) a LaserDisc focused ([ld-decode](https://github.com/happycube/ld-decode)) FM RF Archival device. 
 
 
 It is built around the AD9235 analogue to digital converter by Analog Devices and is heavily based on the evaluation board circuit given in its datasheet with the AD8138 Op-Amp providing adjustable fixed gain.
