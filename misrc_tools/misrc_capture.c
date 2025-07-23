@@ -1,6 +1,6 @@
 /*
 * MISRC capture
-* Copyright (C) 2024  vrunk11, stefan_o
+* Copyright (C) 2024-2025  vrunk11, stefan_o
 * 
 * based on:
 * hsdaoh - High Speed Data Acquisition over MS213x USB3 HDMI capture sticks
@@ -86,8 +86,8 @@ static const char* const _FLAC_StreamEncoderSetNumThreadsStatusString[] = {
 #include "ringbuffer.h"
 #include "extract.h"
 
-#define VERSION "0.1"
-#define COPYRIGHT "licensed under GNU GPL v3 or later, (c) 2024 vrunk11, stefan_o"
+#define VERSION "0.4"
+#define COPYRIGHT "licensed under GNU GPL v3 or later, (c) 2024-2025 vrunk11, stefan_o"
 
 #define BUFFER_TOTAL_SIZE 65536*1024
 #define BUFFER_READ_SIZE 65536*32

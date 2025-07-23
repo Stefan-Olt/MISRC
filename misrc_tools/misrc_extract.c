@@ -1,6 +1,6 @@
 /*
 * MISRC extract
-* Copyright (C) 2024  vrunk11, stefan_o
+* Copyright (C) 2024-2025  vrunk11, stefan_o
 *
 * This program is free software: you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
@@ -45,8 +45,8 @@
 
 #include "extract.h"
 
-#define VERSION "0.3"
-#define COPYRIGHT "licensed under GNU GPL v3 or later, (c) 2024 vrunk11, stefan_o"
+#define VERSION "0.4"
+#define COPYRIGHT "licensed under GNU GPL v3 or later, (c) 2024-2025 vrunk11, stefan_o"
 
 #define BUFFER_SIZE 65536*32
 
