@@ -40,10 +40,11 @@ jobs:
         run: |
           cp LICENSE.GPL ./build/workspace/bin/
           cp ./build/LEGAL.txt ./build/workspace/bin/
+          cp ./build/install-udev-rules.sh ./build/workspace/bin/
           tar -cvzf ~/${{ env.ARCHIVE_NAME_LINUX }} \
           --owner=root --group=root \
           -C ${{ github.workspace }}/build/workspace/bin \
-          misrc_capture misrc_extract LICENSE.GPL LEGAL.txt
+          misrc_capture misrc_extract install-udev-rules.sh LICENSE.GPL LEGAL.txt
 
       - name: Create source archive
         run: |
@@ -67,7 +68,7 @@ jobs:
           if-no-files-found: error
 
   build-linux-arm:
-    name: Build Linux ARM
+    name: Build Linux (ARM)
     runs-on: ubuntu-22.04-arm
 
     steps:
@@ -90,10 +91,11 @@ jobs:
         run: |
           cp LICENSE.GPL ./build/workspace/bin/
           cp ./build/LEGAL.txt ./build/workspace/bin/
+          cp ./build/install-udev-rules.sh ./build/workspace/bin/
           tar -cvzf ~/${{ env.ARCHIVE_NAME_LINUX_ARM }} \
           --owner=root --group=root \
           -C ${{ github.workspace }}/build/workspace/bin \
-          misrc_capture misrc_extract LICENSE.GPL LEGAL.txt
+          misrc_capture misrc_extract install-udev-rules.sh LICENSE.GPL LEGAL.txt
 
       - name: Upload binary artifact
         uses: actions/upload-artifact@v4
