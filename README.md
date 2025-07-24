@@ -141,6 +141,7 @@ Interface 4 - HIDDevice
 
 <details closed>
 <summary>Install macOS</summary>
+<br>
 
 For macOS you do not need to install anything.
 
@@ -151,6 +152,7 @@ For macOS you do not need to install anything.
 
 <details closed>
 <summary>Install Linux</summary>
+<br>
 
 If you want to run `misrc_capture` as root, there is no need to install anything on Linux.
 
