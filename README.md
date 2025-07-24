@@ -1,5 +1,6 @@
 # MISRC - Multi Input Simultaneous Raw RF Capture
 
+[Hardware](#hardware-features) - [Firmware](#firmware-tang-nano-20k) - [Software](#software) - [Usage example](#capture--usage-example)
 
 <picture>
 <img src="assets/hardware-images/MISRC_V1.5_Tang_Nano_20k_Sony_ILCE-7RM3_2024.10.21_03.14.08-Small.png" width="600" height="" />
@@ -120,7 +121,7 @@ Supported operating systems with direct links to the latest release:
 > [!NOTE]  
 > The arm64 builds for Windows are untested and considered experimental!
 
-The packages contain two command-line applications, `misrc_capture` and `misrc_extract`. For detailed usage information see the [misrc_tools readme](/misrc_tools/README.md) and the usage example down below.
+The packages contain two command-line applications, `misrc_capture` and `misrc_extract`. For detailed usage information see the [misrc_tools readme](/misrc_tools/README.md) and the [usage example](#capture--usage-example) down below.
 
 If you want to build the tools yourself, see the instructions in the [misrc_tools readme](/misrc_tools/README.md).
 
