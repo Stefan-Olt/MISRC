@@ -8,6 +8,7 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 include(CheckCPUArch)
 include(FindLibFLAC)
+include(FindFFmpeg)
 
 #Set C language version
 set(CMAKE_C_STANDARD 11)
@@ -32,6 +33,14 @@ if(LIBFLAC_FOUND)
     add_compile_definitions(LIBFLAC_ENABLED=1)
 else()
     message(WARNING "libflac not found, disabling flac encoding")
+    add_compile_definitions(LIBFLAC_ENABLED=0)
+endif()
+
+if(SWRESAMPLE_FOUND)
+    add_compile_definitions(LIBSWRESAMPLE_ENABLED=1)
+else()
+    message(WARNING "ffmpeg not found, disabling resampling")
+    add_compile_definitions(LIBSWRESAMPLE_ENABLED=0)
 endif()
 
 if(WIN32 AND NOT MINGW)
@@ -59,7 +68,7 @@ endif()
 
 set(INSTALL_TARGETS misrc_extract misrc_capture)
 
-target_link_libraries(misrc_capture hsdaoh ${LIBFLAC_LIBRARIES})
+target_link_libraries(misrc_capture hsdaoh ${LIBFLAC_LIBRARIES} ${SWRESAMPLE_LIBRARIES} ${AVUTIL_LIBRARIES})
 
 if(WIN32)
 	add_compile_definitions(_WIN32_WINNT=0x0A00)

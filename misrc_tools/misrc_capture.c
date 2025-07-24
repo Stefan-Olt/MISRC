@@ -69,22 +69,28 @@
 #include "FLAC/metadata.h"
 #include "FLAC/stream_encoder.h"
 # if defined(FLAC_API_VERSION_CURRENT) && FLAC_API_VERSION_CURRENT >= 14
-# define GETOPT_STRING "d:a:b:c:fl:vx:r:wABph:n:t:"
 static const char* const _FLAC_StreamEncoderSetNumThreadsStatusString[] = {
 	"FLAC__STREAM_ENCODER_SET_NUM_THREADS_OK",
 	"FLAC__STREAM_ENCODER_SET_NUM_THREADS_NOT_COMPILED_WITH_MULTITHREADING_ENABLED",
 	"FLAC__STREAM_ENCODER_SET_NUM_THREADS_ALREADY_INITIALIZED",
 	"FLAC__STREAM_ENCODER_SET_NUM_THREADS_TOO_MANY_THREADS"
 };
-# else
-# define GETOPT_STRING "d:a:b:fl:vx:r:wABph:n:t:"
 # endif
-#else
-#define GETOPT_STRING "d:a:b:x:r:wABph:n:t:"
+#endif
+
+#if LIBSWRESAMPLE_ENABLED == 1
+#include <libavutil/opt.h>
+#include <libavutil/channel_layout.h>
+#include <libavutil/samplefmt.h>
+#include <libswresample/swresample.h>
 #endif
 
 #include "ringbuffer.h"
 #include "extract.h"
+
+#if LIBFLAC_ENABLED == 1 && defined(FLAC_API_VERSION_CURRENT) && FLAC_API_VERSION_CURRENT >= 14
+#include "numcores.h"
+#endif
 
 #define VERSION "0.4"
 #define COPYRIGHT "licensed under GNU GPL v3 or later, (c) 2024-2025 vrunk11, stefan_o"
@@ -93,6 +99,10 @@ static const char* const _FLAC_StreamEncoderSetNumThreadsStatusString[] = {
 #define BUFFER_READ_SIZE 65536*32
 
 #define _FILE_OFFSET_BITS 64
+
+#define OPT_RESAMPLE_A     256
+#define OPT_RESAMPLE_B     257
+#define OPT_RF_FLAC_12BIT  258
 
 #if defined(__GNUC__)
 # define UNUSED(x) x __attribute__((unused))
@@ -109,10 +119,14 @@ typedef struct {
 typedef struct {
 	ringbuffer_t rb;
 	FILE *f;
+#if LIBSWRESAMPLE_ENABLED == 1
+	uint32_t resample_rate;
+#endif
 #if LIBFLAC_ENABLED == 1
 	uint32_t flac_level;
 	bool flac_verify;
 	uint32_t flac_threads;
+	uint8_t flac_bits;
 #endif
 } filewriter_ctx_t;
 
@@ -121,31 +135,106 @@ static int do_exit;
 static int new_line = 1;
 static hsdaoh_dev_t *dev = NULL;
 
+static struct option getopt_long_options[] =
+{
+  {"device",               required_argument, 0, 'd'},
+  {"count",                required_argument, 0, 'n'},
+  {"time",                 required_argument, 0, 't'},
+  {"overwrite",            no_argument,       0, 'w'},
+  {"adc-a-output",         required_argument, 0, 'a'},
+  {"adc-b-output",         required_argument, 0, 'b'},
+  {"aux-output",           required_argument, 0, 'x'},
+  {"raw-output",           required_argument, 0, 'r'},
+  {"pad",                  no_argument,       0, 'p'},
+  {"suppress-clip-a",      no_argument,       0, 'A'},
+  {"suppress-clip-b",      no_argument,       0, 'B'},
+#if LIBSWRESAMPLE_ENABLED == 1
+  {"resample-rf-a",        required_argument, 0, OPT_RESAMPLE_A},
+  {"resample-rf-b",        required_argument, 0, OPT_RESAMPLE_B},
+#endif
+#if LIBFLAC_ENABLED == 1
+  {"rf-flac",              no_argument,       0, 'f'},
+  {"rf-flac-12bit",        no_argument,       0, OPT_RF_FLAC_12BIT},
+  {"rf-flac-level",        required_argument, 0, 'l'},
+  {"rf-flac-verification", no_argument,       0, 'v'},
+#if defined(FLAC_API_VERSION_CURRENT) && FLAC_API_VERSION_CURRENT >= 14
+  {"rf-flac-threads",      required_argument, 0, 'c'},
+#endif
+#endif
+  {0, 0, 0, 0}
+};
+
+static char* usage_options[][2] =
+{
+  { "device index (default: 0)", "[device index]" },
+  { "number of samples to read (default: 0, infinite)", "[samples]" },
+  { "time to capture (seconds, m:s or h:m:s; -n takes priority, assumes 40msps)", "[time]" },
+  { "overwrite any files without asking", NULL },
+  { "ADC A output file (use '-' to write on stdout)", "[filename]" },
+  { "ADC B output file (use '-' to write on stdout)", "[filename]" },
+  { "AUX output file (use '-' to write on stdout)", "[filename]" },
+  { "raw data output file (use '-' to write on stdout)", "[filename]" },
+  { "pad lower 4 bits of 16 bit output with 0 instead of upper 4]", NULL },
+  { "suppress clipping messages for ADC A (need to specify -a or -r as well)", NULL },
+  { "suppress clipping messages for ADC B (need to specify -b or -r as well)", NULL },
+#if LIBSWRESAMPLE_ENABLED == 1
+  { "resample ADC A signal to given sample rate (in kHz)", "[samplerate]" },
+  { "resample ADC B signal to given sample rate (in kHz)", "[samplerate]" },
+#endif
+#if LIBFLAC_ENABLED == 1
+  { "compress RF ADC output as FLAC", NULL },
+  { "set RF FLAC sample width to 12 instead of 16 bit", NULL },
+  { "set RF flac compression level (0-8, default: 1)", "[level]" },
+  { "enable verification of RF flac encoder output", NULL },
+#if defined(FLAC_API_VERSION_CURRENT) && FLAC_API_VERSION_CURRENT >= 14
+  { "number of RF flac encoding threads per file (default: auto)", "[threads]" },
+#endif
+#endif
+  {0, 0, 0, 0}
+};
+
+void create_getopt_string(char *getopt_string)
+{
+	char* s = getopt_string;
+	int i = 0;
+	while (1) {
+		if (getopt_long_options[i].name == 0) break;
+		if(getopt_long_options[i].val < 256) {
+			*s = getopt_long_options[i].val;
+			s++;
+			if(getopt_long_options[i].has_arg != no_argument) {
+				*s = ':';
+				s++;
+			}
+		}
+		i++;
+	}
+	*s = 0;
+}
+
 void usage(void)
 {
 	fprintf(stderr,
 		"A simple program to capture from MISRC using hsdaoh\n\n"
 		"Usage:\n"
-		"\t[-d device_index (default: 0)]\n"
-		"\t[-n number of samples to read (default: 0, infinite)]\n"
-		"\t[-t time to capture (seconds, m:s or h:m:s; -n takes priority, assumes 40msps)]\n"
-		"\t[-w overwrite any files without asking]\n"
-		"\t[-a ADC A output file (use '-' to write on stdout)]\n"
-		"\t[-b ADC B output file (use '-' to write on stdout)]\n"
-		"\t[-x AUX output file (use '-' to write on stdout)]\n"
-		"\t[-r raw data output file (use '-' to write on stdout)]\n"
-		"\t[-p pad lower 4 bits of 16 bit output with 0 instead of upper 4]\n"
-		"\t[-A suppress clipping messages for ADC A (need to specify -a or -r as well)]\n"
-		"\t[-B suppress clipping messages for ADC B (need to specify -b or -r as well)]\n"
-#if LIBFLAC_ENABLED == 1
-		"\t[-f compress ADC output as FLAC]\n"
-		"\t[-l LEVEL set flac compression level (default: 1)]\n"
-		"\t[-v enable verification of flac encoder output]\n"
-#if defined(FLAC_API_VERSION_CURRENT) && FLAC_API_VERSION_CURRENT >= 14
-		"\t[-c number of flac encoding threads per file (default: auto)]\n"
-#endif
-#endif
 	);
+	int i = 0;
+	while (1) {
+		if (getopt_long_options[i].name == 0) break;
+		if (getopt_long_options[i].val < 256) {
+			fprintf(stderr," -%c, --%s", getopt_long_options[i].val, getopt_long_options[i].name);
+		} else {
+			fprintf(stderr," --%s", getopt_long_options[i].name);
+		}
+		if (getopt_long_options[i].has_arg == no_argument) {
+			fprintf(stderr,":\n");
+		}
+		else {
+			fprintf(stderr," %s:\n", usage_options[i][1]);
+		}
+		fprintf(stderr,"         %s\n", usage_options[i][0]);
+		i++;
+	}
 	exit(1);
 }
 
@@ -199,6 +288,37 @@ int raw_file_writer(void *ctx)
 	filewriter_ctx_t *file_ctx = ctx;
 	size_t len = BUFFER_READ_SIZE;
 	void *buf;
+#if LIBSWRESAMPLE_ENABLED == 1
+	/* setup resampling */
+	struct SwrContext *swr_ctx;
+	uint8_t *resample_buffer;
+	int swr_ret;
+	if (file_ctx->resample_rate!=0) {
+		resample_buffer = aligned_alloc(32, BUFFER_READ_SIZE);
+		if (!resample_buffer) {
+			fprintf(stderr, "ERROR: failed allocating resampling buffer\n");
+			do_exit = 1;
+			return 0;
+		}
+		swr_ctx = swr_alloc();
+		if (!swr_ctx) {
+			fprintf(stderr, "ERROR: failed allocating resampling context\n");
+			do_exit = 1;
+			return 0;
+		}
+		av_opt_set_int(swr_ctx, "in_channel_layout",     AV_CH_LAYOUT_MONO, 0);
+		av_opt_set_int(swr_ctx, "in_sample_rate",        40000, 0);
+		av_opt_set_sample_fmt(swr_ctx, "in_sample_fmt",  AV_SAMPLE_FMT_S16, 0);
+		av_opt_set_int(swr_ctx, "out_channel_layout",    AV_CH_LAYOUT_MONO, 0);
+		av_opt_set_int(swr_ctx, "out_sample_rate",       file_ctx->resample_rate, 0);
+		av_opt_set_sample_fmt(swr_ctx, "out_sample_fmt", AV_SAMPLE_FMT_S16, 0);
+		if (swr_init(swr_ctx) < 0) {
+			fprintf(stderr, "ERROR: Failed to initialize the resampling context\n");
+			do_exit = 1;
+			return 0;
+		}
+	}
+#endif
 	while(true) {
 		while(((buf = rb_read_ptr(&file_ctx->rb, len)) == NULL) && !do_exit) {
 			//ms_sleep(10);
@@ -209,10 +329,30 @@ int raw_file_writer(void *ctx)
 			if (len == 0) break;
 			buf = rb_read_ptr(&file_ctx->rb, len);
 		}
+#if LIBSWRESAMPLE_ENABLED == 1
+		if (file_ctx->resample_rate!=0) {
+			swr_ret = swr_convert(swr_ctx, (uint8_t **)&resample_buffer, len>>1, (const uint8_t **)&buf, len>>1);
+			if (swr_ret < 0) {
+				fprintf(stderr, "Error while converting\n");
+				do_exit = 1;
+				return 0;
+			}
+			fwrite(resample_buffer, 1, swr_ret<<1, file_ctx->f);
+		} else {
+			fwrite(buf, 1, len, file_ctx->f);
+		}
+#else
 		fwrite(buf, 1, len, file_ctx->f);
+#endif
 		rb_read_finished(&file_ctx->rb, len);
 	}
 	if (file_ctx->f != stdout) fclose(file_ctx->f);
+#if LIBSWRESAMPLE_ENABLED == 1
+	if (file_ctx->resample_rate!=0) {
+		aligned_free(resample_buffer);
+		swr_free(&swr_ctx);
+	}
+#endif
 	return 0;
 }
 
@@ -223,21 +363,55 @@ int flac_file_writer(void *ctx)
 	size_t len = BUFFER_READ_SIZE;
 	void *buf;
 	uint32_t ret;
+	uint32_t srate = 40000;
 	FLAC__bool ok = true;
 	FLAC__StreamEncoder *encoder = NULL;
 	FLAC__StreamEncoderInitStatus init_status;
 	FLAC__StreamMetadata *seektable;
+#if LIBSWRESAMPLE_ENABLED == 1
+	/* setup resampling */
+	struct SwrContext *swr_ctx;
+	uint8_t *resample_buffer;
+	int swr_ret;
+	if (file_ctx->resample_rate!=0) {
+		resample_buffer = aligned_alloc(32, BUFFER_READ_SIZE);
+		if (!resample_buffer) {
+			fprintf(stderr, "ERROR: failed allocating resampling buffer\n");
+			do_exit = 1;
+			return 0;
+		}
+		srate = file_ctx->resample_rate;
+		swr_ctx = swr_alloc();
+		if (!swr_ctx) {
+			fprintf(stderr, "ERROR: failed allocating resampling context\n");
+			do_exit = 1;
+			return 0;
+		}
+		av_opt_set_int(swr_ctx, "in_channel_layout",     AV_CH_LAYOUT_MONO, 0);
+		av_opt_set_int(swr_ctx, "in_sample_rate",        40000, 0);
+		av_opt_set_sample_fmt(swr_ctx, "in_sample_fmt",  AV_SAMPLE_FMT_S32, 0);
+		av_opt_set_int(swr_ctx, "out_channel_layout",    AV_CH_LAYOUT_MONO, 0);
+		av_opt_set_int(swr_ctx, "out_sample_rate",       file_ctx->resample_rate, 0);
+		av_opt_set_sample_fmt(swr_ctx, "out_sample_fmt", AV_SAMPLE_FMT_S32, 0);
+		if (swr_init(swr_ctx) < 0) {
+			fprintf(stderr, "ERROR: Failed to initialize the resampling context\n");
+			do_exit = 1;
+			return 0;
+		}
+	}
+#endif
 
 	if((encoder = FLAC__stream_encoder_new()) == NULL) {
 		fprintf(stderr, "ERROR: failed allocating FLAC encoder\n");
 		do_exit = 1;
 		return 0;
 	}
+
 	ok &= FLAC__stream_encoder_set_verify(encoder, file_ctx->flac_verify);
 	ok &= FLAC__stream_encoder_set_compression_level(encoder, file_ctx->flac_level);
 	ok &= FLAC__stream_encoder_set_channels(encoder, 1);
-	ok &= FLAC__stream_encoder_set_bits_per_sample(encoder, 16);
-	ok &= FLAC__stream_encoder_set_sample_rate(encoder, 40000);
+	ok &= FLAC__stream_encoder_set_bits_per_sample(encoder, file_ctx->flac_bits);
+	ok &= FLAC__stream_encoder_set_sample_rate(encoder, srate);
 	ok &= FLAC__stream_encoder_set_total_samples_estimate(encoder, 0);
 
 	if(!ok) {
@@ -275,7 +449,21 @@ int flac_file_writer(void *ctx)
 			if (len == 0) break;
 			buf = rb_read_ptr(&file_ctx->rb, len);
 		}
-		ok = FLAC__stream_encoder_process_interleaved(encoder, buf, len>>2);
+#if LIBSWRESAMPLE_ENABLED == 1
+		if (file_ctx->resample_rate!=0) {
+			swr_ret = swr_convert(swr_ctx, (uint8_t **)&resample_buffer, len>>2, (const uint8_t **)&buf, len>>2);
+			if (swr_ret < 0) {
+				fprintf(stderr, "Error while converting\n");
+				do_exit = 1;
+				return 0;
+			}
+			ok = FLAC__stream_encoder_process(encoder, (const FLAC__int32**)&resample_buffer, swr_ret);
+		} else {
+			ok = FLAC__stream_encoder_process(encoder, (const FLAC__int32**)&buf, len>>2);
+		}
+#else
+		ok = FLAC__stream_encoder_process(encoder, (const FLAC__int32**)&buf, len>>2);
+#endif
 		if(!ok) {
 			fprintf(stderr, "ERROR: (%p) FLAC encoder could not process data: %s\n", file_ctx->f, FLAC__StreamEncoderStateString[FLAC__stream_encoder_get_state(encoder)]);
 			new_line = 1;
@@ -298,6 +486,12 @@ int flac_file_writer(void *ctx)
 	}
 	FLAC__metadata_object_delete(seektable);
 	FLAC__stream_encoder_delete(encoder);
+#if LIBSWRESAMPLE_ENABLED == 1
+	if (file_ctx->resample_rate!=0) {
+		aligned_free(resample_buffer);
+		swr_free(&swr_ctx);
+	}
+#endif
 	return 0;
 }
 #endif
@@ -307,55 +501,6 @@ void print_hsdaoh_message(int msg_type, int msg, void *additional, void UNUSED(*
 	hsdaoh_get_message_string(msg_type, msg, additional, NULL);
 	new_line = 1;
 }
-
-#if LIBFLAC_ENABLED == 1 && defined(FLAC_API_VERSION_CURRENT) && FLAC_API_VERSION_CURRENT >= 14
-uint32_t get_num_cores() {
-	uint32_t numberOfCores = 0;
-#if defined(_WIN32) || defined(_WIN64)
-	DWORD_PTR processAffinityMask;
-	DWORD_PTR systemAffinityMask;
-	if (GetProcessAffinityMask(GetCurrentProcess(), &processAffinityMask, &systemAffinityMask)) {
-		while (processAffinityMask) {
-			numberOfCores += processAffinityMask & 1;
-			processAffinityMask >>= 1;
-		}
-		return numberOfCores;
-	} else {
-		// Handle error
-		SYSTEM_INFO sysInfo;
-		fprintf(stderr, "GetProcessAffinityMask failed with error to get number of cores: %lu, fallback to GetSystemInfo\n", GetLastError());
-		GetSystemInfo(&sysInfo);
-		return sysInfo.dwNumberOfProcessors;
-	}
-#elif defined(__linux__)
-	cpu_set_t mask;
-	if (sched_getaffinity(0, sizeof(cpu_set_t), &mask) == 0) {
-		return CPU_COUNT(&mask);
-	} else {
-		// Handle error
-		fprintf(stderr, "sched_getaffinity failed to get number of cores, fallback to sysconf\n");
-		 // cores in deep-sleep are not counted with _SC_NPROCESSORS_ONLN, therefore using _CONF instead
-		return sysconf(_SC_NPROCESSORS_CONF);
-	}
-#elif defined(__APPLE__) || defined(__MACH__) || defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__) || defined(__DragonFly__)
-    size_t size = sizeof(numberOfCores);
-#if defined(__APPLE__) || defined(__MACH__)
-	if (sysctlbyname("hw.logicalcpu", &numberOfCores, &size, NULL, 0) == 0) {
-#else
-	if (sysctlbyname("hw.ncpu", &numberOfCores, &size, NULL, 0) == 0) {
-#endif
-		return numberOfCores;
-	} else {
-		// Handle error
-		fprintf(stderr, "failed to get number of cores\n");
-		return 0;
-	}
-#else
-	#warning "No code to get number of cores on this platform!"
-	return 0;
-#endif
-}
-#endif
 
 int main(int argc, char **argv)
 {
@@ -371,11 +516,18 @@ int main(int argc, char **argv)
 #if LIBFLAC_ENABLED == 1
 	int flac_level = 1;
 	bool flac_verify = false;
+	bool flac_12bit = false;
 	uint32_t flac_threads = 0;
+#endif
+#if LIBSWRESAMPLE_ENABLED == 1
+	uint32_t resample_rate[] = {0,0};
 #endif
 	thrd_start_t output_thread_func = (thrd_start_t)raw_file_writer;
 	capture_ctx_t cap_ctx;
 	memset(&cap_ctx,0,sizeof(cap_ctx));
+
+	// getopt string
+	char getopt_string[256];
 
 	// device names
 	char dev_manufact[256];
@@ -424,7 +576,10 @@ int main(int argc, char **argv)
 		COPYRIGHT "\n\n"
 	);
 
-	while ((opt = getopt(argc, argv, GETOPT_STRING)) != -1) {
+	create_getopt_string(getopt_string);
+
+	int index_ptr;
+	while ((opt = getopt_long(argc, argv, getopt_string, getopt_long_options, &index_ptr)) != -1) {
 		switch (opt) {
 		case 'd':
 			dev_index = (uint32_t)atoi(optarg);
@@ -441,6 +596,9 @@ int main(int argc, char **argv)
 			flac_threads = (uint32_t)atoi(optarg);
 			break;
 #endif
+		case OPT_RF_FLAC_12BIT:
+			flac_12bit = true;
+			break;
 		case 'f':
 			output_thread_func = (thrd_start_t)flac_file_writer;
 			out_size = 4;
@@ -485,6 +643,14 @@ int main(int argc, char **argv)
 		case 'B':
 			suppress_b_clipping = true;
 			break;
+#if LIBSWRESAMPLE_ENABLED == 1
+		case OPT_RESAMPLE_A:
+			resample_rate[0] = (uint32_t)atoi(optarg);
+			break;
+		case OPT_RESAMPLE_B:
+			resample_rate[1] = (uint32_t)atoi(optarg);
+			break;
+#endif
 		case 'h':
 		default:
 			usage();
@@ -492,23 +658,23 @@ int main(int argc, char **argv)
 		}
 	}
 
-	if(output_names[0] == NULL && output_names[1] == NULL && output_name_aux == NULL && output_name_raw == NULL)
-	{
+	if(output_names[0] == NULL && output_names[1] == NULL && output_name_aux == NULL && output_name_raw == NULL) {
 		usage();
 	}
 
+#if LIBSWRESAMPLE_ENABLED == 1
+	if(resample_rate[0] > 40000 || resample_rate[1] > 40000) {
+		fprintf(stderr, "ERROR: Resampling to rates higher than 40 MHz is not supported!\n");
+		usage();
+	}
+#endif
 
-	if(suppress_a_clipping) {
-		fprintf(stderr, "Suppressing clipping messages from ADC A\n");
+#if LIBFLAC_ENABLED == 1
+	if(flac_12bit && pad == 1) {
+		fprintf(stderr, "Warning: You enabled padding the lower 4 bits, but requested 12 bit flac output, this is not possible, will output 16 bit flac.\n");
+		flac_12bit = false;
 	}
-	if(suppress_b_clipping) {
-		fprintf(stderr, "Suppressing clipping messages from ADC B\n");
-	}
-	if(total_samples_before_exit > 0) {
-		fprintf(stderr, "Capturing %" PRIu64 " samples before exiting\n", total_samples_before_exit);
-	}
-
-#if LIBFLAC_ENABLED == 1 && defined(FLAC_API_VERSION_CURRENT) && FLAC_API_VERSION_CURRENT >= 14
+# if defined(FLAC_API_VERSION_CURRENT) && FLAC_API_VERSION_CURRENT >= 14
 	if (flac_threads == 0) {
 		int out_cnt = ((output_names[0] == NULL) ? 0 : 1) + ((output_names[1] == NULL) ? 0 : 1);
 		if (out_cnt != 0) {
@@ -519,7 +685,18 @@ int main(int argc, char **argv)
 			if (flac_threads > 128) flac_threads = 128;
 		}
 	}
+# endif
 #endif
+
+	if(suppress_a_clipping) {
+		fprintf(stderr, "Suppressing clipping messages from ADC A\n");
+	}
+	if(suppress_b_clipping) {
+		fprintf(stderr, "Suppressing clipping messages from ADC B\n");
+	}
+	if(total_samples_before_exit > 0) {
+		fprintf(stderr, "Capturing %" PRIu64 " samples before exiting\n", total_samples_before_exit);
+	}
 
 
 #ifndef _WIN32
@@ -557,6 +734,10 @@ int main(int argc, char **argv)
 			thread_out_ctx[i].flac_level = flac_level;
 			thread_out_ctx[i].flac_verify = flac_verify;
 			thread_out_ctx[i].flac_threads = flac_threads;
+			thread_out_ctx[i].flac_bits = flac_12bit ? 12 : 16;
+#endif
+#if LIBSWRESAMPLE_ENABLED == 1
+			thread_out_ctx[i].resample_rate = resample_rate[i];
 #endif
 			outbuffer_name[3] = (char)(i+48);
 			rb_init(&thread_out_ctx[i].rb, outbuffer_name, BUFFER_TOTAL_SIZE);

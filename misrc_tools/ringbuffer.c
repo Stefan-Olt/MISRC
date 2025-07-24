@@ -1,6 +1,6 @@
 /*
 * MISRC tools
-* Copyright (C) 2024  vrunk11, stefan_o
+* Copyright (C) 2024-2025  vrunk11, stefan_o
 * 
 * based on:
 * http://web.archive.org/web/20171026083549/https://lo.calho.st/quick-hacks/employing-black-magic-in-the-linux-page-table/

@@ -93,7 +93,19 @@ if flac_dep.found()
   endif
   message('FLAC found, building with FLAC support')
 else
+  cflags += ['-DLIBFLAC_ENABLED=0']
   message('FLAC not found, building without FLAC support')
+endif
+
+swr_dep =  dependency('libswresample', required : false)
+avutil_dep =  dependency('libavutil', required : false)
+if swr_dep.found() and avutil_dep.found()
+  deps += [ swr_dep, avutil_dep ]
+  cflags += ['-DLIBSWRESAMPLE_ENABLED=1']
+  message('FFmpeg found, building with resample support')
+else
+  cflags += ['-DLIBSWRESAMPLE_ENABLED=0']
+  message('FFmpeg not found, building without resample support')
 endif
 
 

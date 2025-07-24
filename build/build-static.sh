@@ -75,6 +75,14 @@ make
 make install
 cd ../
 
+curl -L --silent -o "FFmpeg-n7.1.1.tar.gz" "https://github.com/FFmpeg/FFmpeg/archive/refs/tags/n7.1.1.tar.gz"
+tar xzf FFmpeg-n7.1.1.tar.gz
+cd FFmpeg-n7.1.1
+./configure --enable-static --disable-shared --disable-programs --enable-gpl --enable-version3 --disable-avdevice --disable-avcodec --disable-avformat --disable-swscale --disable-postproc --disable-avfilter --disable-doc --prefix="${WORKSPACE}"
+make
+make install
+cd ../
+
 curl -L --silent -o "hsdaoh-9ef881d8904eac22a832186d78a25e53365095cd.tar.gz" "https://github.com/Stefan-Olt/hsdaoh/archive/9ef881d8904eac22a832186d78a25e53365095cd.tar.gz"
 tar xzf hsdaoh-9ef881d8904eac22a832186d78a25e53365095cd.tar.gz
 cd hsdaoh-9ef881d8904eac22a832186d78a25e53365095cd
