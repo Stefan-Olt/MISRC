@@ -141,22 +141,20 @@ Interface 4 - HIDDevice
 
 <details closed>
 <summary>Install macOS</summary>
-<br>
+
 For macOS you do not need to install anything.
 
-For macOS versions 10.15 and 11 you can directly execute `misrc_capture`.
-
-For macOS 12 and later you have to run `misrc_capture` as root (sudo). This is a new security feature by Apple, there is currently no way to bypass it. 
+- macOS versions 10.15 and 11: You can directly execute `misrc_capture`.
+- macOS 12 and later: You have to run `misrc_capture` as root (sudo). This is a new security feature by Apple, there is currently no way to bypass it. 
 
 </details>
 
 <details closed>
 <summary>Install Linux</summary>
-<br>
+
 If you want to run `misrc_capture` as root, there is no need to install anything on Linux.
 
 But for `misrc_capture` to be able to access the MS2130 capture device without root privilege (sudo), you need to install a udev-rule and add the user that will use `misrc_capture` to the `plugdev`-group.
-
 The pre-build packages contains the script `install-udev-rules.sh`. It will install the rule and add the current user to the plugdev group.
 
 </details>
