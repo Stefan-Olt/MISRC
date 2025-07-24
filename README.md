@@ -157,7 +157,7 @@ For macOS you do not need to install anything.
 If you want to run `misrc_capture` as root, there is no need to install anything on Linux.
 
 But for `misrc_capture` to be able to access the MS2130 capture device without root privilege (sudo), you need to install a udev-rule and add the user that will use `misrc_capture` to the `plugdev`-group.
-The pre-build packages contains the script `install-udev-rules.sh`. It will install the rule and add the current user to the plugdev group.
+The pre-build packages contains the script `install-udev-rules.sh`. On execution (double-click the file or run `./install-udev-rules.sh` on the command line) it will install the rule and add the current user to the plugdev group.
 
 </details>
 
