@@ -10,29 +10,19 @@ Tool to capture, extract and compress data from the HDMI input of MS2130 using h
 ### Description
 
 
-This tool will disable any procssing on the MS2130 and capture the data using hsdaoh.
-
 A MISRC `1.x/2.x` (with Tang Nano 20k setup) will pack the data into an HDMI signal for the MS2130.
 
-`misrc_capture` will unpack the data in realtime and can directly output two separate files for the ADCs and a file for the aux data.
-
+`misrc_capture` will disable any procssing on the MS2130 and capture the data using hsdaoh. The data is unpacked in realtime and can be outputted directly into two separate files for the ADCs and a file for the aux data.
 For x86_64 (64 bit AMD and Intel processors) there is handwritten assembly for higher performance using SSE instructions.
 
 
-# Usage
+### Usage
 
-
-- Run tools without arguments to see get help on comamnd options
-
-
-## misrc_capture 
-
-
-A simple program to capture from MISRC using hsdaoh
+- Run tools without arguments to see options
 
 Example:
 
-    misrc_capture -p -f -l 8 -a video_rf.flac -b hifi_rf.flac -x baseband_audio.bin
+    misrc_capture -p -f -l 8 -a video_rf.flac -b hifi_rf.flac -x aux_baseband_audio.bin
 
 Usage:
 
@@ -55,22 +45,20 @@ Usage:
 
 ## misrc_extract
 
+A simple program for extracting captured raw data into separate files.
+
+### Description
 
 The MISRC has 2 ADC channels with 12-bit's each and the 8-bit's of AUX data is also interleaved into a total of 32 bit words.
 
-This tool will manually deinterleave the data for x86_64 (64 bit AMD and Intel processors).
+This tool will deinterleave the data. 
 
 
-## Extract
-
-
-A simple program for extracting captured raw data into separate files
+### Usage
 
 Example:
 
     misrc_extract -i raw_32-bit_dump.bin -p -a channel_1.s16 -b channel_2.s16 -x aux_data.bin
-
-Usage:
 
 - `-i` Input file (use '-' to read from stdin)  
 - `-a` ADC A output file (use '-' to write on stdout)  
@@ -81,7 +69,6 @@ Usage:
 
 
 ## Version History
-
 
 * 0.4
     * Release of new tool: misrc_capture for direct capture from HDMI/MS2130 using hsdaoh
@@ -117,7 +104,7 @@ Usage:
 - meson/ninja (for static builds/automatic compilation)
 
 Installation of build tools:
-- MacOS using [brew](https://brew.sh/): 
+- macOS using [brew](https://brew.sh/): 
 
       brew install git curl cmake nasm meson ninja
 
@@ -131,20 +118,15 @@ Installation of build tools:
 
 
 ### Automatic compilation
-
-
 The script `build/build-static.sh` can be used for bulding a statically linked version.
 It will download and compile dependencies. It is used to build the binaries downloadable here.
 In case it doesn't work for your needs you can compile misrc_tools manually.
 
-
 ### Dependencies
-
-
 - [libusb](https://github.com/libusb/libusb)
 - [libuvc](https://github.com/libuvc/libuvc) (for Windows cmake fixes use [Steve-m's fork](https://github.com/steve-m/libuvc))
 - [hsdaoh](https://github.com/Stefan-Olt/hsdaoh) (the main hsdaoh branch (steve-m) does not have required changes merged, use the linked one!)
-- [FLAC](https://github.com/xiph/flac) (v1.5.0 and newer required for multi-threading support!)
+- [FLAC](https://github.com/xiph/flac) (optional, v1.5.0 and newer required for multi-threading support)
 
 Installation of FLAC, libusb and libuvc (if available):
 
@@ -165,91 +147,88 @@ Installation of FLAC, libusb and libuvc (if available):
 
 
 1. Build libuvc (required on Windows and macOS):
-<details closed>
-<summary>macOS (Linux, BSD...)</summary>
-
-```
-git clone https://github.com/libuvc/libuvc.git
-mkdir libuvc/build && cd libuvc/build
-cmake ../
-make
-sudo make install
-```
-
-
-</details>
-<details closed>
-<summary>Windows</summary>
-
-
-```
-git clone https://github.com/steve-m/libuvc.git
-mkdir libuvc/build && cd libuvc/build
-cmake ../ -DCMAKE_INSTALL_PREFIX:PATH=/mingw64
-cmake --build .
-cmake --install .
-```
-</details>
+   <details closed>
+   <summary>macOS (Linux, BSD...)</summary>
+   
+   ```
+   git clone https://github.com/libuvc/libuvc.git
+   mkdir libuvc/build && cd libuvc/build
+   cmake ../
+   make
+   sudo make install
+   ```
+   
+   </details>
+   <details closed>
+   <summary>Windows</summary>
+   
+   ```
+   git clone https://github.com/steve-m/libuvc.git
+   mkdir libuvc/build && cd libuvc/build
+   cmake ../ -DCMAKE_INSTALL_PREFIX:PATH=/mingw64
+   cmake --build .
+   cmake --install .
+   ```
+   
+   </details>
 
 2. Build hsdaoh
-<details closed>
-<summary>MacOS (Linux, BSD...)</summary>
-
-
-```
-git clone https://github.com/Stefan-Olt/hsdaoh.git
-mkdir hsdaoh/build
-cd hsdaoh/build
-cmake ../ -DINSTALL_UDEV_RULES=ON
-make
-sudo make install
-sudo ldconfig
-```
-
-
-</details>
-<details closed>
-<summary>Windows</summary>
-
-
-```
-git clone https://github.com/Stefan-Olt/hsdaoh.git
-mkdir hsdaoh/build && cd hsdaoh/build
-cmake ../ -DCMAKE_INSTALL_PREFIX:PATH=/mingw64
-cmake --build .
-cmake --install .
-```
-</details>
+   <details closed>
+   <summary>Linux, macOS, BSD...</summary>
+   
+   ```
+   git clone https://github.com/Stefan-Olt/hsdaoh.git
+   mkdir hsdaoh/build
+   cd hsdaoh/build
+   cmake ../ -DINSTALL_UDEV_RULES=ON
+   make
+   sudo make install
+   sudo ldconfig
+   ```
+   
+   </details>
+   <details closed>
+   <summary>Windows</summary>
+   
+   ```
+   git clone https://github.com/Stefan-Olt/hsdaoh.git
+   mkdir hsdaoh/build && cd hsdaoh/build
+   cmake ../ -DCMAKE_INSTALL_PREFIX:PATH=/mingw64
+   cmake --build .
+   cmake --install .
+   ```
+   
+   </details>
 
 3. Build misrc_tools
-
-<details closed>
-<summary>MacOS (Linux, BSD...)</summary>
-
-```
-git clone https://github.com/Stefan-Olt/MISRC.git
-cd ./MISRC/misrc_tools
-mkdir build
-cd build
-cmake ../
-make
-sudo make install
-```
-
-</details>
-<details closed>
-<summary>Windows</summary>
-
-```
-git clone https://github.com/Stefan-Olt/MISRC.git
-cd ./MISRC/misrc_tools
-mkdir build
-cd build
-cmake ../ -DCMAKE_INSTALL_PREFIX:PATH=/mingw64
-cmake --build .
-cmake --install .
-```
-</details>
+   <details closed>
+   <summary>Linux, macOS, BSD...</summary>
+   
+   ```
+   git clone https://github.com/Stefan-Olt/MISRC.git
+   cd ./MISRC/misrc_tools
+   mkdir build
+   cd build
+   cmake ../
+   make
+   sudo make install
+   ```
+   
+   </details>
+   <details closed>
+   <summary>Windows</summary>
+   
+   ```
+   git clone https://github.com/Stefan-Olt/MISRC.git
+   cd ./MISRC/misrc_tools
+   mkdir build
+   cd build
+   cmake ../ -DCMAKE_INSTALL_PREFIX:PATH=/mingw64
+   cmake --build .
+   cmake --install .
+   ```
+   
+   </details>
 
 
 ## License
