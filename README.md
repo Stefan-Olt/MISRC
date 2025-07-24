@@ -106,10 +106,7 @@ You have flashed your Tang Nano 20k!
 
 ## Software
 
-> [!TIP]  
-> Pre-built Binaries of the misrc_tools are available on the [releases tab](https://github.com/Stefan-Olt/MISRC/releases).
-
-Supported operating systems with direct links to the latest release:
+Supported operating systems with direct links to the latest release (also available on the [releases tab](https://github.com/Stefan-Olt/MISRC/releases)):
 
 | Operating System  | Minimum supported OS version | Download x86_64 (Intel / AMD)                                                                                                                                  | Download arm64 (Apple Silicon / aarch64)                                                                                                                                   |
 | ----------------- | ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
