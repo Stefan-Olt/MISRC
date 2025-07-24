@@ -47,7 +47,7 @@ Possible capture examples:
 - DC or AC (pre- or post-termination) coupling
 - Zero-adjust to compensate DC offset
 - Latching clipping indicator
-- Clock source selectable: USB PLL, crystal or external
+- Clock source selectable: USB PLL (FX3 setup), crystal or external
   Clock output SMA for external devices
 - Melted PCB Traces
 
@@ -57,17 +57,13 @@ Possible capture examples:
 
 > [!TIP]  
 > You can support the development and production of the MISRC platform [here](https://github.com/Stefan-Olt/MISRC/wiki/Donations).
-
 - PCB: 20-30USD
-
 - Parts 100-150USD
-
 - Single unit total production cost is currently 260-300USD.
-
 - [Order a V1.5 Development MISRC](https://github.com/Stefan-Olt/MISRC/wiki/Fabrication)
 
 
-## Hardware 
+## Hardware features
 
 
 | Media RF Type | MISRC Support |
@@ -77,11 +73,11 @@ Possible capture examples:
 | CVBS RF       | Yes           |
 | S-Video RF    | Yes           |
 
-- External Clock Source Output
+- External Clock Input/Output
 - 6 Extra Aux inputs for audio ADC modules etc
 - Duel ADC / Duel Input (BNC Connectors)
 - Physically adjustable input filters
-- 12-Bit, 20/40/65msps sampling
+- 12-Bit, 40msps sampling
 - [AD8138](https://www.analog.com/media/en/technical-documentation/data-sheets/ad8138.pdf) Driver, Op-Amp / [SN74ls541](https://www.ti.com/lit/ds/symlink/sn74ls540.pdf) Buffer / [AD9235](https://www.analog.com/media/en/technical-documentation/data-sheets/AD9235.pdf) ADC
 
 ------
@@ -95,76 +91,55 @@ Possible capture examples:
 > [!TIP]  
 > You can order pre-made [adaptor PCBs here](https://ko-fi.com/s/617b72ab2c) for V1.5 boards with the headders for the FX3.  
 
+## Firmware (Tang Nano 20k)
 
-# Software & Firmware 
-
-
-> [!TIP]  
-> Pre-built Binaries is available on the [releases tab](https://github.com/Stefan-Olt/MISRC/releases).
-
-| Operating System  | MISRC Support          |
-| ----------------- | ---------------------- |
-| Microsoft Windows | Yes (10/11)            |
-| Apple MacOS       | Yes                    |
-| Apple MacOS ARM   | Yes                    |
-| Linux             | Yes                    |
-| Linux Arm         | Yes                    |
-
-
-There are 2 tools currently and a few dependencies required to deploy a MISRC.
-
-- MISRC Capture
-- MISRC Extract
-- hsdaoh library
-
-> [!WARNING]  
-> The main hsdaoh branch (steve-m) does not have the required changes merged yet, ensure the above liked repo is used for install or your application will not build.
-
+To be able to use the [Tang Nano 20k](https://s.click.aliexpress.com/e/_DcwBOX3) to send data over HDMI, it needs to be flashed once via USB connection:
 
 <details closed>
-
-<summary>hsdaoh Install Linux</summary>
+<summary>Firmware Flashing </summary>
 <br>
 
-To install the build dependencies on a distribution based on Debian (e.g. Ubuntu), run the following command:
+1. Download the firmare, see [releases](https://github.com/Stefan-Olt/MISRC/releases) for the latest version.
 
-    sudo apt-get install build-essential cmake pkgconf libusb-1.0-0-dev libuvc-dev
+2. Install [openFPGALoader](https://github.com/trabucayre/openFPGALoader)
 
-To build hsdaoh:
+3. Connect your Tang to a USB 3.0 port via its Type-C, it will need this for 5V power after flashing, but not data from the MISRC.
 
-    git clone https://github.com/Stefan-Olt/hsdaoh.git
-    mkdir hsdaoh/build
-    cd hsdaoh/build
-    cmake ../ -DINSTALL_UDEV_RULES=ON
-    make -j 4
-    sudo make install
-    sudo ldconfig
+   Run via terminal inside the firmware directory
 
-To be able to access the USB device as non-root, the udev rules need to be installed (either use -DINSTALL_UDEV_RULES=ON or manually copy hsdaoh rules to /etc/udev/rules.d/).
+       openFPGALoader -b tangnano20k -f hsdaoh_nano20k_misrc.fs
 
-Before being able to use the device as a non-root user, the udev rules need to be reloaded:
-
-    sudo udevadm control -R
-    sudo udevadm trigger
-
-Furthermore, make sure your user is a member of the group 'plugdev'.
-To make sure the group exists and add your user to it, run:
-
-    sudo groupadd plugdev
-    sudo usermod -a -G plugdev <your username>
-
-If you haven't already been a member, you need to logout and login again for the group membership to become effective.
-
+You have flashed your Tang Nano 20k! 
 
 </details>
 
 
-<details closed>
+## Software
 
-<summary>hsdaoh Install Windows</summary>
+> [!TIP]  
+> Pre-built Binaries of the misrc_tools are available on the [releases tab](https://github.com/Stefan-Olt/MISRC/releases).
+
+Supported operating systems with direct links to the latest release:
+
+| Operating System  | Minimum supported OS version | Download x86_64 (Intel / AMD)                                                                                                                                  | Download arm64 (Apple Silicon / aarch64)                                                                                                                                   |
+| ----------------- | ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Microsoft Windows | 10 (1803)                    | [misrc_tools-0.4-win-x86_64.zip](https://github.com/Stefan-Olt/MISRC/releases/download/misrc_tools-0.4/misrc_tools-0.4-win-x86_64.zip)                         | [misrc_tools-0.4-win-arm64.zip](https://github.com/Stefan-Olt/MISRC/releases/download/misrc_tools-0.4/misrc_tools-0.4-win-arm64.zip)                                       |
+| Apple macOS       | 10.15                        | [misrc_tools-0.4-macos-intel-x86_64.tar.gz](https://github.com/Stefan-Olt/MISRC/releases/download/misrc_tools-0.4/misrc_tools-0.4-macos-intel-x86_64.tar.gz)   | [misrc_tools-0.4-macos-apple-silicon-arm64.tar.gz](https://github.com/Stefan-Olt/MISRC/releases/download/misrc_tools-0.4/misrc_tools-0.4-macos-apple-silicon-arm64.tar.gz) |
+| Linux             | libc6 2.35 (Ubuntu 22.04)    | [misrc_tools-0.4-linux-x86_64.tar.gz](https://github.com/Stefan-Olt/MISRC/releases/download/misrc_tools-0.4/misrc_tools-0.4-linux-x86_64.tar.gz)               | [misrc_tools-0.4-linux-arm64.tar.gz](https://github.com/Stefan-Olt/MISRC/releases/download/misrc_tools-0.4/misrc_tools-0.4-linux-arm64.tar.gz)                             |
+
+
+> [!NOTE]  
+> The arm64 builds for Windows are untested and considered experimental!
+
+The packages contain two command-line applications, `misrc_capture` and `misrc_extract`. For detailed usage information see the [misrc_tools readme](/misrc_tools/README.md) and the usage example down below.
+
+If you want to build the tools yourself, see the instructions on the [misrc_tools readme](/misrc_tools/README.md).
+
+<details closed>
+<summary>Install Windows</summary>
 <br>
 
-**Currently, this is highly experimental, noted here for testing and is not production implimented yet!**
+For `misrc_capture` to be able to access the MS2130 capture device, you need to install a special driver:
 
 Firstly download [Zadig](https://zadig.akeo.ie/)
 
@@ -175,107 +150,32 @@ Interface 0 - USB Video
 Interface 4 - HIDDevice
 ```
 
-Install MSYS2 (https://www.msys2.org/)
+</details>
 
-Start `MSYS2 MINGW64` terminal from the application menu. (Blue Icon) 
+<details closed>
+<summary>Install macOS</summary>
+<br>
+For macOS you do not need to install anything.
 
-Update all packages:
+For macOS versions 10.15 and 11 you can directly execute `misrc_capture`.
 
-    pacman -Suy
-
-Install the required dependencies:
-
-    pacman -S git zip mingw-w64-x86_64-libusb mingw-w64-x86_64-libwinpthread mingw-w64-x86_64-cc \ mingw-w64-x86_64-gcc-libs mingw-w64-x86_64-cmake mingw-w64-x86_64-ninja
-
-Clone & Build libuvc:
-
-    git clone https://github.com/steve-m/libuvc.git
-    mkdir libuvc/build && cd libuvc/build
-    cmake ../ -DCMAKE_INSTALL_PREFIX:PATH=/mingw64
-    cmake --build .
-    cmake --install .
-
-Build libhsdaoh
-
-    cd ~
-    git clone https://github.com/steve-m/hsdaoh.git
-    mkdir hsdaoh/build && cd hsdaoh/build
-    cmake ../
-    cmake --build .
-
-Gather all files required for release:
-
-    zip -j hsdaoh_win_release.zip src/*.exe src/*.dll /mingw64/bin/libusb-1.0.dll /mingw64/bin/libuvc.dll /mingw64/bin/libwinpthread-1.dll
-
+For macOS 12 and later you have to run `misrc_capture` as root (sudo). This is a new security feature by Apple, there is currently no way to bypass it. 
 
 </details>
 
 <details closed>
-
-<summary>Software Install</summary>
+<summary>Install Linux</summary>
 <br>
+If you want to run `misrc_capture` as root, there is no need to install anything on Linux.
 
+But for `misrc_capture` to be able to access the MS2130 capture device without root privilege (sudo), you need to install a udev-rule and add the user that will use `misrc_capture` to the `plugdev`-group.
 
-Tested and built on Linux Mint 21.03 and 22 / Ubuntu 22.04
-
-First install dependencies 
-
-- `apt install libflac-dev`
-- `hsdaoh driver`
-
-These allow you to use the MS2130 & MS2131 chips directly.
-
-Restart and then continue
-
-Install capture & extract tools (Linux & MacOS)
-
-    git clone https://github.com/Stefan-Olt/MISRC.git
-
-Enter Directory
-
-    cd MISRC/misrc_tools
-
-Build and install 
-
-```
-mkdir build
-cd build
-cmake ..
-make
-sudo make install
-```
-
-Run `mirsc_extract` or `misrc_capture` in any directory without arguments to trigger the help menu.
-
-There is a dedicated [sub-readme](/misrc_tools/README.md) for these tools.
-
+The pre-build packages contains the script `install-udev-rules.sh`. It will install the rule and add the current user to the plugdev group.
 
 </details>
 
 
-</details>
-
-<details closed>
-<summary>Firmware Flashing </summary>
-<br>
-
-
-Today we are now using the more affordable [Tang Nano 20k](https://s.click.aliexpress.com/e/_DcwBOX3) sending the data over HDMI this only needs to be flashed once via usb connection, we have pre-compiled firmware see [releases](https://github.com/Stefan-Olt/MISRC/releases) for the latest version.
-
-Install [openFPGALoader](https://github.com/trabucayre/openFPGALoader)
-
-Connect your Tang to a USB 3.0 port via its Type-C, it will need this for 5V power after flashing, but not data.
-
-Run via terminal inside the firmware directory
-
-    openFPGALoader -b tangnano20k -f hsdaoh_nano20k_misrc.fs
-
-You have flashed your Tang Nano 20k! 
-
-</details>
-
-
-## Capture
+## Capture / Usage example
 
 
 > [!TIP]  
@@ -343,7 +243,7 @@ Usage:
 ## Setting Up the MISRC
 
 
-- Connect your 5v USB-C to the Tang Nano for power. 
+- Connect your 5V USB-C to the Tang Nano for power. 
 
 - Connect your HDMI cable (copper or fibre) to your Tang Nano for data output to the MS2130 or MS2131. 
 
