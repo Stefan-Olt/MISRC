@@ -25,6 +25,13 @@ Provide decoding for a wide range of videotape formats, HiFi audio and even RAW 
 
 -----------
 
+| Media RF Type | MISRC Support |
+| ------------- | ------------- |
+| Video FM RF   | Yes           |
+| HiFi FM RF    | Yes           |
+| CVBS RF       | Yes           |
+| S-Video RF    | Yes           |
+
 Possible capture examples:
 
 - Capture 2x CVBS
@@ -37,23 +44,23 @@ Possible capture examples:
 > It may be useful for other purposes as well, as it is built as a generic ADC with configurable filtering.
 
 
-## Features
+## Hardware features
 
-
-- Two 12-bit 40msps ADCs 
-- Selectable input gain (8 steps)
+- Duel ADC / Duel Input (BNC Connectors)
+- 6 Extra Aux inputs for audio ADC modules etc
+- Two 12-bit 40msps ADCs: [AD9235](https://www.analog.com/media/en/technical-documentation/data-sheets/AD9235.pdf)
+- Selectable input gain (8 steps) (using [AD8138](https://www.analog.com/media/en/technical-documentation/data-sheets/ad8138.pdf) op-amp)
 - Selectable ADC range (1V or 2V)
 - Selectable input impedance (75, 50, 37.5 and 30 ohms)
 - DC or AC (pre- or post-termination) coupling
 - Zero-adjust to compensate DC offset
 - Latching clipping indicator
 - Clock source selectable: USB PLL (FX3 setup), crystal or external
-  Clock output SMA for external devices
+- Clock output SMA for external devices
 - Melted PCB Traces
 
 
 ## Costs
-
 
 > [!TIP]  
 > You can support the development and production of the MISRC platform [here](https://github.com/Stefan-Olt/MISRC/wiki/Donations).
@@ -61,24 +68,6 @@ Possible capture examples:
 - Parts 100-150USD
 - Single unit total production cost is currently 260-300USD.
 - [Order a V1.5 Development MISRC](https://github.com/Stefan-Olt/MISRC/wiki/Fabrication)
-
-
-## Hardware features
-
-
-| Media RF Type | MISRC Support |
-| ------------- | ------------- |
-| Video FM RF   | Yes           |
-| HiFi FM RF    | Yes           |
-| CVBS RF       | Yes           |
-| S-Video RF    | Yes           |
-
-- External Clock Input/Output
-- 6 Extra Aux inputs for audio ADC modules etc
-- Duel ADC / Duel Input (BNC Connectors)
-- Physically adjustable input filters
-- 12-Bit, 40msps sampling
-- [AD8138](https://www.analog.com/media/en/technical-documentation/data-sheets/ad8138.pdf) Driver, Op-Amp / [SN74ls541](https://www.ti.com/lit/ds/symlink/sn74ls540.pdf) Buffer / [AD9235](https://www.analog.com/media/en/technical-documentation/data-sheets/AD9235.pdf) ADC
 
 ------
 
@@ -133,7 +122,7 @@ Supported operating systems with direct links to the latest release:
 
 The packages contain two command-line applications, `misrc_capture` and `misrc_extract`. For detailed usage information see the [misrc_tools readme](/misrc_tools/README.md) and the usage example down below.
 
-If you want to build the tools yourself, see the instructions on the [misrc_tools readme](/misrc_tools/README.md).
+If you want to build the tools yourself, see the instructions in the [misrc_tools readme](/misrc_tools/README.md).
 
 <details closed>
 <summary>Install Windows</summary>
