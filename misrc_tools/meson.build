@@ -114,7 +114,7 @@ if host_system == 'darwin'
 endif
 
 if host_system == 'windows'
-  if meson.get_compiler('c').get_id() != 'gcc' and meson.get_compiler('c').get_id() == 'clang'
+  if meson.get_compiler('c').get_id() != 'gcc' and meson.get_compiler('c').get_id() != 'clang'
     sources_extract += [ 'getopt/getopt.c' ]
     sources_capture += [ 'getopt/getopt.c' ]
   endif
