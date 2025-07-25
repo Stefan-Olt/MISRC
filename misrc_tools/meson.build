@@ -114,8 +114,10 @@ if host_system == 'darwin'
 endif
 
 if host_system == 'windows'
-  sources_extract += [ 'getopt/getopt.c' ]
-  sources_capture += [ 'getopt/getopt.c' ]
+  if meson.get_compiler('c').get_id() != 'gcc' and meson.get_compiler('c').get_id() == 'clang'
+    sources_extract += [ 'getopt/getopt.c' ]
+    sources_capture += [ 'getopt/getopt.c' ]
+  endif
   cflags += [ '-DNTDDI_VERSION=NTDDI_WIN10_RS4', '-D_WIN32_WINNT=_WIN32_WINNT_WIN10' ]
   ldflags_capture += [ '-lonecore', '-static' ]
   if host_cpu_family == 'aarch64'

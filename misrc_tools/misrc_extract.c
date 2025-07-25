@@ -32,7 +32,11 @@
 	#include <windows.h>
 	#include <io.h>
 	#include <fcntl.h>
-	#include "getopt/getopt.h"
+	#if defined(__MINGW32__)
+		#include <getopt.h>
+	#else
+		#include "getopt/getopt.h"
+	#endif
 	#define aligned_free(x) _aligned_free(x)
 	#define aligned_alloc(a,s) _aligned_malloc(s,a)
 	#define PERF_MEASURE 0
