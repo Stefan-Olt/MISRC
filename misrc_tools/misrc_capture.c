@@ -295,6 +295,7 @@ int raw_file_writer(void *ctx)
 #if LIBSWRESAMPLE_ENABLED == 1
 	/* setup resampling */
 	struct SwrContext *swr_ctx;
+	AVChannelLayout ch_layout;
 	uint8_t *resample_buffer;
 	int swr_ret;
 	if (file_ctx->resample_rate!=0) {
@@ -310,10 +311,12 @@ int raw_file_writer(void *ctx)
 			do_exit = 1;
 			return 0;
 		}
-		av_opt_set_int(swr_ctx, "in_channel_layout",     AV_CH_LAYOUT_MONO, 0);
+		ch_layout.nb_channels = 1;
+		ch_layout.order = AV_CHANNEL_ORDER_UNSPEC;
+		av_opt_set_chlayout(swr_ctx, "in_chlayout",      &ch_layout, 0);
 		av_opt_set_int(swr_ctx, "in_sample_rate",        40000, 0);
 		av_opt_set_sample_fmt(swr_ctx, "in_sample_fmt",  AV_SAMPLE_FMT_S16, 0);
-		av_opt_set_int(swr_ctx, "out_channel_layout",    AV_CH_LAYOUT_MONO, 0);
+		av_opt_set_chlayout(swr_ctx, "out_chlayout",     &ch_layout, 0);
 		av_opt_set_int(swr_ctx, "out_sample_rate",       file_ctx->resample_rate, 0);
 		av_opt_set_sample_fmt(swr_ctx, "out_sample_fmt", AV_SAMPLE_FMT_S16, 0);
 		if (swr_init(swr_ctx) < 0) {
@@ -375,6 +378,7 @@ int flac_file_writer(void *ctx)
 #if LIBSWRESAMPLE_ENABLED == 1
 	/* setup resampling */
 	struct SwrContext *swr_ctx;
+	AVChannelLayout ch_layout;
 	uint8_t *resample_buffer;
 	int swr_ret;
 	if (file_ctx->resample_rate!=0) {
@@ -391,10 +395,12 @@ int flac_file_writer(void *ctx)
 			do_exit = 1;
 			return 0;
 		}
-		av_opt_set_int(swr_ctx, "in_channel_layout",     AV_CH_LAYOUT_MONO, 0);
+		ch_layout.nb_channels = 1;
+		ch_layout.order = AV_CHANNEL_ORDER_UNSPEC;
+		av_opt_set_chlayout(swr_ctx, "in_chlayout",      &ch_layout, 0);
 		av_opt_set_int(swr_ctx, "in_sample_rate",        40000, 0);
 		av_opt_set_sample_fmt(swr_ctx, "in_sample_fmt",  AV_SAMPLE_FMT_S32, 0);
-		av_opt_set_int(swr_ctx, "out_channel_layout",    AV_CH_LAYOUT_MONO, 0);
+		av_opt_set_chlayout(swr_ctx, "out_chlayout",     &ch_layout, 0);
 		av_opt_set_int(swr_ctx, "out_sample_rate",       file_ctx->resample_rate, 0);
 		av_opt_set_sample_fmt(swr_ctx, "out_sample_fmt", AV_SAMPLE_FMT_S32, 0);
 		if (swr_init(swr_ctx) < 0) {

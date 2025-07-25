@@ -79,7 +79,8 @@ cd ../
 curl -L --silent -o "FFmpeg-n7.1.1.tar.gz" "https://github.com/FFmpeg/FFmpeg/archive/refs/tags/n7.1.1.tar.gz"
 tar xzf FFmpeg-n7.1.1.tar.gz
 cd FFmpeg-n7.1.1
-if [[ (("$OSTYPE" == "cygwin"*) || ("$OSTYPE" == "msys"*)) && ("$MACHINE" == "arm64") ]]; then
+echo "Build FFmpeg on $OSTYPE $MACHINE"
+if [[ (("$OSTYPE" == "cygwin"*) || ("$OSTYPE" == "msys"*)) && (("$MACHINE" == "arm64") || ("$MACHINE" == "aarch64")) ]]; then
   ./configure --enable-static --disable-shared --disable-programs --enable-gpl --enable-version3 --disable-avdevice --disable-avcodec --disable-avformat --disable-swscale --disable-postproc --disable-avfilter --disable-doc --prefix="${WORKSPACE}" --cc=clang --cxx=clang++ --arch=arm64
 else
   ./configure --enable-static --disable-shared --disable-programs --enable-gpl --enable-version3 --disable-avdevice --disable-avcodec --disable-avformat --disable-swscale --disable-postproc --disable-avfilter --disable-doc --prefix="${WORKSPACE}"
