@@ -512,6 +512,26 @@ void print_hsdaoh_message(int msg_type, int msg, void *additional, void UNUSED(*
 	new_line = 1;
 }
 
+int open_file(FILE **f, char *filename, bool overwrite)
+{
+	if (strcmp(filename, "-") == 0) { // Write to stdout
+		*f = stdout;
+		return 0;
+	}
+	if (access(filename, F_OK) == 0 && !overwrite) {
+		char ch = 0;
+		fprintf(stderr, "File '%s' already exists. Overwrite? (y/n) ", filename);
+		scanf(" %c",&ch);
+		if (ch != 'y' && ch != 'Y') return -1;
+	}
+	*f = fopen(filename, "wb");
+	if (!(*f)) {
+		fprintf(stderr, "Failed to open %s\n", filename);
+		return -2;
+	}
+	return 0;
+}
+
 int main(int argc, char **argv)
 {
 //set pipe mode to binary in windows
@@ -722,24 +742,7 @@ int main(int argc, char **argv)
 #endif
 	for(int i=0; i<2; i++) {
 		if (output_names[i] != NULL) {
-			if (strcmp(output_names[i], "-") == 0)// Write to stdout
-			{
-				thread_out_ctx[i].f = stdout;
-			}
-			else
-			{
-				if (access(output_names[i], F_OK) == 0 && !overwrite_files) {
-					char ch = 0;
-					fprintf(stderr, "File '%s' already exists. Overwrite? (y/n) ", output_names[i]);
-					scanf("%c",&ch);
-					if (ch != 'y' && ch != 'Y') return -ENOENT;
-				}
-				thread_out_ctx[i].f = fopen(output_names[i], "wb");
-				if (!thread_out_ctx[i].f) {
-					fprintf(stderr, "Failed to open %s\n", output_names[i]);
-					return -ENOENT;
-				}
-			}
+			if (open_file(&(thread_out_ctx[i].f), output_names[i], overwrite_files)) return -ENOENT;
 #if LIBFLAC_ENABLED == 1
 			thread_out_ctx[i].flac_level = flac_level;
 			thread_out_ctx[i].flac_verify = flac_verify;
@@ -762,47 +765,13 @@ int main(int argc, char **argv)
 	if(output_name_aux != NULL)
 	{
 		//opening output file aux
-		if (strcmp(output_name_aux, "-") == 0)// Write to stdout
-		{
-			output_aux = stdout;
-		}
-		else if(output_name_aux != NULL)
-		{
-			if (access(output_name_aux, F_OK) == 0 && !overwrite_files) {
-				char ch = 0;
-				fprintf(stderr, "File '%s' already exists. Overwrite? (y/n) ", output_name_aux);
-				scanf("%c",&ch);
-				if (ch != 'y' && ch != 'Y') return -ENOENT;
-			}
-			output_aux = fopen(output_name_aux, "wb");
-			if (!output_aux) {
-				fprintf(stderr, "Failed to open %s\n", output_name_aux);
-				return -ENOENT;
-			}
-		}
+		if (open_file(&output_aux, output_name_aux, overwrite_files)) return -ENOENT;
 	}
 
 	if(output_name_raw != NULL)
 	{
-		//opening output file aux
-		if (strcmp(output_name_raw, "-") == 0)// Write to stdout
-		{
-			output_raw = stdout;
-		}
-		else if(output_name_raw != NULL)
-		{
-			if (access(output_name_raw, F_OK) == 0 && !overwrite_files) {
-				char ch = 0;
-				fprintf(stderr, "File '%s' already exists. Overwrite? (y/n) ", output_name_raw);
-				scanf("%c",&ch);
-				if (ch != 'y' && ch != 'Y') return -ENOENT;
-			}
-			output_raw = fopen(output_name_raw, "wb");
-			if (!output_raw) {
-				fprintf(stderr, "Failed to open %s\n", output_name_raw);
-				return -ENOENT;
-			}
-		}
+		//opening output file raw
+		if (open_file(&output_raw, output_name_raw, overwrite_files)) return -ENOENT;
 	}
 
 	conv_function = get_conv_function(0, pad, (out_size==2) ? 0 : 1, output_names[0], output_names[1]);

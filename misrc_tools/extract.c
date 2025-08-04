@@ -33,6 +33,20 @@
 # define UNUSED(x) x
 #endif
 
+void extract_XS_C(uint16_t *in, size_t len, size_t UNUSED(*clip), uint8_t *aux, int16_t UNUSED(*outA), int16_t UNUSED(*outB)) {
+	for(size_t i = 0; i < len; i++)
+	{
+		aux[i] = (in[i] & MASK_AUXS) >> 12;
+	}
+}
+
+void extract_X_C(uint32_t *in, size_t len, size_t UNUSED(*clip), uint8_t *aux, int16_t UNUSED(*outA), int16_t UNUSED(*outB)) {
+	for(size_t i = 0; i < len; i++)
+	{
+		aux[i] = (in[i] & MASK_AUX) >> 12;
+	}
+}
+
 void extract_S_C(uint16_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t UNUSED(*outB)) {
 	for(size_t i = 0; i < len; i++)
 	{
@@ -184,6 +198,10 @@ void extract_AB_p_32_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int
 }
 
 conv_function_t get_conv_function(uint8_t single, uint8_t pad, uint8_t dword, void* outA, void* outB) {
+	if (outA == NULL && outB == NULL) {
+		if (single == 1) return (conv_function_t) &extract_XS_C;
+		else return (conv_function_t) &extract_X_C;
+	}
 #if defined(__x86_64__) || defined(_M_X64)
 	if(check_cpu_feat()==0) {
 		fprintf(stderr,"Detected processor with SSSE3 and POPCNT, using optimized extraction routine\n\n");
