@@ -47,6 +47,7 @@
 #include <time.h>
 
 #ifndef _WIN32
+	#include <endian.h>
 	#include <getopt.h>
 	#include <unistd.h>
 	#define aligned_free(x) free(x)
@@ -65,9 +66,13 @@
 	#define sleep_ms(x) Sleep(x)
 	#define F_OK 0
 	#define access _access
+	#define le32toh(x) (x)
+	#define le16toh(x) (x)
 #endif
 
 #include <hsdaoh.h>
+#include <hsdaoh_raw.h>
+#include <hsdaoh_crc.h>
 
 #if LIBFLAC_ENABLED == 1
 #include "FLAC/metadata.h"
@@ -91,6 +96,7 @@ static const char* const _FLAC_StreamEncoderSetNumThreadsStatusString[] = {
 
 #include "ringbuffer.h"
 #include "extract.h"
+#include "wave.h"
 
 #if LIBFLAC_ENABLED == 1 && defined(FLAC_API_VERSION_CURRENT) && FLAC_API_VERSION_CURRENT >= 14
 #include "numcores.h"
@@ -99,6 +105,8 @@ static const char* const _FLAC_StreamEncoderSetNumThreadsStatusString[] = {
 #define VERSION "0.4"
 #define COPYRIGHT "licensed under GNU GPL v3 or later, (c) 2024-2025 vrunk11, stefan_o"
 
+#define BUFFER_AUDIO_TOTAL_SIZE 65536*256
+#define BUFFER_AUDIO_READ_SIZE 65536*3
 #define BUFFER_TOTAL_SIZE 65536*1024
 #define BUFFER_READ_SIZE 65536*32
 
@@ -107,6 +115,13 @@ static const char* const _FLAC_StreamEncoderSetNumThreadsStatusString[] = {
 #define OPT_RESAMPLE_A     256
 #define OPT_RESAMPLE_B     257
 #define OPT_RF_FLAC_12BIT  258
+#define OPT_AUDIO_4CH_OUT  259
+#define OPT_AUDIO_2CH_12_OUT  260
+#define OPT_AUDIO_2CH_34_OUT  261
+#define OPT_AUDIO_1CH_1_OUT  262
+#define OPT_AUDIO_1CH_2_OUT  263
+#define OPT_AUDIO_1CH_3_OUT  264
+#define OPT_AUDIO_1CH_4_OUT  265
 
 #if defined(__GNUC__)
 # define UNUSED(x) x __attribute__((unused))
@@ -116,7 +131,17 @@ static const char* const _FLAC_StreamEncoderSetNumThreadsStatusString[] = {
 
 typedef struct {
 	ringbuffer_t rb;
-	uint64_t samples_to_read;
+	ringbuffer_t rb_audio;
+	int hsdaoh_frames_since_error;
+	unsigned int hsdaoh_in_order_cnt;
+	uint16_t hsdaoh_last_frame_cnt;
+	uint16_t hsdaoh_last_crc[2];
+	uint16_t hsdaoh_idle_cnt;
+	bool hsdaoh_stream_synced;
+	bool capture_rf;
+	bool capture_audio;
+	bool capture_audio_started;
+	bool capture_audio_started2;
 } capture_ctx_t;
 
 
@@ -134,6 +159,15 @@ typedef struct {
 #endif
 } filewriter_ctx_t;
 
+typedef struct {
+	ringbuffer_t *rb;
+	FILE *f_4ch;
+	FILE *f_2ch[2];
+	FILE *f_1ch[4];
+	uint64_t total_bytes;
+	bool non_4ch;
+} audiowriter_ctx_t;
+
 
 static int do_exit;
 static int new_line = 1;
@@ -145,13 +179,13 @@ static struct option getopt_long_options[] =
   {"count",                required_argument, 0, 'n'},
   {"time",                 required_argument, 0, 't'},
   {"overwrite",            no_argument,       0, 'w'},
-  {"adc-a-output",         required_argument, 0, 'a'},
-  {"adc-b-output",         required_argument, 0, 'b'},
-  {"aux-output",           required_argument, 0, 'x'},
-  {"raw-output",           required_argument, 0, 'r'},
+  {"rf-adc-a",             required_argument, 0, 'a'},
+  {"rf-adc-b",             required_argument, 0, 'b'},
+  {"aux",                  required_argument, 0, 'x'},
+  {"raw",                  required_argument, 0, 'r'},
   {"pad",                  no_argument,       0, 'p'},
-  {"suppress-clip-a",      no_argument,       0, 'A'},
-  {"suppress-clip-b",      no_argument,       0, 'B'},
+  {"suppress-clip-rf-a",   no_argument,       0, 'A'},
+  {"suppress-clip-rf-b",   no_argument,       0, 'B'},
 #if LIBSWRESAMPLE_ENABLED == 1
   {"resample-rf-a",        required_argument, 0, OPT_RESAMPLE_A},
   {"resample-rf-b",        required_argument, 0, OPT_RESAMPLE_B},
@@ -165,8 +199,17 @@ static struct option getopt_long_options[] =
   {"rf-flac-threads",      required_argument, 0, 'c'},
 #endif
 #endif
+  {"audio-4ch",            required_argument, 0, OPT_AUDIO_4CH_OUT},
+  {"audio-2ch-12",         required_argument, 0, OPT_AUDIO_2CH_12_OUT},
+  {"audio-2ch-34",         required_argument, 0, OPT_AUDIO_2CH_34_OUT},
+  {"audio-1ch-1",          required_argument, 0, OPT_AUDIO_1CH_1_OUT},
+  {"audio-1ch-2",          required_argument, 0, OPT_AUDIO_1CH_2_OUT},
+  {"audio-1ch-3",          required_argument, 0, OPT_AUDIO_1CH_3_OUT},
+  {"audio-1ch-4",          required_argument, 0, OPT_AUDIO_1CH_4_OUT},
   {0, 0, 0, 0}
 };
+
+static char* yesno[] = {"no", "yes"};
 
 static char* usage_options[][2] =
 {
@@ -194,6 +237,13 @@ static char* usage_options[][2] =
   { "number of RF flac encoding threads per file (default: auto)", "[threads]" },
 #endif
 #endif
+  { "4 channel audio output (use '-' to write on stdout)", "[filename]" },
+  { "stereo audio output of input 1/2 (use '-' to write on stdout)", "[filename]" },
+  { "stereo audio output of input 3/4 (use '-' to write on stdout)", "[filename]" },
+  { "mono audio output of input 1 (use '-' to write on stdout)", "[filename]" },
+  { "mono audio output of input 2 (use '-' to write on stdout)", "[filename]" },
+  { "mono audio output of input 3 (use '-' to write on stdout)", "[filename]" },
+  { "mono audio output of input 4 (use '-' to write on stdout)", "[filename]" },
   {0, 0, 0, 0}
 };
 
@@ -264,28 +314,230 @@ static void sighandler(int UNUSED(signum))
 }
 #endif
 
-static void hsdaoh_callback(unsigned char *buf, uint32_t len, uint8_t UNUSED(pack_state), void *ctx)
+static void print_capture_message(void UNUSED(*ctx), enum hsdaoh_msg_level UNUSED(level), const char *format, ...)
 {
-	capture_ctx_t *cap_ctx = ctx;
-	if (ctx) {
-		if (do_exit)
+	va_list args;
+	va_start(args, format);
+	vfprintf(stderr, format, args);
+	va_end(args);
+	new_line = 1;
+}
+
+static void hsdaoh_callback(hsdaoh_data_info_t *data_info)
+{
+	capture_ctx_t *cap_ctx = data_info->ctx;
+	metadata_t meta;
+	uint32_t stream0_payload_bytes = 0;
+	uint32_t stream1_payload_bytes = 0;
+	int frame_errors = 0;
+	uint8_t *buf_out;
+	uint8_t *buf_out_audio;
+
+	if (do_exit)
+		return;
+
+	if(cap_ctx) {
+		hsdaoh_extract_metadata(data_info->buf, &meta, data_info->width);
+
+		if (le32toh(meta.magic) != HSDAOH_MAGIC) {
+			if (cap_ctx->hsdaoh_stream_synced) {
+				print_capture_message(NULL,ERROR,"Lost sync to HDMI input stream\n");
+			}
+			cap_ctx->hsdaoh_stream_synced = false;
 			return;
-		//len >>= 2;
-		if ((cap_ctx->samples_to_read > 0) && (cap_ctx->samples_to_read < len)) {
-			len = cap_ctx->samples_to_read;
-			do_exit = 1;
-			hsdaoh_stop_stream(dev);
 		}
-		while(rb_put(&cap_ctx->rb,buf,len&(~0x3))) {
+
+		/* drop duplicated frames */
+		if (meta.framecounter == cap_ctx->hsdaoh_last_frame_cnt)
+			return;
+
+		if (meta.framecounter != ((cap_ctx->hsdaoh_last_frame_cnt + 1) & 0xffff)) {
+			cap_ctx->hsdaoh_in_order_cnt = 0;
+			if (cap_ctx->hsdaoh_stream_synced)
+				print_capture_message(NULL,ERROR,"Missed at least one frame, fcnt %d, expected %d!\n",
+					meta.framecounter, ((cap_ctx->hsdaoh_last_frame_cnt + 1) & 0xffff));
+		} else
+			cap_ctx->hsdaoh_in_order_cnt++;
+
+		cap_ctx->hsdaoh_last_frame_cnt = meta.framecounter;
+
+		if (cap_ctx->capture_rf) while((buf_out = rb_write_ptr(&cap_ctx->rb, data_info->len))==NULL) {
 			if (do_exit) return;
-			fprintf(stderr,"Cannot write frame to buffer\n");
-			new_line = 1;
+			print_capture_message(NULL,WARNING,"Cannot get space in ringbuffer for next frame (RF)\n");
 			sleep_ms(4);
 		}
-		if (cap_ctx->samples_to_read > 0)
-			cap_ctx->samples_to_read -= len;
+
+		if (cap_ctx->capture_audio) while((buf_out_audio = rb_write_ptr(&cap_ctx->rb_audio, data_info->len))==NULL) {
+			if (do_exit) return;
+			print_capture_message(NULL,WARNING,"Cannot get space in ringbuffer for next frame (audio)\n");
+			sleep_ms(4);
+		}
+
+		for (unsigned int i = 0; i < data_info->height; i++) {
+			uint8_t *line_dat = data_info->buf + (data_info->width * sizeof(uint16_t) * i);
+
+			/* extract number of payload words from reserved field at end of line */
+			uint16_t payload_len = le16toh(((uint16_t *)line_dat)[data_info->width - 1]);
+			uint16_t crc = le16toh(((uint16_t *)line_dat)[data_info->width - 2]);
+			uint16_t stream_id = (meta.flags & FLAG_STREAM_ID_PRESENT) ? le16toh(((uint16_t *)line_dat)[data_info->width - 3]) : 0;
+
+			/* we only use 12 bits, the upper 4 bits are reserved for the metadata */
+			payload_len &= 0x0fff;
+
+			if (payload_len > data_info->width-1) {
+				if (cap_ctx->hsdaoh_stream_synced) {
+					print_capture_message(NULL,ERROR,"Invalid payload length: %d\n", payload_len);
+				}
+				/* discard frame */
+				return;
+			}
+
+			uint16_t idle_len = (data_info->width-1) - payload_len - ((meta.flags & FLAG_STREAM_ID_PRESENT) ? 1 : 0) - ((meta.crc_config == CRC_NONE) ? 0 : 1);
+			frame_errors += hsdaoh_check_idle_cnt(dev, (uint16_t *)line_dat + payload_len, idle_len);
+
+			if ((meta.crc_config == CRC16_1_LINE) || (meta.crc_config == CRC16_2_LINE)) {
+				uint16_t expected_crc = (meta.crc_config == CRC16_1_LINE) ? cap_ctx->hsdaoh_last_crc[0] : cap_ctx->hsdaoh_last_crc[1];
+
+				if ((crc != expected_crc) && cap_ctx->hsdaoh_stream_synced)
+					frame_errors++;
+
+				cap_ctx->hsdaoh_last_crc[1] = cap_ctx->hsdaoh_last_crc[0];
+				cap_ctx->hsdaoh_last_crc[0] = crc16_ccitt(line_dat, data_info->width * sizeof(uint16_t));
+			}
+
+			if (payload_len > 0 && cap_ctx->hsdaoh_stream_synced) {
+				if (cap_ctx->capture_rf && stream_id == 0 && (!cap_ctx->capture_audio || cap_ctx->capture_audio_started)) {
+					memcpy(buf_out + stream0_payload_bytes, line_dat, payload_len * sizeof(uint16_t));
+					//fprintf(stderr,"rf line, length: %i\n", payload_len * sizeof(uint16_t));
+					stream0_payload_bytes += payload_len * sizeof(uint16_t);
+				}
+				else if (cap_ctx->capture_audio && stream_id == 1) {
+					if(cap_ctx->capture_audio_started2) {
+						memcpy(buf_out_audio + stream1_payload_bytes, line_dat, payload_len * sizeof(uint16_t));
+						//fprintf(stderr,"audio line, length: %i\n", payload_len * sizeof(uint16_t));
+						stream1_payload_bytes += payload_len * sizeof(uint16_t);
+					}
+					else {
+						if (cap_ctx->capture_audio_started) {
+							cap_ctx->capture_audio_started2 = true;
+							print_capture_message(NULL,INFO,"Audio and RF now in sync\n");
+						}
+						else
+							cap_ctx->capture_audio_started = true;
+					}
+				}
+			}
+		}
+
+		if (frame_errors && cap_ctx->hsdaoh_stream_synced) {
+			print_capture_message(NULL,ERROR,"%d frame errors, %d frames since last error\n", frame_errors, cap_ctx->hsdaoh_frames_since_error);
+			cap_ctx->hsdaoh_frames_since_error = 0;
+		} else {
+			cap_ctx->hsdaoh_frames_since_error++;
+			if (cap_ctx->capture_rf) rb_write_finished(&cap_ctx->rb, stream0_payload_bytes);
+			if (cap_ctx->capture_audio) rb_write_finished(&cap_ctx->rb_audio, stream1_payload_bytes);
+		}
+		if (!cap_ctx->hsdaoh_stream_synced && !frame_errors && (cap_ctx->hsdaoh_in_order_cnt > 4)) {
+			print_capture_message(NULL, INFO, "Syncronized to HDMI input stream\n MISRC uses CRC: %s\n MISRC uses stream ids: %s\n",
+									yesno[((meta.crc_config == CRC_NONE) ? 0 : 1)], yesno[((meta.flags & FLAG_STREAM_ID_PRESENT) ? 1 : 0)]);
+			if (cap_ctx->capture_audio) {
+				if ((meta.flags & FLAG_STREAM_ID_PRESENT)) {
+					print_capture_message(NULL,INFO,"Wait for RF and audio syncronisation...\n");
+				}
+				else {
+					print_capture_message(NULL,CRITICAL,"MISRC does not transmit audio, cannot capture audio!\n");
+					do_exit = 1;
+					return;
+				}
+			}
+			cap_ctx->hsdaoh_stream_synced = true;
+		}
 	}
 }
+
+int audio_file_writer(void *ctx)
+{
+	audiowriter_ctx_t *audio_ctx = ctx;
+	size_t len = BUFFER_AUDIO_READ_SIZE;
+	void *buf;
+	wave_header_t h;
+	bool convert_1ch = false;
+	bool convert_2ch = false;
+	uint8_t* buffer_1ch[4];
+	uint8_t* buffer_2ch[2];
+	memset(&h,0,sizeof(wave_header_t));
+	audio_ctx->total_bytes = 0;
+	if (audio_ctx->f_4ch != NULL && audio_ctx->f_4ch != stdout) fwrite(&h, 1, sizeof(wave_header_t), audio_ctx->f_4ch);
+	for (int i=0; i<2; i++) {
+		if (audio_ctx->f_2ch[i] != NULL) {
+			if (audio_ctx->f_2ch[i] != stdout) fwrite(&h, 1, sizeof(wave_header_t), audio_ctx->f_2ch[i]);
+			convert_2ch = true;
+		}
+	}
+	for (int i=0; i<4; i++) {
+		if (audio_ctx->f_1ch[i] != NULL) {
+			if (audio_ctx->f_1ch[i] != stdout) fwrite(&h, 1, sizeof(wave_header_t), audio_ctx->f_1ch[i]);
+			convert_1ch = true;
+		}
+	}
+	if (convert_1ch) {
+		if ((buffer_1ch[0] = aligned_alloc(32, BUFFER_AUDIO_READ_SIZE)) == NULL) {
+			do_exit = 1;
+			return -1;
+		}
+		for (int i=1; i<4; i++) buffer_1ch[i] = buffer_1ch[0] + (BUFFER_AUDIO_READ_SIZE/4)*i;
+	}
+	if (convert_2ch) {
+		if ((buffer_2ch[0] = aligned_alloc(32, BUFFER_AUDIO_READ_SIZE)) == NULL) {
+			do_exit = 1;
+			return -1;
+		}
+		buffer_2ch[1] = buffer_2ch[0] + (BUFFER_AUDIO_READ_SIZE/2);
+	}
+	while(true) {
+		while(((buf = rb_read_ptr(audio_ctx->rb, len)) == NULL) && !do_exit) {
+			thrd_sleep(&(struct timespec){.tv_nsec=10000000}, NULL);
+		}
+		if (do_exit) {
+			len = audio_ctx->rb->tail - audio_ctx->rb->head;
+			if (len == 0) break;
+			buf = rb_read_ptr(audio_ctx->rb, len);
+		}
+		if (audio_ctx->f_4ch != NULL) fwrite(buf, 1, len, audio_ctx->f_4ch);
+		if (convert_1ch) extract_audio_1ch_C(buf, len, buffer_1ch[0], buffer_1ch[1], buffer_1ch[2], buffer_1ch[3]);
+		if (convert_2ch) extract_audio_2ch_C(buf, len, (uint16_t*)buffer_2ch[0], (uint16_t*)buffer_2ch[1]);
+		rb_read_finished(audio_ctx->rb, len);
+		for (int i=0; i<2; i++) if (audio_ctx->f_2ch[i] != NULL) fwrite(buffer_2ch[i], 1, len/2, audio_ctx->f_2ch[i]);
+		for (int i=0; i<4; i++) if (audio_ctx->f_1ch[i] != NULL) fwrite(buffer_1ch[i], 1, len/4, audio_ctx->f_1ch[i]);
+		audio_ctx->total_bytes += len;
+	}
+	if (audio_ctx->f_4ch != NULL && audio_ctx->f_4ch != stdout) {
+		fseek(audio_ctx->f_4ch, 0, SEEK_SET);
+		create_wave_header(&h, audio_ctx->total_bytes/12, 78125, 4, 24);
+		fwrite(&h, 1, sizeof(wave_header_t), audio_ctx->f_4ch);
+		fclose(audio_ctx->f_4ch);
+	}
+	for (int i=0; i<2; i++) {
+		if (audio_ctx->f_2ch[i] != NULL && audio_ctx->f_2ch[i] != stdout) {
+			fseek(audio_ctx->f_2ch[i], 0, SEEK_SET);
+			create_wave_header(&h, audio_ctx->total_bytes/12, 78125, 2, 24);
+			fwrite(&h, 1, sizeof(wave_header_t), audio_ctx->f_2ch[i]);
+			fclose(audio_ctx->f_2ch[i]);
+		}
+	}
+	for (int i=0; i<4; i++) {
+		if (audio_ctx->f_1ch[i] != NULL && audio_ctx->f_1ch[i] != stdout) {
+			fseek(audio_ctx->f_1ch[i], 0, SEEK_SET);
+			create_wave_header(&h, audio_ctx->total_bytes/12, 78125, 1, 24);
+			fwrite(&h, 1, sizeof(wave_header_t), audio_ctx->f_1ch[i]);
+			fclose(audio_ctx->f_1ch[i]);
+		}
+	}
+	if (convert_1ch) aligned_free(buffer_1ch[0]);
+	if (convert_2ch) aligned_free(buffer_2ch[0]);
+	return 0;
+}
+
 
 int raw_file_writer(void *ctx)
 {
@@ -506,12 +758,6 @@ int flac_file_writer(void *ctx)
 }
 #endif
 
-void print_hsdaoh_message(int msg_type, int msg, void *additional, void UNUSED(*ctx))
-{
-	hsdaoh_get_message_string(msg_type, msg, additional, NULL);
-	new_line = 1;
-}
-
 int open_file(FILE **f, char *filename, bool overwrite)
 {
 	if (strcmp(filename, "-") == 0) { // Write to stdout
@@ -567,7 +813,9 @@ int main(int argc, char **argv)
 	//output threads
 	// out 1, 2
 	thrd_t thread_out[2] = { 0, 0 };
+	thrd_t thread_audio = 0;
 	filewriter_ctx_t thread_out_ctx[2];
+	audiowriter_ctx_t thread_audio_ctx;
 	char outbuffer_name[] = "outX_ringbuffer";
 
 	//file adress
@@ -575,6 +823,10 @@ int main(int argc, char **argv)
 	char *output_names[2] = { NULL, NULL };
 	char *output_name_aux = NULL;
 	char *output_name_raw = NULL;
+
+	char *output_name_4ch_audio = NULL;
+	char *output_names_2ch_audio[2] = { NULL, NULL };
+	char *output_names_1ch_audio[4] = { NULL, NULL, NULL, NULL };
 
 	//show clipping messages
 	bool suppress_a_clipping = false;
@@ -600,6 +852,8 @@ int main(int argc, char **argv)
 
 	// conversion function
 	conv_function_t conv_function;
+
+	memset(&thread_audio_ctx, 0, sizeof(audiowriter_ctx_t));
 
 	fprintf(stderr,
 		"MISRC capture " VERSION "\n"
@@ -681,6 +935,27 @@ int main(int argc, char **argv)
 			resample_rate[1] = (uint32_t)atoi(optarg);
 			break;
 #endif
+		case OPT_AUDIO_4CH_OUT:
+			output_name_4ch_audio = optarg;
+			break;
+		case OPT_AUDIO_2CH_12_OUT:
+			output_names_2ch_audio[0] = optarg;
+			break;
+		case OPT_AUDIO_2CH_34_OUT:
+			output_names_2ch_audio[1] = optarg;
+			break;
+		case OPT_AUDIO_1CH_1_OUT:
+			output_names_1ch_audio[0] = optarg;
+			break;
+		case OPT_AUDIO_1CH_2_OUT:
+			output_names_1ch_audio[1] = optarg;
+			break;
+		case OPT_AUDIO_1CH_3_OUT:
+			output_names_1ch_audio[2] = optarg;
+			break;
+		case OPT_AUDIO_1CH_4_OUT:
+			output_names_1ch_audio[3] = optarg;
+			break;
 		case 'h':
 		default:
 			usage();
@@ -691,9 +966,12 @@ int main(int argc, char **argv)
 	if(output_names[0] == NULL && output_names[1] == NULL && output_name_aux == NULL && output_name_raw == NULL) {
 		usage();
 	}
+	else {
+		cap_ctx.capture_rf = true;
+	}
 
 #if LIBSWRESAMPLE_ENABLED == 1
-	if(resample_rate[0] > 40000 || resample_rate[1] > 40000) {
+	if(resample_rate[0] >= 40000 || resample_rate[1] >= 40000) {
 		fprintf(stderr, "ERROR: Resampling to rates higher than 40 MHz is not supported!\n");
 		usage();
 	}
@@ -742,7 +1020,7 @@ int main(int argc, char **argv)
 #endif
 	for(int i=0; i<2; i++) {
 		if (output_names[i] != NULL) {
-			if (open_file(&(thread_out_ctx[i].f), output_names[i], overwrite_files)) return -ENOENT;
+			if (open_file(&(thread_out_ctx[i].f),output_names[i],overwrite_files)) return -ENOENT;
 #if LIBFLAC_ENABLED == 1
 			thread_out_ctx[i].flac_level = flac_level;
 			thread_out_ctx[i].flac_verify = flac_verify;
@@ -762,6 +1040,31 @@ int main(int argc, char **argv)
 		}
 	}
 
+	if(output_name_4ch_audio != NULL)
+	{
+		//opening output file audio
+		if (open_file(&(thread_audio_ctx.f_4ch), output_name_4ch_audio, overwrite_files)) return -ENOENT;
+		cap_ctx.capture_audio = true;
+	}
+
+	for(int i=0; i<2; i++) {
+		if(output_names_2ch_audio[i] != NULL)
+		{
+			//opening output file audio
+			if (open_file(&(thread_audio_ctx.f_2ch[i]), output_names_2ch_audio[i], overwrite_files)) return -ENOENT;
+			cap_ctx.capture_audio = true;
+		}
+	}
+
+	for(int i=0; i<4; i++) {
+		if(output_names_1ch_audio[i] != NULL)
+		{
+			//opening output file audio
+			if (open_file(&(thread_audio_ctx.f_1ch[i]), output_names_1ch_audio[i], overwrite_files)) return -ENOENT;
+			cap_ctx.capture_audio = true;
+		}
+	}
+
 	if(output_name_aux != NULL)
 	{
 		//opening output file aux
@@ -774,11 +1077,30 @@ int main(int argc, char **argv)
 		if (open_file(&output_raw, output_name_raw, overwrite_files)) return -ENOENT;
 	}
 
+	if(cap_ctx.capture_audio) {
+		rb_init(&cap_ctx.rb_audio,"capture_audio_ringbuffer",BUFFER_AUDIO_TOTAL_SIZE);
+		thread_audio_ctx.rb = &cap_ctx.rb_audio;
+		r = thrd_create(&thread_audio, &audio_file_writer, &thread_audio_ctx);
+		if (r != thrd_success) {
+			fprintf(stderr, "Failed to create thread for output processing\n");
+			return -ENOENT;
+		}
+	}
+
 	conv_function = get_conv_function(0, pad, (out_size==2) ? 0 : 1, output_names[0], output_names[1]);
 
 	rb_init(&cap_ctx.rb,"capture_ringbuffer",BUFFER_TOTAL_SIZE);
 
-	r = hsdaoh_open_msg_cb(&dev, (uint32_t)dev_index, &print_hsdaoh_message, NULL);
+	r = hsdaoh_alloc(&dev);
+	if (r < 0) {
+		fprintf(stderr, "Failed to allocate hsdaoh device.\n");
+		exit(1);
+	}
+
+	hsdaoh_raw_callback(dev, true);
+	hsdaoh_set_msg_callback(dev, &print_capture_message, NULL);
+
+	r = hsdaoh_open2(dev, (uint32_t)dev_index);
 	if (r < 0) {
 		fprintf(stderr, "Failed to open hsdaoh device #%d.\n", dev_index);
 		exit(1);
@@ -832,7 +1154,7 @@ int main(int argc, char **argv)
 			if(new_line) fprintf(stderr,"\n");
 			new_line = 0;
 			fprintf(stderr,"\033[A\33[2K\r Progress: %13" PRIu64 " samples, %2uh %2um %2us\n", total_samples, (uint32_t)(total_samples/(144000000000)), (uint32_t)((total_samples/(2400000000)) % 60), (uint32_t)((total_samples/(40000000)) % 60));
-			fflush(stdout);
+			fflush(stderr);
 		}
 		if (total_samples >= total_samples_before_exit && total_samples_before_exit != 0) {
 			fprintf(stderr, "%" PRIu64 " total samples have been collected, exiting early!\n", total_samples);
@@ -859,6 +1181,11 @@ int main(int argc, char **argv)
 			r = thrd_join(thread_out[i], NULL);
 			if (r != thrd_success) fprintf(stderr, "Failed to join thread %d.\n", i);
 		}
+	}
+
+	if (thread_audio!=0) {
+		r = thrd_join(thread_audio, NULL);
+		if (r != thrd_success) fprintf(stderr, "Failed to join audio thread.\n");
 	}
 
 	return 0;

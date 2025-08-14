@@ -39,6 +39,9 @@ void extract_AB_p_32_sse(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, i
 int check_cpu_feat();
 #endif
 
+
+void extract_X_C      (uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB);
+void extract_XS_C     (uint16_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB);
 void extract_A_C      (uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB);
 void extract_B_C      (uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB);
 void extract_AB_C     (uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB);
@@ -55,6 +58,9 @@ void extract_A_p_32_C (uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int
 void extract_B_p_32_C (uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int32_t *outA, int32_t *outB);
 void extract_AB_p_32_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int32_t *outA, int32_t *outB);
 void extract_S_p_32_C (uint16_t *in, size_t len, size_t *clip, uint8_t *aux, int32_t *outA, int32_t *outB);
+
+void extract_audio_2ch_C  (uint16_t *in, size_t len, uint16_t *out12, uint16_t *out34);
+void extract_audio_1ch_C  (uint8_t  *in, size_t len, uint8_t   *out1, uint8_t  *out2, uint8_t *out3, uint8_t *out4);
 
 conv_function_t get_conv_function(uint8_t single, uint8_t pad, uint8_t dword, void* outA, void* outB);
 

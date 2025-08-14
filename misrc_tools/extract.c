@@ -33,6 +33,36 @@
 # define UNUSED(x) x
 #endif
 
+void extract_audio_2ch_C(uint16_t *in, size_t len, uint16_t *out12, uint16_t *out34) {
+	for(size_t i = 0; i < len/4; i+=3)
+	{
+		out12[i] = in[i*2];
+		out12[i+1] = in[i*2+1];
+		out12[i+2] = in[i*2+2];
+		out34[i] = in[i*2+3];
+		out34[i+1] = in[i*2+4];
+		out34[i+2] = in[i*2+5];
+	}
+}
+
+void extract_audio_1ch_C(uint8_t *in, size_t len, uint8_t *out1, uint8_t *out2, uint8_t *out3, uint8_t *out4) {
+	for(size_t i = 0; i < len/4; i+=3)
+	{
+		out1[i] = in[i*4];
+		out1[i+1] = in[i*4+1];
+		out1[i+2] = in[i*4+2];
+		out2[i] = in[i*4+3];
+		out2[i+1] = in[i*4+4];
+		out2[i+2] = in[i*4+5];
+		out3[i] = in[i*4+6];
+		out3[i+1] = in[i*4+7];
+		out3[i+2] = in[i*4+8];
+		out4[i] = in[i*4+9];
+		out4[i+1] = in[i*4+10];
+		out4[i+2] = in[i*4+11];
+	}
+}
+
 void extract_XS_C(uint16_t *in, size_t len, size_t UNUSED(*clip), uint8_t *aux, int16_t UNUSED(*outA), int16_t UNUSED(*outB)) {
 	for(size_t i = 0; i < len; i++)
 	{
@@ -198,10 +228,12 @@ void extract_AB_p_32_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int
 }
 
 conv_function_t get_conv_function(uint8_t single, uint8_t pad, uint8_t dword, void* outA, void* outB) {
+
 	if (outA == NULL && outB == NULL) {
 		if (single == 1) return (conv_function_t) &extract_XS_C;
 		else return (conv_function_t) &extract_X_C;
 	}
+
 #if defined(__x86_64__) || defined(_M_X64)
 	if(check_cpu_feat()==0) {
 		fprintf(stderr,"Detected processor with SSSE3 and POPCNT, using optimized extraction routine\n\n");
