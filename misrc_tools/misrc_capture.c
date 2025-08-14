@@ -38,6 +38,7 @@
 #include <stdint.h>
 #include <inttypes.h>
 #include <stdbool.h>
+#include <stdarg.h>
 #if __STDC_VERSION__ >= 201112L && ! __STDC_NO_THREADS__ && ! _WIN32
 #include <threads.h>
 #else
