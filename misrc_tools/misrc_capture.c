@@ -49,9 +49,13 @@
 
 #ifndef _WIN32
 	#if defined(__APPLE__) || defined(__MACH__)
-		#include <machine/endian.h>
-	#elif defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__) || defined(__DragonFly__)
+		#include <libkern/OSByteOrder.h>
+		#define le32toh(x) OSSwapLittleToHostInt32(x)
+		#define le16toh(x) OSSwapLittleToHostInt16(x)
+	#elif defined(__FreeBSD__) || defined(__NetBSD__) || defined(__DragonFly__)
 		#include <sys/endian.h>
+		#define le32toh(x) letoh32(x)
+		#define le16toh(x) letoh16(x)
 	#else
 		#include <endian.h>
 	#endif

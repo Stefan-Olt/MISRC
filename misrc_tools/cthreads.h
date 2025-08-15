@@ -12,7 +12,7 @@
 
   #define thrd_success 0
 
-  #define thrd_create(a,b,c) (((*(a)=(thrd_t)_beginthreadex(NULL,0,b,c,0,NULL))==0)?-1:thrd_success)
+  #define thrd_create(a,b,c) (((*(a)=(thrd_t)_beginthreadex(NULL,0,(void* (*)(void *))b,c,0,NULL))==0)?-1:thrd_success)
   #define thrd_join(a,b) ((WaitForSingleObject(a,INFINITE)!=WAIT_OBJECT_0||!GetExitCodeThread(a,b))?-1:(CloseHandle(a),thrd_success))
   #define thrd_sleep(a,b) Sleep((a)->tv_sec*1000+(a)->tv_nsec/1000000)
 

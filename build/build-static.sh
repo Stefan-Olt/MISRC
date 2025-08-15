@@ -93,9 +93,9 @@ make
 make install
 cd ../
 
-curl -L --silent -o "hsdaoh-95020c4237694a3a97bba2bde67ea275a0d831fd.tar.gz" "https://github.com/Stefan-Olt/hsdaoh/archive/95020c4237694a3a97bba2bde67ea275a0d831fd.tar.gz"
-tar xzf hsdaoh-95020c4237694a3a97bba2bde67ea275a0d831fd.tar.gz
-cd hsdaoh-95020c4237694a3a97bba2bde67ea275a0d831fd
+curl -L --silent -o "hsdaoh-02e72ac62262a1144bfe067287e93b9853562c44.tar.gz" "https://github.com/Stefan-Olt/hsdaoh/archive/02e72ac62262a1144bfe067287e93b9853562c44.tar.gz"
+tar xzf hsdaoh-02e72ac62262a1144bfe067287e93b9853562c44.tar.gz
+cd hsdaoh-02e72ac62262a1144bfe067287e93b9853562c44
 # I cannot get cmake to not build the shared library
 sed "s/SHARED/STATIC/g" ./src/CMakeLists.txt >./src/CMakeLists.txt.patched
 rm ./src/CMakeLists.txt
