@@ -86,14 +86,16 @@ if [[ ("$OSTYPE" == "cygwin"*) || ("$OSTYPE" == "msys"*) ]]; then
   else
     ./configure --enable-static --disable-shared --disable-programs --enable-gpl --enable-version3 --disable-avdevice --disable-avcodec --disable-avformat --disable-swscale --disable-postproc --disable-avfilter --disable-doc --prefix="${WORKSPACE}"
   fi
+else
+  ./configure --enable-static --disable-shared --disable-programs --enable-gpl --enable-version3 --disable-avdevice --disable-avcodec --disable-avformat --disable-swscale --disable-postproc --disable-avfilter --disable-doc --prefix="${WORKSPACE}"
 fi
 make
 make install
 cd ../
 
-curl -L --silent -o "hsdaoh-8cbada41efeced7f3d49d4118c2ff2ca10780fbf.tar.gz" "https://github.com/Stefan-Olt/hsdaoh/archive/8cbada41efeced7f3d49d4118c2ff2ca10780fbf.tar.gz"
-tar xzf hsdaoh-8cbada41efeced7f3d49d4118c2ff2ca10780fbf.tar.gz
-cd hsdaoh-8cbada41efeced7f3d49d4118c2ff2ca10780fbf
+curl -L --silent -o "hsdaoh-95020c4237694a3a97bba2bde67ea275a0d831fd.tar.gz" "https://github.com/Stefan-Olt/hsdaoh/archive/95020c4237694a3a97bba2bde67ea275a0d831fd.tar.gz"
+tar xzf hsdaoh-95020c4237694a3a97bba2bde67ea275a0d831fd.tar.gz
+cd hsdaoh-95020c4237694a3a97bba2bde67ea275a0d831fd
 # I cannot get cmake to not build the shared library
 sed "s/SHARED/STATIC/g" ./src/CMakeLists.txt >./src/CMakeLists.txt.patched
 rm ./src/CMakeLists.txt

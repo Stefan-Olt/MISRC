@@ -48,7 +48,13 @@
 #include <time.h>
 
 #ifndef _WIN32
-	#include <endian.h>
+	#if defined(__APPLE__) || defined(__MACH__)
+		#include <machine/endian.h>
+	#elif defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__) || defined(__DragonFly__)
+		#include <sys/endian.h>
+	#else
+		#include <endian.h>
+	#endif
 	#include <getopt.h>
 	#include <unistd.h>
 	#define aligned_free(x) free(x)
@@ -342,7 +348,7 @@ static void hsdaoh_callback(hsdaoh_data_info_t *data_info)
 
 		if (le32toh(meta.magic) != HSDAOH_MAGIC) {
 			if (cap_ctx->hsdaoh_stream_synced) {
-				print_capture_message(NULL,ERROR,"Lost sync to HDMI input stream\n");
+				print_capture_message(NULL,HSDAOH_ERROR,"Lost sync to HDMI input stream\n");
 			}
 			cap_ctx->hsdaoh_stream_synced = false;
 			return;
@@ -355,7 +361,7 @@ static void hsdaoh_callback(hsdaoh_data_info_t *data_info)
 		if (meta.framecounter != ((cap_ctx->hsdaoh_last_frame_cnt + 1) & 0xffff)) {
 			cap_ctx->hsdaoh_in_order_cnt = 0;
 			if (cap_ctx->hsdaoh_stream_synced)
-				print_capture_message(NULL,ERROR,"Missed at least one frame, fcnt %d, expected %d!\n",
+				print_capture_message(NULL,HSDAOH_ERROR,"Missed at least one frame, fcnt %d, expected %d!\n",
 					meta.framecounter, ((cap_ctx->hsdaoh_last_frame_cnt + 1) & 0xffff));
 		} else
 			cap_ctx->hsdaoh_in_order_cnt++;
@@ -364,13 +370,13 @@ static void hsdaoh_callback(hsdaoh_data_info_t *data_info)
 
 		if (cap_ctx->capture_rf) while((buf_out = rb_write_ptr(&cap_ctx->rb, data_info->len))==NULL) {
 			if (do_exit) return;
-			print_capture_message(NULL,WARNING,"Cannot get space in ringbuffer for next frame (RF)\n");
+			print_capture_message(NULL,HSDAOH_WARNING,"Cannot get space in ringbuffer for next frame (RF)\n");
 			sleep_ms(4);
 		}
 
 		if (cap_ctx->capture_audio) while((buf_out_audio = rb_write_ptr(&cap_ctx->rb_audio, data_info->len))==NULL) {
 			if (do_exit) return;
-			print_capture_message(NULL,WARNING,"Cannot get space in ringbuffer for next frame (audio)\n");
+			print_capture_message(NULL,HSDAOH_WARNING,"Cannot get space in ringbuffer for next frame (audio)\n");
 			sleep_ms(4);
 		}
 
@@ -387,7 +393,7 @@ static void hsdaoh_callback(hsdaoh_data_info_t *data_info)
 
 			if (payload_len > data_info->width-1) {
 				if (cap_ctx->hsdaoh_stream_synced) {
-					print_capture_message(NULL,ERROR,"Invalid payload length: %d\n", payload_len);
+					print_capture_message(NULL,HSDAOH_ERROR,"Invalid payload length: %d\n", payload_len);
 				}
 				/* discard frame */
 				return;
@@ -421,7 +427,7 @@ static void hsdaoh_callback(hsdaoh_data_info_t *data_info)
 					else {
 						if (cap_ctx->capture_audio_started) {
 							cap_ctx->capture_audio_started2 = true;
-							print_capture_message(NULL,INFO,"Audio and RF now in sync\n");
+							print_capture_message(NULL,HSDAOH_INFO,"Audio and RF now in sync\n");
 						}
 						else
 							cap_ctx->capture_audio_started = true;
@@ -431,7 +437,7 @@ static void hsdaoh_callback(hsdaoh_data_info_t *data_info)
 		}
 
 		if (frame_errors && cap_ctx->hsdaoh_stream_synced) {
-			print_capture_message(NULL,ERROR,"%d frame errors, %d frames since last error\n", frame_errors, cap_ctx->hsdaoh_frames_since_error);
+			print_capture_message(NULL,HSDAOH_ERROR,"%d frame errors, %d frames since last error\n", frame_errors, cap_ctx->hsdaoh_frames_since_error);
 			cap_ctx->hsdaoh_frames_since_error = 0;
 		} else {
 			cap_ctx->hsdaoh_frames_since_error++;
@@ -439,14 +445,14 @@ static void hsdaoh_callback(hsdaoh_data_info_t *data_info)
 			if (cap_ctx->capture_audio) rb_write_finished(&cap_ctx->rb_audio, stream1_payload_bytes);
 		}
 		if (!cap_ctx->hsdaoh_stream_synced && !frame_errors && (cap_ctx->hsdaoh_in_order_cnt > 4)) {
-			print_capture_message(NULL, INFO, "Syncronized to HDMI input stream\n MISRC uses CRC: %s\n MISRC uses stream ids: %s\n",
+			print_capture_message(NULL, HSDAOH_INFO, "Syncronized to HDMI input stream\n MISRC uses CRC: %s\n MISRC uses stream ids: %s\n",
 									yesno[((meta.crc_config == CRC_NONE) ? 0 : 1)], yesno[((meta.flags & FLAG_STREAM_ID_PRESENT) ? 1 : 0)]);
 			if (cap_ctx->capture_audio) {
 				if ((meta.flags & FLAG_STREAM_ID_PRESENT)) {
-					print_capture_message(NULL,INFO,"Wait for RF and audio syncronisation...\n");
+					print_capture_message(NULL,HSDAOH_INFO,"Wait for RF and audio syncronisation...\n");
 				}
 				else {
-					print_capture_message(NULL,CRITICAL,"MISRC does not transmit audio, cannot capture audio!\n");
+					print_capture_message(NULL,HSDAOH_CRITICAL,"MISRC does not transmit audio, cannot capture audio!\n");
 					do_exit = 1;
 					return;
 				}
