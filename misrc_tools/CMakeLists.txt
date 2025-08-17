@@ -9,9 +9,12 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(CheckCPUArch)
 include(FindLibFLAC)
 include(FindFFmpeg)
+include(GitVersion)
 
 #Set C language version
 set(CMAKE_C_STANDARD 11)
+
+get_version_from_git()
 
 find_package(PkgConfig)
 
@@ -49,6 +52,11 @@ add_library(libgetopt_static STATIC
 )
 endif()
 
+configure_file(
+    ${CMAKE_SOURCE_DIR}/version.h.in
+    ${CMAKE_CURRENT_BINARY_DIR}/version.h
+)
+
 #this is taken from xiph.org/flac
 check_cpu_arch_x64(MISRC__CPU_X86_64)
 
@@ -67,7 +75,8 @@ else()
 endif()
 
 set(INSTALL_TARGETS misrc_extract misrc_capture)
-
+target_include_directories(misrc_capture PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
+target_include_directories(misrc_extract PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 target_link_libraries(misrc_capture hsdaoh ${LIBFLAC_LIBRARIES} ${SWRESAMPLE_LIBRARIES} ${AVUTIL_LIBRARIES})
 
 if(WIN32)

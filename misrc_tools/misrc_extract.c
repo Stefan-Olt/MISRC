@@ -47,10 +47,8 @@
 #include <time.h>
 #endif
 
+#include "version.h"
 #include "extract.h"
-
-#define VERSION "0.4"
-#define COPYRIGHT "licensed under GNU GPL v3 or later, (c) 2024-2025 vrunk11, stefan_o"
 
 #define BUFFER_SIZE 65536*32
 
@@ -118,8 +116,8 @@ int main(int argc, char **argv)
 #endif
 
 	fprintf(stderr,
-		"MISRC extract " VERSION "\n"
-		COPYRIGHT "\n\n"
+		"MISRC extract " MIRSC_TOOLS_VERSION "\n"
+		MIRSC_TOOLS_COPYRIGHT "\n\n"
 	);
 
 	while ((opt = getopt(argc, argv, "i:a:b:x:psh")) != -1) {

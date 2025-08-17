@@ -105,6 +105,7 @@ static const char* const _FLAC_StreamEncoderSetNumThreadsStatusString[] = {
 #include <libswresample/swresample.h>
 #endif
 
+#include "version.h"
 #include "ringbuffer.h"
 #include "extract.h"
 #include "wave.h"
@@ -112,9 +113,6 @@ static const char* const _FLAC_StreamEncoderSetNumThreadsStatusString[] = {
 #if LIBFLAC_ENABLED == 1 && defined(FLAC_API_VERSION_CURRENT) && FLAC_API_VERSION_CURRENT >= 14
 #include "numcores.h"
 #endif
-
-#define VERSION "0.4"
-#define COPYRIGHT "licensed under GNU GPL v3 or later, (c) 2024-2025 vrunk11, stefan_o"
 
 #define BUFFER_AUDIO_TOTAL_SIZE 65536*256
 #define BUFFER_AUDIO_READ_SIZE 65536*3
@@ -867,8 +865,8 @@ int main(int argc, char **argv)
 	memset(&thread_audio_ctx, 0, sizeof(audiowriter_ctx_t));
 
 	fprintf(stderr,
-		"MISRC capture " VERSION "\n"
-		COPYRIGHT "\n\n"
+		"MISRC capture " MIRSC_TOOLS_VERSION"\n"
+		MIRSC_TOOLS_COPYRIGHT "\n\n"
 	);
 
 	create_getopt_string(getopt_string);

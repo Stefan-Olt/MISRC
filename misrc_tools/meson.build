@@ -3,6 +3,8 @@ project('MISRC', 'c',
         meson_version: '>=0.46')
 
 
+version_target = vcs_tag(command: ['git-version.sh'], fallback: 'unknown_version', input: 'version.h.in', output: 'version.h')
+
 warnings = [
   '-Wall',
   '-Wextra',
@@ -22,16 +24,17 @@ ldflags_capture = [
 sources_extract = [
   'misrc_extract.c',
   'extract.c',
+  version_target
 ]
 
 sources_capture = [
   'misrc_capture.c',
   'extract.c',
   'ringbuffer.c',
+  version_target
 ]
 
 debug_build = get_option('buildtype').startswith('debug')
-
 
 host_cpu_family = host_machine.cpu_family()
 

@@ -1,0 +1,5 @@
+#ifndef VERSION_H
+#define VERSION_H
+#define MIRSC_TOOLS_VERSION "@VCS_TAG@"
+#define MIRSC_TOOLS_COPYRIGHT "licensed under GNU GPL v3 or later, (c) 2024-2025 vrunk11, stefan_o"
+#endif // VERSION_H
