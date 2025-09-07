@@ -213,7 +213,7 @@ jobs:
 
       - name: Install
         run: |
-          brew install cmake nasm meson ninja
+          brew install nasm meson ninja
 
       - name: Build
         run: |
@@ -248,7 +248,7 @@ jobs:
 
       - name: Install
         run: |
-          brew install cmake meson ninja
+          brew install meson ninja
 
       - name: Build
         run: |
