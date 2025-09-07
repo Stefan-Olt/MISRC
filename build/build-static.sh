@@ -82,12 +82,12 @@ cd FFmpeg-n8.0
 if [[ ("$OSTYPE" == "cygwin"*) || ("$OSTYPE" == "msys"*) ]]; then
   echo "Build FFmpeg on $OSTYPE $MSYSTEM_CARCH"
   if [[ ("$MSYSTEM_CARCH" == "arm64") || ("$MSYSTEM_CARCH" == "aarch64") ]]; then
-    ./configure --enable-static --disable-shared --disable-programs --enable-gpl --enable-version3 --disable-avdevice --disable-avcodec --disable-avformat --disable-swscale --disable-postproc --disable-avfilter --disable-doc --prefix="${WORKSPACE}" --cc=clang --cxx=clang++ --arch=arm64
+    ./configure --enable-static --disable-shared --disable-programs --enable-gpl --enable-version3 --disable-avdevice --disable-avcodec --disable-avformat --disable-swscale --disable-avfilter --disable-doc --prefix="${WORKSPACE}" --cc=clang --cxx=clang++ --arch=arm64
   else
-    ./configure --enable-static --disable-shared --disable-programs --enable-gpl --enable-version3 --disable-avdevice --disable-avcodec --disable-avformat --disable-swscale --disable-postproc --disable-avfilter --disable-doc --prefix="${WORKSPACE}"
+    ./configure --enable-static --disable-shared --disable-programs --enable-gpl --enable-version3 --disable-avdevice --disable-avcodec --disable-avformat --disable-swscale --disable-avfilter --disable-doc --prefix="${WORKSPACE}"
   fi
 else
-  ./configure --enable-static --disable-shared --disable-programs --enable-gpl --enable-version3 --disable-avdevice --disable-avcodec --disable-avformat --disable-swscale --disable-postproc --disable-avfilter --disable-doc --prefix="${WORKSPACE}"
+  ./configure --enable-static --disable-shared --disable-programs --enable-gpl --enable-version3 --disable-avdevice --disable-avcodec --disable-avformat --disable-swscale --disable-avfilter --disable-doc --prefix="${WORKSPACE}"
 fi
 make
 make install

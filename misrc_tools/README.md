@@ -70,6 +70,9 @@ Example:
 
 ## Version History
 
+* 0.5.1
+    * Fix: build issue with FFmpeg caused builds without resampling
+
 * 0.5
     * Fix: only capturing AUX, but no RF caused crash
     * Fix: overwrite question would only work for first file
