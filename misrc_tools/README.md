@@ -18,7 +18,7 @@ For x86_64 (64 bit AMD and Intel processors) there is handwritten assembly for h
 
 ### Usage
 
-- Run tools without arguments to see options
+- Run tools without arguments to see all options
 
 Example:
 
@@ -69,6 +69,12 @@ Example:
 
 
 ## Version History
+
+* 0.5
+    * Fix: only capturing AUX, but no RF caused crash
+    * Fix: overwrite question would only work for first file
+    * New: RF can now be resampled by misrc_capture, resulting in smaller files and faster processing when only a smaller bandwidth is needed
+    * New: initial audio support for the upcoming MISRC v2.5
 
 * 0.4
     * Release of new tool: misrc_capture for direct capture from HDMI/MS2130 using hsdaoh

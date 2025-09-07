@@ -75,9 +75,9 @@ make
 make install
 cd ../
 
-curl -L --silent -o "FFmpeg-n7.1.1.tar.gz" "https://github.com/FFmpeg/FFmpeg/archive/refs/tags/n7.1.1.tar.gz"
-tar xzf FFmpeg-n7.1.1.tar.gz
-cd FFmpeg-n7.1.1
+curl -L --silent -o "FFmpeg-n8.0.tar.gz" "https://github.com/FFmpeg/FFmpeg/archive/refs/tags/n8.0.tar.gz"
+tar xzf FFmpeg-n8.0.tar.gz
+cd FFmpeg-n8.0
 
 if [[ ("$OSTYPE" == "cygwin"*) || ("$OSTYPE" == "msys"*) ]]; then
   echo "Build FFmpeg on $OSTYPE $MSYSTEM_CARCH"
