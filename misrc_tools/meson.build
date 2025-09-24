@@ -1,6 +1,6 @@
 project('MISRC', 'c',
         default_options: ['c_std=c11', 'buildtype=release', 'b_lto=true'],
-        meson_version: '>=0.46')
+        meson_version: '>=0.54')
 
 
 version_target = vcs_tag(command: ['git-version.sh'], fallback: 'unknown_version', input: 'version.h.in', output: 'version.h')
@@ -12,7 +12,7 @@ warnings = [
 ]
 
 cflags = [
-  warnings,
+  warnings
 ]
 
 ldflags = [
@@ -112,24 +112,24 @@ else
 endif
 
 
-if host_system == 'darwin'
-  ldflags_capture += ['-Wl,-framework,IOKit', '-Wl,-framework,CoreFoundation', '-Wl,-framework,Security']
-endif
-
-if host_system == 'windows'
+if host_system == 'windows' or host_system == 'cygwin'
   if meson.get_compiler('c').get_id() != 'gcc' and meson.get_compiler('c').get_id() != 'clang'
     sources_extract += [ 'getopt/getopt.c' ]
     sources_capture += [ 'getopt/getopt.c' ]
   endif
   cflags += [ '-DNTDDI_VERSION=NTDDI_WIN10_RS4', '-D_WIN32_WINNT=_WIN32_WINNT_WIN10' ]
-  ldflags_capture += [ '-lonecore', '-static' ]
+  ldflags_capture += [ '-lmf', '-lmfplat', '-lmfuuid', '-lmfreadwrite', '-lole32', '-lonecore', '-static' ]
+  sources_capture += 'simple_capture/simple_capture_mediafoundation.c'
   if host_cpu_family == 'aarch64'
     ldflags_capture += [ '-lwinpthread' ]
   endif
-endif
-
-if host_system == 'linux'
+elif host_system == 'linux'
+  sources_capture += 'simple_capture/simple_capture_v4l2.c'
   ldflags_capture += [ '-lm' ]
+elif host_system == 'darwin'
+  add_languages('objc')
+  ldflags_capture += ['-Wl,-framework,Cocoa', '-Wl,-framework,AVFoundation', '-Wl,-framework,CoreMedia', '-Wl,-framework,CoreVideo', '-Wl,-framework,IOKit', '-Wl,-framework,CoreFoundation', '-Wl,-framework,Security']
+  sources_capture += 'simple_capture/simple_capture_avfoundation.m'
 endif
 
 executable('misrc_extract',

@@ -42,7 +42,7 @@ if [[ ("$OSTYPE" == "darwin"*) || ("$OSTYPE" == "cygwin"*) || ("$OSTYPE" == "msy
   cd ../
 fi
 
-if [[ ("$OSTYPE" == "cygwin"*) ]]; then
+if [[ ("$OSTYPE" == "cygwin"*) || ("$OSTYPE" == "msys"*) ]]; then
   curl -L --silent -o "libuvc-41d0e0403abc5356e6aaeda690329467ef8f3a31.tar.gz" "https://github.com/steve-m/libuvc/archive/41d0e0403abc5356e6aaeda690329467ef8f3a31.tar.gz"
   tar xzf libuvc-41d0e0403abc5356e6aaeda690329467ef8f3a31.tar.gz
   cd libuvc-41d0e0403abc5356e6aaeda690329467ef8f3a31
@@ -58,7 +58,7 @@ sed "s/find_package(JpegPkg QUIET)//g" CMakeLists.patched >CMakeLists.txt
 mkdir build
 cd build
 cmake -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DJPEG_FOUND=False -DBUILD_EXAMPLE=False -DBUILD_TEST=False -DCMAKE_INSTALL_PREFIX="${WORKSPACE}" ../
-if [[ ("$OSTYPE" == "cygwin"*) ]]; then
+if [[ ("$OSTYPE" == "cygwin"*) || ("$OSTYPE" == "msys"*) ]]; then
   cmake --build .
   cmake --install .
 else
@@ -93,9 +93,9 @@ make
 make install
 cd ../
 
-curl -L --silent -o "hsdaoh-02e72ac62262a1144bfe067287e93b9853562c44.tar.gz" "https://github.com/Stefan-Olt/hsdaoh/archive/02e72ac62262a1144bfe067287e93b9853562c44.tar.gz"
-tar xzf hsdaoh-02e72ac62262a1144bfe067287e93b9853562c44.tar.gz
-cd hsdaoh-02e72ac62262a1144bfe067287e93b9853562c44
+curl -L --silent -o "hsdaoh-ecd5f835ffad911e7b0b73d905e70cddc898c1ab.tar.gz" "https://github.com/Stefan-Olt/hsdaoh/archive/ecd5f835ffad911e7b0b73d905e70cddc898c1ab.tar.gz"
+tar xzf hsdaoh-ecd5f835ffad911e7b0b73d905e70cddc898c1ab.tar.gz
+cd hsdaoh-ecd5f835ffad911e7b0b73d905e70cddc898c1ab
 # I cannot get cmake to not build the shared library
 sed "s/SHARED/STATIC/g" ./src/CMakeLists.txt >./src/CMakeLists.txt.patched
 rm ./src/CMakeLists.txt
@@ -103,7 +103,7 @@ cat ./src/CMakeLists.txt.patched | tr '\n' '\r' | sed -e 's/executables.*\r# Ins
 mkdir build
 cd build
 cmake -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_PREFIX="${WORKSPACE}" -DINSTALL_UDEV_RULES=False ../
-if [[ ("$OSTYPE" == "cygwin"*) ]]; then
+if [[ ("$OSTYPE" == "cygwin"*) || ("$OSTYPE" == "msys"*) ]]; then
   cmake --build .
   cmake --install .
 else

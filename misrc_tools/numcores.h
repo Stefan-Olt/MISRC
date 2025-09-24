@@ -18,8 +18,8 @@
 
 
 uint32_t get_num_cores() {
-	uint32_t numberOfCores = 0;
 #if defined(_WIN32) || defined(_WIN64)
+	uint32_t numberOfCores = 0;
 	DWORD_PTR processAffinityMask;
 	DWORD_PTR systemAffinityMask;
 	if (GetProcessAffinityMask(GetCurrentProcess(), &processAffinityMask, &systemAffinityMask)) {
@@ -46,7 +46,8 @@ uint32_t get_num_cores() {
 		return sysconf(_SC_NPROCESSORS_CONF);
 	}
 #elif defined(__APPLE__) || defined(__MACH__) || defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__) || defined(__DragonFly__)
-    size_t size = sizeof(numberOfCores);
+	uint32_t numberOfCores = 0;
+	size_t size = sizeof(numberOfCores);
 #if defined(__APPLE__) || defined(__MACH__)
 	if (sysctlbyname("hw.logicalcpu", &numberOfCores, &size, NULL, 0) == 0) {
 #else

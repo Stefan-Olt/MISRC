@@ -105,6 +105,8 @@ static const char* const _FLAC_StreamEncoderSetNumThreadsStatusString[] = {
 #include <libswresample/swresample.h>
 #endif
 
+#include "simple_capture/simple_capture.h"
+
 #include "version.h"
 #include "ringbuffer.h"
 #include "extract.h"
@@ -121,16 +123,17 @@ static const char* const _FLAC_StreamEncoderSetNumThreadsStatusString[] = {
 
 #define _FILE_OFFSET_BITS 64
 
-#define OPT_RESAMPLE_A     256
-#define OPT_RESAMPLE_B     257
-#define OPT_RF_FLAC_12BIT  258
-#define OPT_AUDIO_4CH_OUT  259
-#define OPT_AUDIO_2CH_12_OUT  260
-#define OPT_AUDIO_2CH_34_OUT  261
+#define OPT_RESAMPLE_A       256
+#define OPT_RESAMPLE_B       257
+#define OPT_RF_FLAC_12BIT    258
+#define OPT_AUDIO_4CH_OUT    259
+#define OPT_AUDIO_2CH_12_OUT 260
+#define OPT_AUDIO_2CH_34_OUT 261
 #define OPT_AUDIO_1CH_1_OUT  262
 #define OPT_AUDIO_1CH_2_OUT  263
 #define OPT_AUDIO_1CH_3_OUT  264
 #define OPT_AUDIO_1CH_4_OUT  265
+#define OPT_LIST_DEVICES     266
 
 #if defined(__GNUC__)
 # define UNUSED(x) x __attribute__((unused))
@@ -143,6 +146,7 @@ typedef struct {
 	ringbuffer_t rb_audio;
 	int hsdaoh_frames_since_error;
 	unsigned int hsdaoh_in_order_cnt;
+	unsigned int non_sync_cnt;
 	uint16_t hsdaoh_last_frame_cnt;
 	uint16_t hsdaoh_last_crc[2];
 	uint16_t hsdaoh_idle_cnt;
@@ -180,11 +184,13 @@ typedef struct {
 
 static int do_exit;
 static int new_line = 1;
-static hsdaoh_dev_t *dev = NULL;
+static hsdaoh_dev_t *hs_dev = NULL;
+static sc_handle_t *sc_dev = NULL;
 
 static struct option getopt_long_options[] =
 {
   {"device",               required_argument, 0, 'd'},
+  {"devices",              no_argument,       0, OPT_LIST_DEVICES},
   {"count",                required_argument, 0, 'n'},
   {"time",                 required_argument, 0, 't'},
   {"overwrite",            no_argument,       0, 'w'},
@@ -223,6 +229,7 @@ static char* yesno[] = {"no", "yes"};
 static char* usage_options[][2] =
 {
   { "device index (default: 0)", "[device index]" },
+  { "list available devices", NULL },
   { "number of samples to read (default: 0, infinite)", "[samples]" },
   { "time to capture (seconds, m:s or h:m:s; -n takes priority, assumes 40msps)", "[time]" },
   { "overwrite any files without asking", NULL },
@@ -253,7 +260,7 @@ static char* usage_options[][2] =
   { "mono audio output of input 2 (use '-' to write on stdout)", "[filename]" },
   { "mono audio output of input 3 (use '-' to write on stdout)", "[filename]" },
   { "mono audio output of input 4 (use '-' to write on stdout)", "[filename]" },
-  {0, 0, 0, 0}
+  { 0, 0 }
 };
 
 void create_getopt_string(char *getopt_string)
@@ -308,7 +315,8 @@ sighandler(int signum)
 	if (CTRL_C_EVENT == signum) {
 		fprintf(stderr, "Signal caught, exiting!\n");
 		do_exit = 1;
-		hsdaoh_stop_stream(dev);
+		if (hs_dev) { hsdaoh_close(hs_dev); hs_dev = NULL; }
+		if (sc_dev) { sc_stop_capture(sc_dev); sc_dev = NULL; }
 		return true;
 	}
 	return FALSE;
@@ -319,7 +327,8 @@ static void sighandler(int UNUSED(signum))
 	signal(SIGPIPE, SIG_IGN);
 	fprintf(stderr, "Signal caught, exiting!\n");
 	do_exit = 1;
-	hsdaoh_stop_stream(dev);
+	if (hs_dev) { hsdaoh_close(hs_dev); hs_dev = NULL; }
+	if (sc_dev) { sc_stop_capture(sc_dev); sc_dev = NULL; }
 }
 #endif
 
@@ -348,11 +357,20 @@ static void hsdaoh_callback(hsdaoh_data_info_t *data_info)
 	if(cap_ctx) {
 		hsdaoh_extract_metadata(data_info->buf, &meta, data_info->width);
 
+		if(!cap_ctx->hsdaoh_stream_synced) {
+			if(cap_ctx->non_sync_cnt%5==0) fprintf(stderr,"\033[A\33[2K\r Received %i frames without sync...\n",cap_ctx->non_sync_cnt+1);
+			if(cap_ctx->non_sync_cnt == 500) {
+				print_capture_message(NULL,HSDAOH_ERROR," Received more than 500 corrupted frames! Check connection!\n");
+				if (sc_dev) print_capture_message(NULL,HSDAOH_ERROR,"Verify that your device does not modify the video data!\n");
+			}
+		}
+
 		if (le32toh(meta.magic) != HSDAOH_MAGIC) {
 			if (cap_ctx->hsdaoh_stream_synced) {
 				print_capture_message(NULL,HSDAOH_ERROR,"Lost sync to HDMI input stream\n");
 			}
 			cap_ctx->hsdaoh_stream_synced = false;
+			cap_ctx->non_sync_cnt++;
 			return;
 		}
 
@@ -396,13 +414,15 @@ static void hsdaoh_callback(hsdaoh_data_info_t *data_info)
 			if (payload_len > data_info->width-1) {
 				if (cap_ctx->hsdaoh_stream_synced) {
 					print_capture_message(NULL,HSDAOH_ERROR,"Invalid payload length: %d\n", payload_len);
+					/* discard frame */
+					return;
 				}
-				/* discard frame */
+				cap_ctx->non_sync_cnt++;
 				return;
 			}
 
 			uint16_t idle_len = (data_info->width-1) - payload_len - ((meta.flags & FLAG_STREAM_ID_PRESENT) ? 1 : 0) - ((meta.crc_config == CRC_NONE) ? 0 : 1);
-			frame_errors += hsdaoh_check_idle_cnt(dev, (uint16_t *)line_dat + payload_len, idle_len);
+			frame_errors += hsdaoh_check_idle_cnt(&cap_ctx->hsdaoh_idle_cnt, (uint16_t *)line_dat + payload_len, idle_len);
 
 			if ((meta.crc_config == CRC16_1_LINE) || (meta.crc_config == CRC16_2_LINE)) {
 				uint16_t expected_crc = (meta.crc_config == CRC16_1_LINE) ? cap_ctx->hsdaoh_last_crc[0] : cap_ctx->hsdaoh_last_crc[1];
@@ -460,6 +480,7 @@ static void hsdaoh_callback(hsdaoh_data_info_t *data_info)
 				}
 			}
 			cap_ctx->hsdaoh_stream_synced = true;
+			cap_ctx->non_sync_cnt = 0;
 		}
 	}
 }
@@ -787,6 +808,49 @@ int open_file(FILE **f, char *filename, bool overwrite)
 	return 0;
 }
 
+static bool str_starts_with(const char *restrict prefixA, const char *restrict prefixB, size_t *prefixLen, const char *restrict string)
+{
+	while(*prefixA) {
+		if(prefixLen) (*prefixLen)++;
+		if(*prefixA++ != *string++)
+			return false;
+	}
+	if (prefixB) while(*prefixB) {
+		if(prefixLen) (*prefixLen)++;
+		if(*prefixB++ != *string++)
+			return false;
+	}
+	return true;
+}
+
+void list_devices() {
+	sc_capture_dev_t *sc_devs;
+	size_t sc_n = sc_get_devices(&sc_devs);
+	uint32_t hs_n = hsdaoh_get_device_count();
+	fprintf(stderr, "Devices that can be used using libusb / libuvc / libhsdaoh:\n");
+	for (uint32_t i=0; i<hs_n; i++) {
+		fprintf(stderr, " %i: %s\n", i, hsdaoh_get_device_name(i));
+	}
+	fprintf(stderr, "\nDevices that can be used using %s:\n", sc_get_impl_name());
+	for (size_t i=0; i<sc_n; i++) {
+		sc_formatlist_t *sc_fmt;
+		size_t f_n = sc_get_formats(sc_devs[i].device_id, &sc_fmt);
+		for (size_t j=0; j<f_n; j++) {
+			if (sc_fmt[j].codec == SC_CODEC_YUYV) for (size_t k=0; k<sc_fmt[j].n_sizes; k++) {
+				if (sc_fmt[j].sizes[k].w == 1920 && sc_fmt[j].sizes[k].h == 1080) for (size_t l=0; l<sc_fmt[j].sizes[k].n_fps; l++) {
+					if ((sc_fmt[j].sizes[k].fps[l].den != 0 && (float)sc_fmt[j].sizes[k].fps[l].num / (float)sc_fmt[j].sizes[k].fps[l].den >= 40.0f)
+					|| (sc_fmt[j].sizes[k].fps[l].den == 0 && (float)sc_fmt[j].sizes[k].fps[l].max_num / (float)sc_fmt[j].sizes[k].fps[l].max_den >= 40.0f)) {
+						fprintf(stderr, " %s://%s: %s\n", sc_get_impl_name_short(), sc_devs[i].device_id, sc_devs[i].name);
+						break;
+					}
+				}
+			}
+		}
+	}
+	fprintf(stderr, "\nDevice names can change when devices are connected/disconnected!\nUsing %s requires that the device does not modify the video data.\n\n", sc_get_impl_name_short());
+	exit(1);
+}
+
 int main(int argc, char **argv)
 {
 //set pipe mode to binary in windows
@@ -818,6 +882,8 @@ int main(int argc, char **argv)
 	char dev_manufact[256];
 	char dev_product[256];
 	char dev_serial[256];
+
+	char *sc_dev_name = NULL;
 
 	//output threads
 	// out 1, 2
@@ -872,10 +938,15 @@ int main(int argc, char **argv)
 	create_getopt_string(getopt_string);
 
 	int index_ptr;
+	size_t str_cnt = 0;
 	while ((opt = getopt_long(argc, argv, getopt_string, getopt_long_options, &index_ptr)) != -1) {
 		switch (opt) {
 		case 'd':
-			dev_index = (uint32_t)atoi(optarg);
+			if (str_starts_with(sc_get_impl_name_short(), "://", &str_cnt, optarg)) {
+				sc_dev_name = strdup(&(optarg[str_cnt]));
+			}
+			else
+				dev_index = (uint32_t)atoi(optarg);
 			break;
 		case 'a':
 			output_names[0] = optarg;
@@ -964,6 +1035,9 @@ int main(int argc, char **argv)
 			break;
 		case OPT_AUDIO_1CH_4_OUT:
 			output_names_1ch_audio[3] = optarg;
+			break;
+		case OPT_LIST_DEVICES:
+			list_devices();
 			break;
 		case 'h':
 		default:
@@ -1100,32 +1174,44 @@ int main(int argc, char **argv)
 
 	rb_init(&cap_ctx.rb,"capture_ringbuffer",BUFFER_TOTAL_SIZE);
 
-	r = hsdaoh_alloc(&dev);
-	if (r < 0) {
-		fprintf(stderr, "Failed to allocate hsdaoh device.\n");
-		exit(1);
+	if (sc_dev_name) {
+		r = sc_start_capture(sc_dev_name, 1920, 1080, SC_CODEC_YUYV, 10417, 259, (sc_frame_callback_t)hsdaoh_callback, &cap_ctx, &sc_dev);
+		if (r < 0) {
+			fprintf(stderr, "Failed to open %s device %s.\n", sc_get_impl_name(), sc_dev_name);
+			exit(1);
+		}
+		fprintf(stderr, "Opened %s device %s.\n", sc_get_impl_name(), sc_dev_name);
+	}
+	else {
+
+		r = hsdaoh_alloc(&hs_dev);
+		if (r < 0) {
+			fprintf(stderr, "Failed to allocate hsdaoh device.\n");
+			exit(1);
+		}
+
+		hsdaoh_raw_callback(hs_dev, true);
+		hsdaoh_set_msg_callback(hs_dev, &print_capture_message, NULL);
+
+		r = hsdaoh_open2(hs_dev, (uint32_t)dev_index);
+		if (r < 0) {
+			fprintf(stderr, "Failed to open hsdaoh device #%d.\n", dev_index);
+			exit(1);
+		}
+
+		dev_manufact[0] = 0;
+		dev_product[0] = 0;
+		dev_serial[0] = 0;
+		r = hsdaoh_get_usb_strings(hs_dev, dev_manufact, dev_product, dev_serial);
+		if (r < 0)
+			fprintf(stderr, "Failed to identify hsdaoh device #%d.\n", dev_index);
+		else
+			fprintf(stderr, "Opened device #%d: %s %s, serial: %s\n", dev_index, dev_manufact, dev_product, dev_serial);
+
+		fprintf(stderr, "Reading samples...\n");
+		r = hsdaoh_start_stream(hs_dev, hsdaoh_callback, &cap_ctx);
 	}
 
-	hsdaoh_raw_callback(dev, true);
-	hsdaoh_set_msg_callback(dev, &print_capture_message, NULL);
-
-	r = hsdaoh_open2(dev, (uint32_t)dev_index);
-	if (r < 0) {
-		fprintf(stderr, "Failed to open hsdaoh device #%d.\n", dev_index);
-		exit(1);
-	}
-
-	dev_manufact[0] = 0;
-	dev_product[0] = 0;
-	dev_serial[0] = 0;
-	r = hsdaoh_get_usb_strings(dev, dev_manufact, dev_product, dev_serial);
-	if (r < 0)
-		fprintf(stderr, "Failed to identify hsdaoh device #%d.\n", dev_index);
-	else
-		fprintf(stderr, "Opened device #%d: %s %s, serial: %s\n", dev_index, dev_manufact, dev_product, dev_serial);
-
-	fprintf(stderr, "Reading samples...\n");
-	r = hsdaoh_start_stream(dev, hsdaoh_callback, &cap_ctx);
 
 	while (!do_exit) {
 		void *buf, *buf_out1, *buf_out2;
@@ -1176,7 +1262,8 @@ int main(int argc, char **argv)
 	else
 		fprintf(stderr, "\nLibrary error %d, exiting...\n", r);
 
-	hsdaoh_close(dev);
+	if (hs_dev) { hsdaoh_close(hs_dev); hs_dev = NULL; }
+	if (sc_dev) { sc_stop_capture(sc_dev); sc_dev = NULL; }
 
 ////ending of the program
 
