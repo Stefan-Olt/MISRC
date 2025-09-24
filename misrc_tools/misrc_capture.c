@@ -836,7 +836,7 @@ void list_devices() {
 		sc_formatlist_t *sc_fmt;
 		size_t f_n = sc_get_formats(sc_devs[i].device_id, &sc_fmt);
 		for (size_t j=0; j<f_n; j++) {
-			if (sc_fmt[j].codec == SC_CODEC_YUYV) for (size_t k=0; k<sc_fmt[j].n_sizes; k++) {
+			if (SC_CODEC_EQUAL(sc_fmt[j].codec, SC_CODEC_YUYV)) for (size_t k=0; k<sc_fmt[j].n_sizes; k++) {
 				if (sc_fmt[j].sizes[k].w == 1920 && sc_fmt[j].sizes[k].h == 1080) for (size_t l=0; l<sc_fmt[j].sizes[k].n_fps; l++) {
 					if ((sc_fmt[j].sizes[k].fps[l].den != 0 && (float)sc_fmt[j].sizes[k].fps[l].num / (float)sc_fmt[j].sizes[k].fps[l].den >= 40.0f)
 					|| (sc_fmt[j].sizes[k].fps[l].den == 0 && (float)sc_fmt[j].sizes[k].fps[l].max_num / (float)sc_fmt[j].sizes[k].fps[l].max_den >= 40.0f)) {
