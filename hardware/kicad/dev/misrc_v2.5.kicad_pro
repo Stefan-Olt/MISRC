@@ -112,12 +112,12 @@
           ""
         ],
         [
-          "courtyards_overlap|91254000|129567000|54e007c5-08b8-45be-a33b-457d3265c180|d5c30812-e498-4d2e-99a3-676eb27ed2f8",
+          "courtyards_overlap|91327000|65809000|3000346e-fe16-4f07-aae4-849e7be2d826|91f39259-d768-45d6-98c6-915349769010",
           "2 different sizes for same capacitor"
         ],
         [
-          "courtyards_overlap|91327000|65809000|3000346e-fe16-4f07-aae4-849e7be2d826|91f39259-d768-45d6-98c6-915349769010",
-          "2 different sizes for same capacitor"
+          "courtyards_overlap|91387269|129373000|54e007c5-08b8-45be-a33b-457d3265c180|d5c30812-e498-4d2e-99a3-676eb27ed2f8",
+          ""
         ],
         [
           "pth_inside_courtyard|64375000|126475000|b73d49da-eef8-4b15-b746-48f67f04d41c|187eba9d-8ba6-4006-b9a0-3b16b6190fa1",
@@ -169,14 +169,6 @@
         ],
         [
           "silk_over_copper|191223800|107243500|4ae28658-a256-4e7f-b2af-597bdd1c3d9d|00000000-0000-0000-0000-000000000000",
-          ""
-        ],
-        [
-          "silk_over_copper|63077817|64272600|1db53c2e-213e-42a0-9fdd-2d93ecfdeb94|00000000-0000-0000-0000-000000000000",
-          ""
-        ],
-        [
-          "silk_over_copper|63358550|134847800|0e913ccc-d2f4-4307-83e4-7ce4f893257f|00000000-0000-0000-0000-000000000000",
           ""
         ],
         [
