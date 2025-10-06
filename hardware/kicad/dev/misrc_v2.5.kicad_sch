@@ -5110,7 +5110,7 @@
 	)
 	(wire
 		(pts
-			(xy 35.56 22.86) (xy 40.64 22.86)
+			(xy 33.02 22.86) (xy 40.64 22.86)
 		)
 		(stroke
 			(width 0)
@@ -5700,7 +5700,7 @@
 	)
 	(wire
 		(pts
-			(xy 35.56 20.32) (xy 40.64 20.32)
+			(xy 33.02 20.32) (xy 40.64 20.32)
 		)
 		(stroke
 			(width 0)
@@ -6240,7 +6240,7 @@
 	)
 	(wire
 		(pts
-			(xy 35.56 17.78) (xy 40.64 17.78)
+			(xy 33.02 17.78) (xy 40.64 17.78)
 		)
 		(stroke
 			(width 0)
@@ -7859,7 +7859,7 @@
 		(uuid "af55c367-5354-4869-a3c7-7f4fadc86a1e")
 	)
 	(label "clk_in"
-		(at 35.56 17.78 0)
+		(at 33.02 17.78 0)
 		(effects
 			(font
 				(size 0.762 0.762)
@@ -7949,7 +7949,7 @@
 		(uuid "ce2602f1-0983-4a7c-b0b0-5e6142c07d5e")
 	)
 	(label "clk_out"
-		(at 35.56 22.86 0)
+		(at 33.02 22.86 0)
 		(effects
 			(font
 				(size 0.762 0.762)
@@ -7999,7 +7999,7 @@
 		(uuid "ee040b8a-e257-4474-afdb-f871009aa039")
 	)
 	(label "osc_en"
-		(at 35.56 20.32 0)
+		(at 33.02 20.32 0)
 		(effects
 			(font
 				(size 0.762 0.762)
@@ -17148,7 +17148,7 @@
 	)
 	(symbol
 		(lib_id "Switch:SW_DIP_x03")
-		(at 48.26 22.86 0)
+		(at 48.26 17.78 180)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -17156,7 +17156,7 @@
 		(dnp no)
 		(uuid "ffff90e6-826d-44ec-97a7-50ff2a3cd182")
 		(property "Reference" "SW2"
-			(at 47.244 27.178 0)
+			(at 49.276 13.462 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -17165,7 +17165,7 @@
 			)
 		)
 		(property "Value" "SW_DIP_x03"
-			(at 49.53 13.97 90)
+			(at 46.99 26.67 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -17175,7 +17175,7 @@
 			)
 		)
 		(property "Footprint" "Button_Switch_SMD:SW_DIP_SPSTx03_Slide_6.7x9.18mm_W8.61mm_P2.54mm_LowProfile"
-			(at 48.26 22.86 0)
+			(at 48.26 17.78 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -17184,7 +17184,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 48.26 22.86 0)
+			(at 48.26 17.78 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -17193,7 +17193,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 48.26 22.86 0)
+			(at 48.26 17.78 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -17202,7 +17202,7 @@
 			)
 		)
 		(property "Manufacturer_Part_Number" "SDA03H1SBD"
-			(at 48.26 22.86 0)
+			(at 48.26 17.78 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -17211,7 +17211,7 @@
 			)
 		)
 		(property "LCSC Part #" "C221951"
-			(at 48.26 22.86 90)
+			(at 48.26 17.78 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -17220,7 +17220,7 @@
 			)
 		)
 		(property "FT Rotation Offset" "-90"
-			(at 48.26 22.86 90)
+			(at 48.26 17.78 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -17229,7 +17229,7 @@
 			)
 		)
 		(property "Max Tolerance" ""
-			(at 48.26 22.86 90)
+			(at 48.26 17.78 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -17238,7 +17238,7 @@
 			)
 		)
 		(property "Part Selection Note" ""
-			(at 48.26 22.86 90)
+			(at 48.26 17.78 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -17247,7 +17247,7 @@
 			)
 		)
 		(property "Capacitor Ceramic" ""
-			(at 48.26 22.86 90)
+			(at 48.26 17.78 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -17256,7 +17256,7 @@
 			)
 		)
 		(property "Alternative Part" ""
-			(at 48.26 22.86 90)
+			(at 48.26 17.78 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -17265,7 +17265,7 @@
 			)
 		)
 		(property "Manufacturer_Name" "C & K COMPONENTS"
-			(at 48.26 22.86 90)
+			(at 48.26 17.78 90)
 			(effects
 				(font
 					(size 1.27 1.27)
