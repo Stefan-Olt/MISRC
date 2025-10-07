@@ -6,7 +6,7 @@
 	(paper "A4")
 	(title_block
 		(title "MISRC")
-		(date "2025-08-10")
+		(date "2025-10-07")
 		(rev "2.5")
 		(comment 1 "Digital Interface")
 	)
@@ -5340,6 +5340,16 @@
 	)
 	(wire
 		(pts
+			(xy 240.03 91.44) (xy 245.11 91.44)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "187193af-1307-45e2-9679-b6329e4718df")
+	)
+	(wire
+		(pts
 			(xy 153.67 179.07) (xy 168.91 179.07)
 		)
 		(stroke
@@ -5857,6 +5867,16 @@
 			(type default)
 		)
 		(uuid "402e4541-24f5-42f8-9792-e989b21918b0")
+	)
+	(wire
+		(pts
+			(xy 240.03 93.98) (xy 245.11 93.98)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "42ed971e-daa9-4d64-baa5-cdf9ca71c872")
 	)
 	(wire
 		(pts
@@ -6718,16 +6738,6 @@
 		)
 		(uuid "9f94e31b-5125-455b-896d-1505d7de2cca")
 	)
-	(wire
-		(pts
-			(xy 240.03 93.98) (xy 245.11 93.98)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "a150f652-8109-44b1-9184-3235ff6f31c3")
-	)
 	(bus
 		(pts
 			(xy 120.65 163.83) (xy 120.65 166.37)
@@ -6787,16 +6797,6 @@
 			(type default)
 		)
 		(uuid "ab122898-c93b-4c2b-a1dd-090d0d8b7b00")
-	)
-	(wire
-		(pts
-			(xy 240.03 91.44) (xy 245.11 91.44)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "abc0d899-22ab-4e66-8cdc-a5e19434336a")
 	)
 	(wire
 		(pts
@@ -7699,7 +7699,7 @@
 		(uuid "2f6658e1-56ac-413a-9c13-f6c187c855f5")
 	)
 	(label "AUX1"
-		(at 240.03 91.44 0)
+		(at 240.03 93.98 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7789,7 +7789,7 @@
 		(uuid "792c2a09-968b-476a-88be-6880968a3b4d")
 	)
 	(label "AUX2"
-		(at 240.03 93.98 0)
+		(at 240.03 91.44 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8367,7 +8367,7 @@
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
-		(dnp yes)
+		(dnp no)
 		(uuid "06c4a029-78d5-446e-b346-f57118321b8a")
 		(property "Reference" "J4"
 			(at 71.12 16.764 0)
@@ -8415,7 +8415,7 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part_Number" "RF2-04A-T-00-50-G"
+		(property "Manufacturer_Part_Number" "RF2-49B-T-00-50-G-HDW"
 			(at 72.39 20.32 0)
 			(effects
 				(font
@@ -8424,7 +8424,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC Part #" ""
+		(property "LCSC Part #" "C3195386"
 			(at 72.39 20.32 0)
 			(effects
 				(font
@@ -10827,7 +10827,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "Conn_01x06_Socket"
+		(property "Value" "Conn_01x05_Socket"
 			(at 251.46 92.7099 0)
 			(effects
 				(font
@@ -10836,7 +10836,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Connector_PinSocket_2.54mm:PinSocket_1x05_P2.54mm_Vertical"
+		(property "Footprint" "Connector_PinSocket_2.54mm:PinSocket_1x05_P2.54mm_Horizontal"
 			(at 250.19 91.44 0)
 			(effects
 				(font
