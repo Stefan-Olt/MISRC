@@ -6,7 +6,7 @@
 	(paper "A4")
 	(title_block
 		(title "MISRC")
-		(date "2025-08-10")
+		(date "2025-10-10")
 		(rev "2.5")
 		(comment 1 "Analog input + ADC")
 	)
@@ -15640,7 +15640,7 @@
 				(justify right)
 			)
 		)
-		(property "Value" "49R9B"
+		(property "Value" "150B"
 			(at 83.312 71.882 90)
 			(effects
 				(font
@@ -15676,7 +15676,7 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part_Number" "RT0603BRD0749R9L"
+		(property "Manufacturer_Part_Number" "RT0603BRD07150RL"
 			(at 85.09 78.74 0)
 			(effects
 				(font
@@ -15685,7 +15685,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC Part #" "C861434"
+		(property "LCSC Part #" "C705726"
 			(at 85.09 78.74 90)
 			(effects
 				(font
@@ -17046,7 +17046,7 @@
 				(justify right)
 			)
 		)
-		(property "Value" "300B"
+		(property "Value" "100B"
 			(at 52.07 64.77 90)
 			(effects
 				(font
@@ -17082,7 +17082,7 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part_Number" "RT0603BRD07300RL"
+		(property "Manufacturer_Part_Number" "RT0603BRD07100RL"
 			(at 52.07 59.69 0)
 			(effects
 				(font
@@ -17091,7 +17091,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC Part #" "C705763"
+		(property "LCSC Part #" "C122970"
 			(at 52.07 59.69 90)
 			(effects
 				(font
@@ -19916,7 +19916,7 @@
 				(justify right)
 			)
 		)
-		(property "Value" "100B"
+		(property "Value" "300B"
 			(at 55.88 64.77 90)
 			(effects
 				(font
@@ -19952,7 +19952,7 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part_Number" "RT0603BRD07100RL"
+		(property "Manufacturer_Part_Number" "RT0603BRD07300RL"
 			(at 55.88 59.69 0)
 			(effects
 				(font
@@ -19961,7 +19961,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC Part #" "C122970"
+		(property "LCSC Part #" "C705763"
 			(at 55.88 59.69 90)
 			(effects
 				(font
@@ -20312,7 +20312,7 @@
 				(justify right)
 			)
 		)
-		(property "Value" "150B"
+		(property "Value" "49R9B"
 			(at 79.248 72.39 90)
 			(effects
 				(font
@@ -20348,7 +20348,7 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part_Number" "RT0603BRD07150RL"
+		(property "Manufacturer_Part_Number" "RT0603BRD0749R9L"
 			(at 81.28 78.74 0)
 			(effects
 				(font
@@ -20357,7 +20357,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC Part #" "C705726"
+		(property "LCSC Part #" "C861434"
 			(at 81.28 78.74 90)
 			(effects
 				(font
