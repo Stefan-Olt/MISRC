@@ -10181,7 +10181,7 @@
 				)
 			)
 		)
-		(property "Value" "100k"
+		(property "Value" "30k"
 			(at 85.09 113.03 90)
 			(effects
 				(font
@@ -10216,7 +10216,7 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part_Number" "RT0603BRD07150RL"
+		(property "Manufacturer_Part_Number" "RT0603BRD0730KL"
 			(at 82.55 113.03 0)
 			(effects
 				(font
@@ -10225,7 +10225,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC Part #" "C705726"
+		(property "LCSC Part #" "C723585"
 			(at 82.55 113.03 0)
 			(effects
 				(font
@@ -12931,7 +12931,7 @@
 				)
 			)
 		)
-		(property "Value" "100k"
+		(property "Value" "30k"
 			(at 60.96 36.83 90)
 			(effects
 				(font
@@ -12966,7 +12966,7 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part_Number" "RT0603BRD07150RL"
+		(property "Manufacturer_Part_Number" "RT0603BRD0730KL"
 			(at 58.42 36.83 0)
 			(effects
 				(font
@@ -12975,7 +12975,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC Part #" "C705726"
+		(property "LCSC Part #" "C723585"
 			(at 58.42 36.83 0)
 			(effects
 				(font
