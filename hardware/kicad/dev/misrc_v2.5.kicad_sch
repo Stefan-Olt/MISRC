@@ -10216,7 +10216,7 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part_Number" "RT0603BRD0730KL"
+		(property "Manufacturer_Part_Number" "0603WAF3002T5E"
 			(at 82.55 113.03 0)
 			(effects
 				(font
@@ -10225,7 +10225,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC Part #" "C723585"
+		(property "LCSC Part #" "C22984"
 			(at 82.55 113.03 0)
 			(effects
 				(font
@@ -12966,7 +12966,7 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part_Number" "RT0603BRD0730KL"
+		(property "Manufacturer_Part_Number" "0603WAF3002T5E"
 			(at 58.42 36.83 0)
 			(effects
 				(font
@@ -12975,7 +12975,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC Part #" "C723585"
+		(property "LCSC Part #" "C22984"
 			(at 58.42 36.83 0)
 			(effects
 				(font
@@ -16072,7 +16072,7 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part_Number" "RT0603BRD07100RL"
+		(property "Manufacturer_Part_Number" "0603WAF1000T5E"
 			(at 78.74 60.96 0)
 			(effects
 				(font
@@ -16081,7 +16081,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC Part #" "C122970"
+		(property "LCSC Part #" "C22775"
 			(at 78.74 60.96 0)
 			(effects
 				(font
@@ -16492,7 +16492,7 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part_Number" "RT0603BRD07100RL"
+		(property "Manufacturer_Part_Number" "0603WAF1000T5E"
 			(at 100.33 135.89 0)
 			(effects
 				(font
@@ -16501,7 +16501,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC Part #" "C122970"
+		(property "LCSC Part #" "C22775"
 			(at 100.33 135.89 0)
 			(effects
 				(font
