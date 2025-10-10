@@ -6371,6 +6371,16 @@
 	)
 	(wire
 		(pts
+			(xy 78.74 55.88) (xy 78.74 57.15)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "84b72e71-ca5d-4e14-a8a4-145bc84579a9")
+	)
+	(wire
+		(pts
 			(xy 279.4 160.02) (xy 279.4 171.45)
 		)
 		(stroke
@@ -6658,16 +6668,6 @@
 			(type default)
 		)
 		(uuid "9aabc341-8e3c-442b-b14d-5bff3ea19eef")
-	)
-	(wire
-		(pts
-			(xy 78.74 55.88) (xy 78.74 57.15)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "9aac3107-4d82-42f7-867a-9da2af10d80b")
 	)
 	(wire
 		(pts
@@ -13496,7 +13496,7 @@
 	)
 	(symbol
 		(lib_id "Device:LED")
-		(at 78.74 52.07 90)
+		(at 78.74 60.96 90)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -13504,7 +13504,7 @@
 		(dnp no)
 		(uuid "a2ce65c6-24b6-4a76-ab51-dd214abb2ae8")
 		(property "Reference" "D1"
-			(at 80.772 50.038 90)
+			(at 80.772 58.928 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -13513,7 +13513,7 @@
 			)
 		)
 		(property "Value" "LED"
-			(at 80.772 52.324 90)
+			(at 80.772 61.214 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -13521,8 +13521,8 @@
 				(justify right)
 			)
 		)
-		(property "Footprint" "LED_SMD:LED_Kingbright_APA1606_1.6x0.6mm_Horizontal"
-			(at 78.74 52.07 0)
+		(property "Footprint" "Footprints:LED_XL1606"
+			(at 78.74 60.96 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -13531,7 +13531,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 78.74 52.07 0)
+			(at 78.74 60.96 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -13540,7 +13540,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 78.74 52.07 0)
+			(at 78.74 60.96 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -13549,7 +13549,7 @@
 			)
 		)
 		(property "Manufacturer_Part_Number" "XL-1606UOC"
-			(at 78.74 52.07 0)
+			(at 78.74 60.96 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -13558,7 +13558,7 @@
 			)
 		)
 		(property "LCSC Part #" "C965861"
-			(at 78.74 52.07 90)
+			(at 78.74 60.96 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -13567,7 +13567,7 @@
 			)
 		)
 		(property "FT Rotation Offset" ""
-			(at 78.74 52.07 90)
+			(at 78.74 60.96 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -13576,7 +13576,7 @@
 			)
 		)
 		(property "Max Tolerance" ""
-			(at 78.74 52.07 90)
+			(at 78.74 60.96 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -13585,7 +13585,7 @@
 			)
 		)
 		(property "Part Selection Note" ""
-			(at 78.74 52.07 90)
+			(at 78.74 60.96 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -13594,7 +13594,7 @@
 			)
 		)
 		(property "Capacitor Ceramic" ""
-			(at 78.74 52.07 90)
+			(at 78.74 60.96 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -13603,7 +13603,7 @@
 			)
 		)
 		(property "Alternative Part" ""
-			(at 78.74 52.07 90)
+			(at 78.74 60.96 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -14600,7 +14600,7 @@
 	)
 	(symbol
 		(lib_id "Device:LED")
-		(at 100.33 128.27 90)
+		(at 100.33 135.89 90)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -14608,7 +14608,7 @@
 		(dnp no)
 		(uuid "d3079a4c-0f9e-465d-a931-d31a54b77469")
 		(property "Reference" "D2"
-			(at 103.124 127.762 90)
+			(at 103.124 135.382 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -14617,7 +14617,7 @@
 			)
 		)
 		(property "Value" "LED"
-			(at 103.124 129.794 90)
+			(at 103.124 137.414 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -14625,8 +14625,8 @@
 				(justify right)
 			)
 		)
-		(property "Footprint" "LED_SMD:LED_Kingbright_APA1606_1.6x0.6mm_Horizontal"
-			(at 100.33 128.27 0)
+		(property "Footprint" "Footprints:LED_XL1606"
+			(at 100.33 135.89 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -14635,7 +14635,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 100.33 128.27 0)
+			(at 100.33 135.89 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -14644,7 +14644,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 100.33 128.27 0)
+			(at 100.33 135.89 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -14653,7 +14653,7 @@
 			)
 		)
 		(property "Manufacturer_Part_Number" "XL-1606UOC"
-			(at 100.33 128.27 0)
+			(at 100.33 135.89 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -14662,7 +14662,7 @@
 			)
 		)
 		(property "LCSC Part #" "C965861"
-			(at 100.33 128.27 90)
+			(at 100.33 135.89 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -14671,7 +14671,7 @@
 			)
 		)
 		(property "FT Rotation Offset" ""
-			(at 100.33 128.27 90)
+			(at 100.33 135.89 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -14680,7 +14680,7 @@
 			)
 		)
 		(property "Max Tolerance" ""
-			(at 100.33 128.27 90)
+			(at 100.33 135.89 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -14689,7 +14689,7 @@
 			)
 		)
 		(property "Part Selection Note" ""
-			(at 100.33 128.27 90)
+			(at 100.33 135.89 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -14698,7 +14698,7 @@
 			)
 		)
 		(property "Capacitor Ceramic" ""
-			(at 100.33 128.27 90)
+			(at 100.33 135.89 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -14707,7 +14707,7 @@
 			)
 		)
 		(property "Alternative Part" ""
-			(at 100.33 128.27 90)
+			(at 100.33 135.89 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -16022,7 +16022,7 @@
 	)
 	(symbol
 		(lib_id "Device:R")
-		(at 78.74 60.96 0)
+		(at 78.74 52.07 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -16030,7 +16030,7 @@
 		(dnp no)
 		(uuid "f44eb233-fe32-44fd-84f4-d79f05e1bdd2")
 		(property "Reference" "R2"
-			(at 76.2 62.23 90)
+			(at 76.2 53.34 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -16038,7 +16038,7 @@
 			)
 		)
 		(property "Value" "100"
-			(at 81.28 60.96 90)
+			(at 81.28 52.07 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -16046,7 +16046,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
-			(at 76.962 60.96 90)
+			(at 76.962 52.07 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -16055,7 +16055,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 78.74 60.96 0)
+			(at 78.74 52.07 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -16064,7 +16064,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 78.74 60.96 0)
+			(at 78.74 52.07 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -16073,7 +16073,7 @@
 			)
 		)
 		(property "Manufacturer_Part_Number" "0603WAF1000T5E"
-			(at 78.74 60.96 0)
+			(at 78.74 52.07 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -16082,7 +16082,7 @@
 			)
 		)
 		(property "LCSC Part #" "C22775"
-			(at 78.74 60.96 0)
+			(at 78.74 52.07 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -16091,7 +16091,7 @@
 			)
 		)
 		(property "FT Rotation Offset" ""
-			(at 78.74 60.96 0)
+			(at 78.74 52.07 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -16100,7 +16100,7 @@
 			)
 		)
 		(property "Max Tolerance" "1%"
-			(at 78.74 60.96 90)
+			(at 78.74 52.07 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -16109,7 +16109,7 @@
 			)
 		)
 		(property "Part Selection Note" ""
-			(at 78.74 60.96 90)
+			(at 78.74 52.07 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -16118,7 +16118,7 @@
 			)
 		)
 		(property "Capacitor Ceramic" ""
-			(at 78.74 60.96 90)
+			(at 78.74 52.07 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -16127,7 +16127,7 @@
 			)
 		)
 		(property "Alternative Part" ""
-			(at 78.74 60.96 90)
+			(at 78.74 52.07 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -16442,7 +16442,7 @@
 	)
 	(symbol
 		(lib_id "Device:R")
-		(at 100.33 135.89 0)
+		(at 100.33 128.27 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -16450,7 +16450,7 @@
 		(dnp no)
 		(uuid "f7c5d36c-ac59-438d-84bf-ba6b9f18e3b2")
 		(property "Reference" "R3"
-			(at 97.79 137.16 90)
+			(at 97.79 129.54 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -16458,7 +16458,7 @@
 			)
 		)
 		(property "Value" "100"
-			(at 102.87 135.89 90)
+			(at 102.87 128.27 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -16466,7 +16466,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
-			(at 98.552 135.89 90)
+			(at 98.552 128.27 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -16475,7 +16475,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 100.33 135.89 0)
+			(at 100.33 128.27 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -16484,7 +16484,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 100.33 135.89 0)
+			(at 100.33 128.27 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -16493,7 +16493,7 @@
 			)
 		)
 		(property "Manufacturer_Part_Number" "0603WAF1000T5E"
-			(at 100.33 135.89 0)
+			(at 100.33 128.27 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -16502,7 +16502,7 @@
 			)
 		)
 		(property "LCSC Part #" "C22775"
-			(at 100.33 135.89 0)
+			(at 100.33 128.27 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -16511,7 +16511,7 @@
 			)
 		)
 		(property "FT Rotation Offset" ""
-			(at 100.33 135.89 0)
+			(at 100.33 128.27 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -16520,7 +16520,7 @@
 			)
 		)
 		(property "Max Tolerance" "1%"
-			(at 100.33 135.89 90)
+			(at 100.33 128.27 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -16529,7 +16529,7 @@
 			)
 		)
 		(property "Part Selection Note" ""
-			(at 100.33 135.89 90)
+			(at 100.33 128.27 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -16538,7 +16538,7 @@
 			)
 		)
 		(property "Capacitor Ceramic" ""
-			(at 100.33 135.89 90)
+			(at 100.33 128.27 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -16547,7 +16547,7 @@
 			)
 		)
 		(property "Alternative Part" ""
-			(at 100.33 135.89 90)
+			(at 100.33 128.27 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -17438,7 +17438,7 @@
 			(color 0 0 0 0.0000)
 		)
 		(uuid "56b32eea-16d3-46c8-8e85-f12b91596617")
-		(property "Sheetname" "Input_ADC_CH2"
+		(property "Sheetname" "Input_ADC_CH1"
 			(at 17.78 131.3684 0)
 			(effects
 				(font
@@ -17447,7 +17447,7 @@
 				(justify left bottom)
 			)
 		)
-		(property "Sheetfile" "input_adc_CH2.kicad_sch"
+		(property "Sheetfile" "input_adc_CH1.kicad_sch"
 			(at 17.78 150.4446 0)
 			(effects
 				(font
@@ -17510,7 +17510,7 @@
 			(color 0 0 0 0.0000)
 		)
 		(uuid "f3827713-3b6b-4193-bf1c-3910c26c6fe9")
-		(property "Sheetname" "Input_ADC_CH1"
+		(property "Sheetname" "Input_ADC_CH2"
 			(at 17.78 69.1384 0)
 			(effects
 				(font

@@ -3389,7 +3389,7 @@
 		)
 		(uuid "ff97fac8-7af4-4c30-b1f0-c63eb52f315f")
 	)
-	(global_label "IN1_L"
+	(global_label "IN2_L"
 		(shape input)
 		(at 158.75 74.93 180)
 		(fields_autoplaced yes)
@@ -3411,8 +3411,8 @@
 			)
 		)
 	)
-	(global_label "IN2_R"
-		(shape input)
+	(global_label "IN1_R"
+		(shape output)
 		(at 182.88 34.29 0)
 		(fields_autoplaced yes)
 		(effects
@@ -3433,8 +3433,8 @@
 			)
 		)
 	)
-	(global_label "IN1_R"
-		(shape input)
+	(global_label "IN2_R"
+		(shape output)
 		(at 143.51 36.83 180)
 		(fields_autoplaced yes)
 		(effects
@@ -3455,8 +3455,8 @@
 			)
 		)
 	)
-	(global_label "IN1_L"
-		(shape input)
+	(global_label "IN2_L"
+		(shape output)
 		(at 143.51 34.29 180)
 		(fields_autoplaced yes)
 		(effects
@@ -3477,8 +3477,8 @@
 			)
 		)
 	)
-	(global_label "IN2_L"
-		(shape input)
+	(global_label "IN1_L"
+		(shape output)
 		(at 182.88 31.75 0)
 		(fields_autoplaced yes)
 		(effects
@@ -3499,7 +3499,7 @@
 			)
 		)
 	)
-	(global_label "IN2_L"
+	(global_label "IN1_L"
 		(shape input)
 		(at 25.4 74.93 180)
 		(fields_autoplaced yes)
@@ -3521,7 +3521,7 @@
 			)
 		)
 	)
-	(global_label "IN1_R"
+	(global_label "IN2_R"
 		(shape input)
 		(at 158.75 92.71 180)
 		(fields_autoplaced yes)
@@ -3543,7 +3543,7 @@
 			)
 		)
 	)
-	(global_label "IN2_R"
+	(global_label "IN1_R"
 		(shape input)
 		(at 25.4 92.71 180)
 		(fields_autoplaced yes)

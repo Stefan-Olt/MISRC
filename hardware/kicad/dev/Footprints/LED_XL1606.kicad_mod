@@ -1,0 +1,300 @@
+(footprint "LED_XL1606"
+	(version 20241229)
+	(generator "pcbnew")
+	(generator_version "9.0")
+	(layer "F.Cu")
+	(descr "Right angled LED, 1.6x1.2 mm, H0.6 mm")
+	(tags "LED chip right angled vertical")
+	(property "Reference" "D1"
+		(at 0 -1.5 0)
+		(layer "F.SilkS")
+		(uuid "17461a81-415d-4d7b-b897-4e578b2c238f")
+		(effects
+			(font
+				(size 0.6 0.6)
+				(thickness 0.1)
+			)
+		)
+	)
+	(property "Value" "LED"
+		(at 0 2 0)
+		(layer "F.Fab")
+		(uuid "4d387daf-1849-45a9-85dc-f72aa76ce08a")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Datasheet" "~"
+		(at 0 0 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "0900dcfa-900e-45b2-838a-754eb39d00c6")
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Description" ""
+		(at 0 0 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "a6764e54-4114-4e24-8f80-e81db270f2e2")
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Manufacturer_Part_Number" "XL-1606UOC"
+		(at 0 0 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "029fe89d-ea34-49bc-9928-435b13c05864")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "LCSC Part #" "C965861"
+		(at 0 0 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "ec26fab2-fbe0-4346-aeeb-05b936558cbd")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "FT Rotation Offset" ""
+		(at 0 0 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "4a070ec9-19ee-4f8d-a64d-62605a43a846")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Max Tolerance" ""
+		(at 0 0 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "51f6b783-7901-4828-994b-157661c87a94")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Part Selection Note" ""
+		(at 0 0 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "2c604e78-cf85-4aed-b30e-7f81001642d3")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Capacitor Ceramic" ""
+		(at 0 0 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "1e32efd2-d717-4d40-a3fb-b9df67c3e849")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Alternative Part" ""
+		(at 0 0 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "a2d227d9-b3c6-4747-a252-10a35dff09ba")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(attr smd)
+	(fp_line
+		(start -1.51 -0.76)
+		(end -0.8 -0.76)
+		(stroke
+			(width 0.12)
+			(type default)
+		)
+		(layer "F.SilkS")
+		(uuid "492863a7-13f9-4d71-8f3e-d6f8c7b3e8cd")
+	)
+	(fp_line
+		(start -1.51 0)
+		(end -1.51 -0.76)
+		(stroke
+			(width 0.12)
+			(type default)
+		)
+		(layer "F.SilkS")
+		(uuid "70af0455-913a-4eee-864d-f010d9fb2455")
+	)
+	(fp_poly
+		(pts
+			(xy -0.8 1.15) (xy 0.8 1.15) (xy 0.8 0.75) (xy 1.5 0.75) (xy 1.5 -0.75) (xy -1.5 -0.75) (xy -1.5 0.75)
+			(xy -0.8 0.75)
+		)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(fill no)
+		(layer "F.CrtYd")
+		(uuid "59205ada-6412-4ace-a9ef-925e5708a7ba")
+	)
+	(fp_line
+		(start -0.8 -0.1)
+		(end -0.8 0.3)
+		(stroke
+			(width 0.1)
+			(type default)
+		)
+		(layer "F.Fab")
+		(uuid "54f0cf9e-100c-45c5-8f47-9d44156c2022")
+	)
+	(fp_line
+		(start -0.8 0.3)
+		(end 0.8 0.3)
+		(stroke
+			(width 0.1)
+			(type default)
+		)
+		(layer "F.Fab")
+		(uuid "5dc27e41-635f-4af1-aa9b-cf468c271c6f")
+	)
+	(fp_line
+		(start -0.6 -0.3)
+		(end -0.8 -0.1)
+		(stroke
+			(width 0.1)
+			(type default)
+		)
+		(layer "F.Fab")
+		(uuid "2018216a-eada-4848-9b65-889ecc48490e")
+	)
+	(fp_line
+		(start -0.6 0.3)
+		(end -0.55 0.9)
+		(stroke
+			(width 0.1)
+			(type default)
+		)
+		(layer "F.Fab")
+		(uuid "776d7043-af31-467d-9934-b7049e674126")
+	)
+	(fp_line
+		(start -0.55 0.9)
+		(end 0.55 0.9)
+		(stroke
+			(width 0.1)
+			(type default)
+		)
+		(layer "F.Fab")
+		(uuid "8ff216ad-b9a2-4eba-b134-4aa1a22ea3f8")
+	)
+	(fp_line
+		(start 0.6 0.3)
+		(end 0.55 0.9)
+		(stroke
+			(width 0.1)
+			(type default)
+		)
+		(layer "F.Fab")
+		(uuid "13124299-3850-489f-85a3-c740c0b0ba91")
+	)
+	(fp_line
+		(start 0.8 -0.3)
+		(end -0.6 -0.3)
+		(stroke
+			(width 0.1)
+			(type default)
+		)
+		(layer "F.Fab")
+		(uuid "740d79cb-870e-49ff-93b6-4cf5b9b43eaf")
+	)
+	(fp_line
+		(start 0.8 0.3)
+		(end 0.8 -0.3)
+		(stroke
+			(width 0.1)
+			(type default)
+		)
+		(layer "F.Fab")
+		(uuid "d37e850b-69a8-41ad-97e3-5d083829fa04")
+	)
+	(fp_text user "${REFERENCE}"
+		(at 0 -1 0)
+		(layer "F.Fab")
+		(uuid "d17ba91f-cef1-4db7-8147-3dc8413022f7")
+		(effects
+			(font
+				(size 0.25 0.25)
+				(thickness 0.04)
+			)
+		)
+	)
+	(pad "1" smd roundrect
+		(at -0.815 0)
+		(size 0.77 0.95)
+		(layers "F.Cu" "F.Mask" "F.Paste")
+		(roundrect_rratio 0.1298701299)
+		(thermal_bridge_angle 45)
+		(uuid "8fce18d6-7e63-446c-8384-d59bc2388ba3")
+	)
+	(pad "2" smd roundrect
+		(at 0.815 0)
+		(size 0.77 0.95)
+		(layers "F.Cu" "F.Mask" "F.Paste")
+		(roundrect_rratio 0.1298701299)
+		(thermal_bridge_angle 45)
+		(uuid "d31d72cd-6eeb-47fd-ad4d-beef50beb191")
+	)
+	(embedded_fonts no)
+	(model "${KICAD9_3DMODEL_DIR}/LED_SMD.3dshapes/LED_Kingbright_APA1606_1.6x0.6mm_Horizontal.step"
+		(offset
+			(xyz 0 0 0)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz 0 0 0)
+		)
+	)
+)
