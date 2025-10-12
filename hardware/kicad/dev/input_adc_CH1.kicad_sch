@@ -6,7 +6,7 @@
 	(paper "A4")
 	(title_block
 		(title "MISRC")
-		(date "2025-10-10")
+		(date "2025-10-12")
 		(rev "2.5")
 		(comment 1 "Analog input + ADC")
 	)
@@ -11063,7 +11063,6 @@
 	(symbol
 		(lib_id "Device:R_Potentiometer")
 		(at 48.26 105.41 0)
-		(mirror x)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -11079,7 +11078,7 @@
 			)
 		)
 		(property "Value" "10k"
-			(at 50.8 107.95 90)
+			(at 50.8 108.204 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11186,7 +11185,7 @@
 			(uuid "bf87656c-b60d-49ec-947d-25f9d991c111")
 		)
 		(instances
-			(project "MISRC_v3.0"
+			(project "misrc_v2.5"
 				(path "/bc796fa4-76ff-4554-a44c-2597c6c5788e/56b32eea-16d3-46c8-8e85-f12b91596617"
 					(reference "RV201")
 					(unit 1)
