@@ -4953,6 +4953,15 @@
 				(hide yes)
 			)
 		)
+		(property "Mouser Part Number" "80-C1812C944J5JLCLTU"
+			(at 52.07 74.93 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "29bcfd97-cf70-4bb5-8208-e7083db49546")
 		)
@@ -5218,6 +5227,15 @@
 			)
 		)
 		(property "Alternative Part" ""
+			(at 52.07 92.71 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser Part Number" "80-C1812C944J5JLCLTU"
 			(at 52.07 92.71 90)
 			(effects
 				(font
@@ -5688,6 +5706,15 @@
 			)
 		)
 		(property "Alternative Part" ""
+			(at 88.9 82.55 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser Part Number" "595-PCM1802DBR"
 			(at 88.9 82.55 0)
 			(effects
 				(font
@@ -6418,6 +6445,15 @@
 				(hide yes)
 			)
 		)
+		(property "Mouser Part Number" "80-C1812C944J5JLCLTU"
+			(at 189.23 74.93 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "f848a239-7856-4214-b9aa-410dcf9ded53")
 		)
@@ -6551,6 +6587,15 @@
 			)
 		)
 		(property "Alternative Part" ""
+			(at 189.23 92.71 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser Part Number" "80-C1812C944J5JLCLTU"
 			(at 189.23 92.71 90)
 			(effects
 				(font
@@ -8861,6 +8906,15 @@
 			)
 		)
 		(property "Alternative Part" ""
+			(at 227.33 82.55 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser Part Number" "595-PCM1802DBR"
 			(at 227.33 82.55 0)
 			(effects
 				(font

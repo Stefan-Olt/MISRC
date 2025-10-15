@@ -7573,7 +7573,7 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part_Number" "0603N361F500CT"
+		(property "Manufacturer_Part_Number" "GCM1885C2A361FA16D"
 			(at 173.99 55.88 0)
 			(effects
 				(font
@@ -7582,7 +7582,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC Part #" "C3895655"
+		(property "LCSC Part #" "C3859396"
 			(at 173.99 55.88 0)
 			(effects
 				(font
@@ -7628,6 +7628,24 @@
 			)
 		)
 		(property "Alternative Part" ""
+			(at 173.99 55.88 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer_Name" "Murata"
+			(at 173.99 55.88 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser Part Number" "81-GCM1885C2A361FA6D"
 			(at 173.99 55.88 0)
 			(effects
 				(font
@@ -8623,6 +8641,15 @@
 			)
 		)
 		(property "Alternative Part" ""
+			(at 63.5 73.66 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser Part Number" "80-C1812C944J5JLCLTU"
 			(at 63.5 73.66 90)
 			(effects
 				(font
@@ -9742,7 +9769,7 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part_Number" "0603N361F500CT"
+		(property "Manufacturer_Part_Number" "GCM1885C2A361FA16D"
 			(at 173.99 78.74 0)
 			(effects
 				(font
@@ -9751,7 +9778,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC Part #" "C3895655"
+		(property "LCSC Part #" "C3859396"
 			(at 173.99 78.74 0)
 			(effects
 				(font
@@ -9797,6 +9824,24 @@
 			)
 		)
 		(property "Alternative Part" ""
+			(at 173.99 78.74 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer_Name" "Murata"
+			(at 173.99 78.74 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser Part Number" "81-GCM1885C2A361FA6D"
 			(at 173.99 78.74 0)
 			(effects
 				(font
@@ -10784,7 +10829,7 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part_Number" "RT0603BRD0747RL"
+		(property "Manufacturer_Part_Number" "TC0325B470JT5F"
 			(at 193.04 64.77 0)
 			(effects
 				(font
@@ -10793,7 +10838,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC Part #" "C326724"
+		(property "LCSC Part #" "C2989449"
 			(at 193.04 64.77 90)
 			(effects
 				(font
@@ -10982,7 +11027,7 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part_Number" "CC0603FRNPO9BN391"
+		(property "Manufacturer_Part_Number" "GCM1885C2A391FA16D"
 			(at 154.94 55.88 0)
 			(effects
 				(font
@@ -10991,7 +11036,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC Part #" "C519563"
+		(property "LCSC Part #" "C1864402"
 			(at 154.94 55.88 0)
 			(effects
 				(font
@@ -11245,7 +11290,7 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part_Number" "RT0603BRD0747RL"
+		(property "Manufacturer_Part_Number" "TC0325B470JT5F"
 			(at 132.08 64.77 0)
 			(effects
 				(font
@@ -11254,7 +11299,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC Part #" "C326724"
+		(property "LCSC Part #" "C2989449"
 			(at 132.08 64.77 90)
 			(effects
 				(font
@@ -11507,7 +11552,7 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part_Number" "FEC1008CP-R56G-LRH"
+		(property "Manufacturer_Part_Number" "LQW2UASR56F00L"
 			(at 180.34 69.85 90)
 			(effects
 				(font
@@ -11516,7 +11561,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC Part #" "C346451"
+		(property "LCSC Part #" "C907989"
 			(at 180.34 69.85 90)
 			(effects
 				(font
@@ -11534,7 +11579,7 @@
 				(hide yes)
 			)
 		)
-		(property "Max Tolerance" "2%"
+		(property "Max Tolerance" "1%"
 			(at 180.34 69.85 90)
 			(effects
 				(font
@@ -11834,7 +11879,7 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part_Number" "FEC1008CP-R62G-LRH"
+		(property "Manufacturer_Part_Number" "LQW2UASR62F00L"
 			(at 143.51 64.77 90)
 			(effects
 				(font
@@ -11843,7 +11888,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC Part #" "C346452"
+		(property "LCSC Part #" "C2042960"
 			(at 143.51 64.77 90)
 			(effects
 				(font
@@ -11861,7 +11906,7 @@
 				(hide yes)
 			)
 		)
-		(property "Max Tolerance" "2%"
+		(property "Max Tolerance" "1%"
 			(at 143.51 64.77 90)
 			(effects
 				(font
@@ -12496,6 +12541,15 @@
 			)
 		)
 		(property "Manufacturer_Name" "C & K COMPONENTS"
+			(at 55.88 44.45 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser Part Number" "611-SDA04H1SBDR"
 			(at 55.88 44.45 90)
 			(effects
 				(font
@@ -14273,7 +14327,7 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part_Number" "CC0603FRNPO9BN391"
+		(property "Manufacturer_Part_Number" "GCM1885C2A391FA16D"
 			(at 154.94 78.74 0)
 			(effects
 				(font
@@ -14282,7 +14336,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC Part #" "C519563"
+		(property "LCSC Part #" "C1864402"
 			(at 154.94 78.74 0)
 			(effects
 				(font
@@ -14533,7 +14587,7 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part_Number" "FEC1008CP-R56G-LRH"
+		(property "Manufacturer_Part_Number" "LQW2UASR56F00L"
 			(at 167.64 64.77 90)
 			(effects
 				(font
@@ -14542,7 +14596,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC Part #" "C346451"
+		(property "LCSC Part #" "C907989"
 			(at 167.64 64.77 90)
 			(effects
 				(font
@@ -14560,7 +14614,7 @@
 				(hide yes)
 			)
 		)
-		(property "Max Tolerance" "2%"
+		(property "Max Tolerance" "1%"
 			(at 167.64 64.77 90)
 			(effects
 				(font
@@ -15080,7 +15134,7 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part_Number" "FEC1008CP-R56G-LRH"
+		(property "Manufacturer_Part_Number" "LQW2UASR56F00L"
 			(at 167.64 69.85 90)
 			(effects
 				(font
@@ -15089,7 +15143,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC Part #" "C346451"
+		(property "LCSC Part #" "C907989"
 			(at 167.64 69.85 90)
 			(effects
 				(font
@@ -15107,7 +15161,7 @@
 				(hide yes)
 			)
 		)
-		(property "Max Tolerance" "2%"
+		(property "Max Tolerance" "1%"
 			(at 167.64 69.85 90)
 			(effects
 				(font
@@ -15675,7 +15729,7 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part_Number" "RT0603BRD07150RL"
+		(property "Manufacturer_Part_Number" "TC0325B1500T5F"
 			(at 85.09 78.74 0)
 			(effects
 				(font
@@ -15684,7 +15738,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC Part #" "C705726"
+		(property "LCSC Part #" "C425408"
 			(at 85.09 78.74 90)
 			(effects
 				(font
@@ -16329,7 +16383,7 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part_Number" "FEC1008CP-R62G-LRH"
+		(property "Manufacturer_Part_Number" "LQW2UASR62F00L"
 			(at 143.51 69.85 90)
 			(effects
 				(font
@@ -16338,7 +16392,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC Part #" "C346452"
+		(property "LCSC Part #" "C2042960"
 			(at 143.51 69.85 90)
 			(effects
 				(font
@@ -16356,7 +16410,7 @@
 				(hide yes)
 			)
 		)
-		(property "Max Tolerance" "2%"
+		(property "Max Tolerance" "1%"
 			(at 143.51 69.85 90)
 			(effects
 				(font
@@ -16658,6 +16712,15 @@
 			)
 		)
 		(property "Manufacturer_Name" "C & K COMPONENTS"
+			(at 119.38 45.72 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser Part Number" "611-SDA04H1SBDR"
 			(at 119.38 45.72 90)
 			(effects
 				(font
@@ -19360,7 +19423,7 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part_Number" "RT0603BRD0747RL"
+		(property "Manufacturer_Part_Number" "TC0325B470JT5F"
 			(at 132.08 69.85 0)
 			(effects
 				(font
@@ -19369,7 +19432,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC Part #" "C326724"
+		(property "LCSC Part #" "C2989449"
 			(at 132.08 69.85 90)
 			(effects
 				(font
@@ -20214,7 +20277,7 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part_Number" "FEC1008CP-R56G-LRH"
+		(property "Manufacturer_Part_Number" "LQW2UASR56F00L"
 			(at 180.34 64.77 90)
 			(effects
 				(font
@@ -20223,7 +20286,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC Part #" "C346451"
+		(property "LCSC Part #" "C907989"
 			(at 180.34 64.77 90)
 			(effects
 				(font
@@ -20241,7 +20304,7 @@
 				(hide yes)
 			)
 		)
-		(property "Max Tolerance" "2%"
+		(property "Max Tolerance" "1%"
 			(at 180.34 64.77 90)
 			(effects
 				(font
@@ -20478,7 +20541,7 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part_Number" " EMK325ABJ107MM-P"
+		(property "Manufacturer_Part_Number" "EMK325ABJ107MM-P"
 			(at 41.91 63.5 0)
 			(effects
 				(font
@@ -20805,7 +20868,7 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part_Number" "RT0603BRD0747RL"
+		(property "Manufacturer_Part_Number" "TC0325B470JT5F"
 			(at 193.04 69.85 0)
 			(effects
 				(font
@@ -20814,7 +20877,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC Part #" "C326724"
+		(property "LCSC Part #" "C2989449"
 			(at 193.04 69.85 90)
 			(effects
 				(font

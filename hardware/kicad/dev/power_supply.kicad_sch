@@ -4259,7 +4259,7 @@
 				(hide yes)
 			)
 		)
-		(property "Capacitor Ceramic" ""
+		(property "Capacitor Ceramic" "Polymer"
 			(at 111.76 74.93 0)
 			(effects
 				(font
@@ -4269,6 +4269,24 @@
 			)
 		)
 		(property "Alternative Part" ""
+			(at 111.76 74.93 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer_Name" "Panasonic"
+			(at 111.76 74.93 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser Part Number" "667-16SVPF1000M"
 			(at 111.76 74.93 0)
 			(effects
 				(font
@@ -4399,6 +4417,24 @@
 			)
 		)
 		(property "Alternative Part" ""
+			(at 74.93 63.5 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer_Name" "Bourns"
+			(at 74.93 63.5 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser Part Number" "652-SRU8043-101Y"
 			(at 74.93 63.5 90)
 			(effects
 				(font
@@ -5908,7 +5944,7 @@
 				(hide yes)
 			)
 		)
-		(property "Capacitor Ceramic" ""
+		(property "Capacitor Ceramic" "Polymer"
 			(at 83.82 72.39 0)
 			(effects
 				(font
@@ -5918,6 +5954,24 @@
 			)
 		)
 		(property "Alternative Part" ""
+			(at 83.82 72.39 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer_Name" "Panasonic"
+			(at 83.82 72.39 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser Part Number" "667-16SVPF1000M"
 			(at 83.82 72.39 0)
 			(effects
 				(font
@@ -6893,6 +6947,24 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Name" "Bourns"
+			(at 63.5 36.83 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser Part Number" "652-SRU8043-101Y"
+			(at 63.5 36.83 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "40357740-0f28-45f3-9011-6712c6f891b5")
 		)
@@ -7663,7 +7735,7 @@
 				(hide yes)
 			)
 		)
-		(property "Capacitor Ceramic" ""
+		(property "Capacitor Ceramic" "Polymer"
 			(at 119.38 72.39 0)
 			(effects
 				(font
@@ -7673,6 +7745,24 @@
 			)
 		)
 		(property "Alternative Part" ""
+			(at 119.38 72.39 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer_Name" "Panasonic"
+			(at 119.38 72.39 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser Part Number" "667-16SVPF1000M"
 			(at 119.38 72.39 0)
 			(effects
 				(font
@@ -8191,7 +8281,7 @@
 				(hide yes)
 			)
 		)
-		(property "Capacitor Ceramic" ""
+		(property "Capacitor Ceramic" "Polymer"
 			(at 107.95 45.72 0)
 			(effects
 				(font
@@ -8201,6 +8291,24 @@
 			)
 		)
 		(property "Alternative Part" ""
+			(at 107.95 45.72 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer_Name" "Panasonic"
+			(at 107.95 45.72 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser Part Number" "667-16SVPF1000M"
 			(at 107.95 45.72 0)
 			(effects
 				(font
@@ -8935,7 +9043,7 @@
 				(hide yes)
 			)
 		)
-		(property "Capacitor Ceramic" ""
+		(property "Capacitor Ceramic" "Polymer"
 			(at 72.39 45.72 0)
 			(effects
 				(font
@@ -8945,6 +9053,24 @@
 			)
 		)
 		(property "Alternative Part" ""
+			(at 72.39 45.72 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer_Name" "Panasonic"
+			(at 72.39 45.72 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser Part Number" "667-16SVPF1000M"
 			(at 72.39 45.72 0)
 			(effects
 				(font
@@ -9067,7 +9193,7 @@
 				(hide yes)
 			)
 		)
-		(property "Capacitor Ceramic" ""
+		(property "Capacitor Ceramic" "Polymer"
 			(at 100.33 48.26 0)
 			(effects
 				(font
@@ -9077,6 +9203,24 @@
 			)
 		)
 		(property "Alternative Part" ""
+			(at 100.33 48.26 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer_Name" "Panasonic"
+			(at 100.33 48.26 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser Part Number" "667-16SVPF1000M"
 			(at 100.33 48.26 0)
 			(effects
 				(font
@@ -9601,7 +9745,7 @@
 				(hide yes)
 			)
 		)
-		(property "Capacitor Ceramic" ""
+		(property "Capacitor Ceramic" "Polymer"
 			(at 48.26 45.72 0)
 			(effects
 				(font
@@ -9611,6 +9755,24 @@
 			)
 		)
 		(property "Alternative Part" ""
+			(at 48.26 45.72 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer_Name" "Panasonic"
+			(at 48.26 45.72 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser Part Number" "667-16SVPF1000M"
 			(at 48.26 45.72 0)
 			(effects
 				(font

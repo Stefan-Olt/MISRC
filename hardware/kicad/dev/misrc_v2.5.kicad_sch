@@ -8206,7 +8206,7 @@
 				(hide yes)
 			)
 		)
-		(property "Mouser Part Number" ""
+		(property "Mouser Part Number" "520-T2520-33-400-ANT"
 			(at 39.37 601.6 0)
 			(effects
 				(font
@@ -8431,6 +8431,24 @@
 			)
 		)
 		(property "Alternative Part" ""
+			(at 72.39 20.32 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer_Name" "Adam Tech"
+			(at 72.39 20.32 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser Part Number" "737-RF249BT0050GHDW"
 			(at 72.39 20.32 0)
 			(effects
 				(font
@@ -8994,6 +9012,24 @@
 			)
 		)
 		(property "Alternative Part" ""
+			(at 140.97 121.92 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer_Name" "Nexperia"
+			(at 140.97 121.92 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser Part Number" "771-74VHC541D118"
 			(at 140.97 121.92 0)
 			(effects
 				(font
@@ -9873,7 +9909,7 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part_Number" "61302021121"
+		(property "Manufacturer_Part_Number" "PZ2.54-2*20"
 			(at 245.11 48.26 0)
 			(effects
 				(font
@@ -9882,7 +9918,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC Part #" "C6461559"
+		(property "LCSC Part #" "C5224014"
 			(at 245.11 48.26 0)
 			(effects
 				(font
@@ -10072,7 +10108,7 @@
 		(dnp no)
 		(uuid "435be482-325a-40c6-b5ed-fcf83707fe61")
 		(property "Reference" "Q3"
-			(at 77.724 117.8559 0)
+			(at 79.756 121.92 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10081,7 +10117,7 @@
 			)
 		)
 		(property "Value" "AO3400A"
-			(at 77.724 120.1419 0)
+			(at 79.248 128.27 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10348,7 +10384,7 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part_Number" ""
+		(property "Manufacturer_Part_Number" "0603WAF330JT5E"
 			(at 60.96 157.48 0)
 			(effects
 				(font
@@ -10357,7 +10393,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC Part #" ""
+		(property "LCSC Part #" "C23140"
 			(at 60.96 157.48 90)
 			(effects
 				(font
@@ -10375,7 +10411,7 @@
 				(hide yes)
 			)
 		)
-		(property "Max Tolerance" ""
+		(property "Max Tolerance" "1%"
 			(at 60.96 157.48 90)
 			(effects
 				(font
@@ -11034,6 +11070,24 @@
 			)
 		)
 		(property "Description" "Generic connector, single row, 01x05, script generated"
+			(at 250.19 91.44 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "LCSC Part #" "C2897387"
+			(at 250.19 91.44 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part_Number" "PM254-1-05-W-8.5"
 			(at 250.19 91.44 0)
 			(effects
 				(font
@@ -11749,7 +11803,7 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part_Number" ""
+		(property "Manufacturer_Part_Number" "0603WAF330JT5E"
 			(at 218.44 100.33 0)
 			(effects
 				(font
@@ -11758,7 +11812,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC Part #" ""
+		(property "LCSC Part #" "C23140"
 			(at 218.44 100.33 90)
 			(effects
 				(font
@@ -11776,7 +11830,7 @@
 				(hide yes)
 			)
 		)
-		(property "Max Tolerance" ""
+		(property "Max Tolerance" "1%"
 			(at 218.44 100.33 90)
 			(effects
 				(font
@@ -12313,7 +12367,7 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part_Number" "61302021121"
+		(property "Manufacturer_Part_Number" "PZ2.54-2*20"
 			(at 247.65 139.7 0)
 			(effects
 				(font
@@ -12322,7 +12376,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC Part #" "C6461559"
+		(property "LCSC Part #" "C5224014"
 			(at 247.65 139.7 0)
 			(effects
 				(font
@@ -13162,6 +13216,24 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Name" "Nexperia"
+			(at 173.99 78.74 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser Part Number" "771-74VHC541D118"
+			(at 173.99 78.74 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "632a8736-8295-401c-9dae-c7ee6258e397")
 		)
@@ -13745,7 +13817,7 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part_Number" ""
+		(property "Manufacturer_Part_Number" "0603WAF330JT5E"
 			(at 52.07 133.35 0)
 			(effects
 				(font
@@ -13754,7 +13826,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC Part #" ""
+		(property "LCSC Part #" "C23140"
 			(at 52.07 133.35 90)
 			(effects
 				(font
@@ -13772,7 +13844,7 @@
 				(hide yes)
 			)
 		)
-		(property "Max Tolerance" ""
+		(property "Max Tolerance" "1%"
 			(at 52.07 133.35 90)
 			(effects
 				(font
@@ -15689,7 +15761,7 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part_Number" ""
+		(property "Manufacturer_Part_Number" "0603WAF330JT5E"
 			(at 63.5 93.98 0)
 			(effects
 				(font
@@ -15698,7 +15770,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC Part #" ""
+		(property "LCSC Part #" "C23140"
 			(at 63.5 93.98 90)
 			(effects
 				(font
@@ -15716,7 +15788,7 @@
 				(hide yes)
 			)
 		)
-		(property "Max Tolerance" ""
+		(property "Max Tolerance" "1%"
 			(at 63.5 93.98 90)
 			(effects
 				(font
@@ -15877,6 +15949,24 @@
 			)
 		)
 		(property "Alternative Part" ""
+			(at 173.99 35.56 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer_Name" "Nexperia"
+			(at 173.99 35.56 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser Part Number" "771-74VHC541D118"
 			(at 173.99 35.56 0)
 			(effects
 				(font
@@ -16268,6 +16358,24 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Name" "Nexperia"
+			(at 140.97 171.45 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser Part Number" "771-74VHC541D118"
+			(at 140.97 171.45 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "cfa07c57-3f3e-4e92-adfd-4a6630575ddd")
 		)
@@ -16348,7 +16456,7 @@
 		(dnp no)
 		(uuid "f78f393c-16cf-4f47-80a1-2dd044b563cd")
 		(property "Reference" "Q4"
-			(at 102.87 121.4121 0)
+			(at 101.092 122.682 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -16357,7 +16465,7 @@
 			)
 		)
 		(property "Value" "AO3401A"
-			(at 102.87 119.3801 0)
+			(at 101.092 116.078 0)
 			(effects
 				(font
 					(size 1.27 1.27)
