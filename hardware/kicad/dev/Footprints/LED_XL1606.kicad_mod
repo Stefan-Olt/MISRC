@@ -288,13 +288,13 @@
 	(embedded_fonts no)
 	(model "${KICAD9_3DMODEL_DIR}/LED_SMD.3dshapes/LED_Kingbright_APA1606_1.6x0.6mm_Horizontal.step"
 		(offset
-			(xyz 0 0 0)
+			(xyz 0 0 0.6)
 		)
 		(scale
 			(xyz 1 1 1)
 		)
 		(rotate
-			(xyz 0 0 0)
+			(xyz -0 -180 -180)
 		)
 	)
 )
