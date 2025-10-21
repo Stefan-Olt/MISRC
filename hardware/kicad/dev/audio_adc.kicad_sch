@@ -6,7 +6,7 @@
 	(paper "A4")
 	(title_block
 		(title "MISRC")
-		(date "2025-10-12")
+		(date "2025-10-21")
 		(rev "2.5")
 		(comment 1 "Analog audio input + ADC")
 	)
