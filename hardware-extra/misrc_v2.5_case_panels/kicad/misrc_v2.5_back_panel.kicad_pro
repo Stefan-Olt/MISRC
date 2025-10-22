@@ -487,10 +487,10 @@
       "gencad": "",
       "idf": "",
       "netlist": "",
-      "plot": "",
+      "plot": "../gerber",
       "pos_files": "",
       "specctra_dsn": "",
-      "step": "misrc_v2.5_back_panel.step",
+      "step": "../../../hardware/kicad/dev/3d_models/misrc_v2.5_back_panel.step",
       "svg": "",
       "vrml": ""
     },
