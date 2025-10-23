@@ -6,7 +6,7 @@
 	(paper "A4")
 	(title_block
 		(title "MISRC")
-		(date "2025-10-21")
+		(date "2025-10-23")
 		(rev "2.5")
 		(comment 1 "Analog audio input + ADC")
 	)
@@ -623,130 +623,6 @@
 				(pin passive line
 					(at 0 -2.54 90)
 					(length 2.032)
-					(name "~"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-			)
-			(embedded_fonts no)
-		)
-		(symbol "Device:R"
-			(pin_numbers
-				(hide yes)
-			)
-			(pin_names
-				(offset 0)
-			)
-			(exclude_from_sim no)
-			(in_bom yes)
-			(on_board yes)
-			(property "Reference" "R"
-				(at 2.032 0 90)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Value" "R"
-				(at 0 0 90)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Footprint" ""
-				(at -1.778 0 90)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Datasheet" "~"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Description" "Resistor"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "ki_keywords" "R res resistor"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "ki_fp_filters" "R_*"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(symbol "R_0_1"
-				(rectangle
-					(start -1.016 -2.54)
-					(end 1.016 2.54)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-			)
-			(symbol "R_1_1"
-				(pin passive line
-					(at 0 3.81 270)
-					(length 1.27)
-					(name "~"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 0 -3.81 90)
-					(length 1.27)
 					(name "~"
 						(effects
 							(font
@@ -2051,16 +1927,6 @@
 	)
 	(wire
 		(pts
-			(xy 87.63 105.41) (xy 88.9 105.41)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "3308cf49-71f3-4462-a103-6388d3b7fe3d")
-	)
-	(wire
-		(pts
 			(xy 143.51 34.29) (xy 153.67 34.29)
 		)
 		(stroke
@@ -2391,6 +2257,16 @@
 	)
 	(wire
 		(pts
+			(xy 218.44 105.41) (xy 227.33 105.41)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "686ffd5f-68a9-42e0-8948-2bcd27a37c3b")
+	)
+	(wire
+		(pts
 			(xy 194.31 69.85) (xy 194.31 74.93)
 		)
 		(stroke
@@ -2548,6 +2424,16 @@
 			(type default)
 		)
 		(uuid "75fd67f6-2b73-4924-9d83-021c5a5366ad")
+	)
+	(wire
+		(pts
+			(xy 80.01 105.41) (xy 88.9 105.41)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "7677aa31-0112-4c8f-8b13-0393c310cb1e")
 	)
 	(wire
 		(pts
@@ -3231,16 +3117,6 @@
 	)
 	(wire
 		(pts
-			(xy 226.06 105.41) (xy 227.33 105.41)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "ef861bca-df75-4da5-96aa-1dbe7c730577")
-	)
-	(wire
-		(pts
 			(xy 201.93 113.03) (xy 208.28 113.03)
 		)
 		(stroke
@@ -3576,7 +3452,7 @@
 		)
 		(uuid "1f7a371e-72f9-448c-a1d7-796582cfcc09")
 	)
-	(hierarchical_label "SCKI"
+	(hierarchical_label "SCKI2"
 		(shape input)
 		(at 218.44 105.41 180)
 		(effects
@@ -3609,7 +3485,7 @@
 		)
 		(uuid "36a396ef-26a0-42b1-8daf-b0d3d833aa75")
 	)
-	(hierarchical_label "SCKI"
+	(hierarchical_label "SCKI1"
 		(shape input)
 		(at 80.01 105.41 180)
 		(effects
@@ -3910,138 +3786,6 @@
 			(project "MISRC_v3.0"
 				(path "/bc796fa4-76ff-4554-a44c-2597c6c5788e/07b85357-1780-4b3f-b9f1-20d375c30c9c"
 					(reference "#PWR0310")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:R")
-		(at 222.25 105.41 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "0d3f2ef3-ea08-4d1d-b4b4-33c2e6f5a741")
-		(property "Reference" "R407"
-			(at 219.71 105.41 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Value" "0R"
-			(at 220.98 102.87 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
-			(at 222.25 107.188 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 222.25 105.41 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 222.25 105.41 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Manufacturer_Part_Number" "0603WAF0000T5E"
-			(at 222.25 105.41 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "LCSC Part #" "C21189"
-			(at 222.25 105.41 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "FT Rotation Offset" ""
-			(at 222.25 105.41 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Max Tolerance" ""
-			(at 222.25 105.41 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Part Selection Note" ""
-			(at 222.25 105.41 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Capacitor Ceramic" ""
-			(at 222.25 105.41 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Alternative Part" ""
-			(at 222.25 105.41 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "6d32125c-4b2b-46f5-9ad5-6331e1153570")
-		)
-		(pin "2"
-			(uuid "6f07948e-db6e-49ac-9785-acd4864079f6")
-		)
-		(instances
-			(project "MISRC_v3.0"
-				(path "/bc796fa4-76ff-4554-a44c-2597c6c5788e/07b85357-1780-4b3f-b9f1-20d375c30c9c"
-					(reference "R407")
 					(unit 1)
 				)
 			)
@@ -4972,138 +4716,6 @@
 			(project "MISRC_v3.0"
 				(path "/bc796fa4-76ff-4554-a44c-2597c6c5788e/07b85357-1780-4b3f-b9f1-20d375c30c9c"
 					(reference "C305")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:R")
-		(at 83.82 105.41 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "3c884aa1-9abf-46f7-a819-4a5ece5736dd")
-		(property "Reference" "R307"
-			(at 81.28 105.41 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Value" "0R"
-			(at 82.55 102.87 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
-			(at 83.82 107.188 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 83.82 105.41 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 83.82 105.41 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Manufacturer_Part_Number" "0603WAF0000T5E"
-			(at 83.82 105.41 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "LCSC Part #" "C21189"
-			(at 83.82 105.41 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "FT Rotation Offset" ""
-			(at 83.82 105.41 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Max Tolerance" ""
-			(at 83.82 105.41 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Part Selection Note" ""
-			(at 83.82 105.41 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Capacitor Ceramic" ""
-			(at 83.82 105.41 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Alternative Part" ""
-			(at 83.82 105.41 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "93cae087-d40a-4b98-a4b4-25c2d10023e3")
-		)
-		(pin "2"
-			(uuid "cffe9b81-d47d-43e0-9050-ad3f39d4e3f2")
-		)
-		(instances
-			(project "MISRC_v3.0"
-				(path "/bc796fa4-76ff-4554-a44c-2597c6c5788e/07b85357-1780-4b3f-b9f1-20d375c30c9c"
-					(reference "R307")
 					(unit 1)
 				)
 			)
