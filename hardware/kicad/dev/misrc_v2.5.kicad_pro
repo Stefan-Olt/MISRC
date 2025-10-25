@@ -189,7 +189,7 @@
         "min_connection": 0.127,
         "min_copper_edge_clearance": 0.0,
         "min_groove_width": 0.0,
-        "min_hole_clearance": 0.22,
+        "min_hole_clearance": 0.375,
         "min_hole_to_hole": 0.22,
         "min_microvia_diameter": 0.2,
         "min_microvia_drill": 0.1,
@@ -608,7 +608,7 @@
     "page_layout_descr_file": ""
   },
   "schematic": {
-    "annotate_start_num": 200,
+    "annotate_start_num": 0,
     "bom_export_filename": "MISRC_v2.5.csv",
     "bom_fmt_presets": [],
     "bom_fmt_settings": {

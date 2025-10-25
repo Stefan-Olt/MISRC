@@ -10242,13 +10242,14 @@
 				(justify left)
 			)
 		)
-		(property "Value" "FerriteBead"
-			(at 62.23 95.758 0)
+		(property "Value" "1k@100MHz,280@10MHz"
+			(at 62.484 95.758 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(justify left)
+				(hide yes)
 			)
 		)
 		(property "Footprint" "Inductor_SMD:L_0603_1608Metric"
@@ -15803,13 +15804,14 @@
 				(justify left)
 			)
 		)
-		(property "Value" "FerriteBead"
+		(property "Value" "1k@100MHz,280@10MHz"
 			(at 26.67 94.488 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(justify left)
+				(hide yes)
 			)
 		)
 		(property "Footprint" "Inductor_SMD:L_0603_1608Metric"
