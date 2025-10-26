@@ -6,7 +6,7 @@
 	(paper "A4")
 	(title_block
 		(title "MISRC")
-		(date "2025-10-23")
+		(date "2025-10-26")
 		(rev "2.5")
 		(comment 1 "Digital Interface")
 	)
@@ -4846,6 +4846,256 @@
 			)
 			(embedded_fonts no)
 		)
+		(symbol "power:VCCQ"
+			(power)
+			(pin_numbers
+				(hide yes)
+			)
+			(pin_names
+				(offset 0)
+				(hide yes)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "#PWR"
+				(at 0 -3.81 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Value" "VCCQ"
+				(at 0 3.556 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "Power symbol creates a global label with name \"VCCQ\""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_keywords" "global power"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "VCCQ_0_1"
+				(polyline
+					(pts
+						(xy -0.762 1.27) (xy 0 2.54)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0 2.54) (xy 0.762 1.27)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0 0) (xy 0 2.54)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "VCCQ_1_1"
+				(pin power_in line
+					(at 0 0 90)
+					(length 0)
+					(name "~"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
+		(symbol "power:VD"
+			(power)
+			(pin_numbers
+				(hide yes)
+			)
+			(pin_names
+				(offset 0)
+				(hide yes)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "#PWR"
+				(at 0 -3.81 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Value" "VD"
+				(at 0 3.556 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "Power symbol creates a global label with name \"VD\""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_keywords" "global power"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "VD_0_1"
+				(polyline
+					(pts
+						(xy -0.762 1.27) (xy 0 2.54)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0 2.54) (xy 0.762 1.27)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0 0) (xy 0 2.54)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "VD_1_1"
+				(pin power_in line
+					(at 0 0 90)
+					(length 0)
+					(name "~"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
 		(symbol "power:VDD"
 			(power)
 			(pin_names
@@ -5131,12 +5381,6 @@
 		(uuid "2545e59b-906e-4329-838f-56498629f06b")
 	)
 	(junction
-		(at 121.92 52.07)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "2ec44761-6d82-4848-9cce-053c0db8bf41")
-	)
-	(junction
 		(at 140.97 59.69)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -5173,6 +5417,12 @@
 		(uuid "3d5d9e19-bfb4-4aff-8e06-809e9aa73a5f")
 	)
 	(junction
+		(at 90.17 109.22)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "465ca8ab-0726-4847-8ab6-d9d182d2fe2f")
+	)
+	(junction
 		(at 109.22 52.07)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -5197,10 +5447,10 @@
 		(uuid "5a0860d4-f64d-4a2d-bcf0-b82b74e73ce3")
 	)
 	(junction
-		(at 62.23 33.02)
+		(at 92.71 52.07)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "5c2b9753-6688-4f18-a8d0-7fcd8eb008c6")
+		(uuid "5d6fec6d-ee2b-41d5-87fd-bf576963ec75")
 	)
 	(junction
 		(at 55.88 101.6)
@@ -5213,12 +5463,6 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "5ef0e24f-97d1-4a04-ae5b-9051fe459b78")
-	)
-	(junction
-		(at 90.17 109.22)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "62ad884c-d61f-4193-bbde-af7d7e51f2d0")
 	)
 	(junction
 		(at 134.62 59.69)
@@ -5257,16 +5501,16 @@
 		(uuid "7214f459-412b-4a99-a8c7-167e36f1f197")
 	)
 	(junction
-		(at 96.52 52.07)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "72d54f43-e755-495c-9002-c4c75d318b9f")
-	)
-	(junction
 		(at 140.97 52.07)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "75239dff-ad32-438e-94c4-1cf77cb56f24")
+	)
+	(junction
+		(at 62.23 33.02)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "75c3f0a9-5921-435b-8583-f0dccd3870d7")
 	)
 	(junction
 		(at 120.65 146.05)
@@ -5305,12 +5549,6 @@
 		(uuid "a2cdad54-154b-4d53-b675-114152361f30")
 	)
 	(junction
-		(at 102.87 52.07)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "abc68f1b-e762-4920-9ebb-c0b7f834e625")
-	)
-	(junction
 		(at 161.29 66.04)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -5327,12 +5565,6 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "c53cef67-861c-4f27-b1b6-645a46fede44")
-	)
-	(junction
-		(at 121.92 59.69)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "cb79b3d2-73ed-4696-b6e7-674d25cf56e8")
 	)
 	(junction
 		(at 96.52 59.69)
@@ -5844,6 +6076,16 @@
 	)
 	(wire
 		(pts
+			(xy 86.36 109.22) (xy 90.17 109.22)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "06dd0a7a-f37f-4a21-adf7-6cc56151c290")
+	)
+	(wire
+		(pts
 			(xy 203.2 60.96) (xy 231.14 60.96)
 		)
 		(stroke
@@ -6254,16 +6496,6 @@
 	)
 	(wire
 		(pts
-			(xy 96.52 52.07) (xy 102.87 52.07)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "2c7eb53b-aa9a-4bf0-a592-7766e9bffbe2")
-	)
-	(wire
-		(pts
 			(xy 166.37 149.86) (xy 166.37 176.53)
 		)
 		(stroke
@@ -6524,6 +6756,16 @@
 	)
 	(wire
 		(pts
+			(xy 92.71 52.07) (xy 96.52 52.07)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "4217a757-f723-454e-ba2a-908465c764cd")
+	)
+	(wire
+		(pts
 			(xy 194.31 110.49) (xy 199.39 110.49)
 		)
 		(stroke
@@ -6531,6 +6773,16 @@
 			(type default)
 		)
 		(uuid "42ed971e-daa9-4d64-baa5-cdf9ca71c872")
+	)
+	(wire
+		(pts
+			(xy 90.17 109.22) (xy 93.98 109.22)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "43897e0d-8c87-4acd-bbfb-f76843e145e1")
 	)
 	(wire
 		(pts
@@ -6574,7 +6826,7 @@
 	)
 	(wire
 		(pts
-			(xy 90.17 52.07) (xy 96.52 52.07)
+			(xy 90.17 52.07) (xy 92.71 52.07)
 		)
 		(stroke
 			(width 0)
@@ -6764,7 +7016,7 @@
 	)
 	(wire
 		(pts
-			(xy 115.57 52.07) (xy 121.92 52.07)
+			(xy 115.57 52.07) (xy 128.27 52.07)
 		)
 		(stroke
 			(width 0)
@@ -6911,16 +7163,6 @@
 			(type default)
 		)
 		(uuid "6f8d41a2-f068-4909-8578-6dd3aa310f1c")
-	)
-	(wire
-		(pts
-			(xy 121.92 52.07) (xy 128.27 52.07)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "70723a5a-913d-49b4-8847-fc1d1dc04fb4")
 	)
 	(wire
 		(pts
@@ -7384,16 +7626,6 @@
 	)
 	(wire
 		(pts
-			(xy 86.36 109.22) (xy 90.17 109.22)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "978bf6a1-f452-46f2-bb94-ac2008f0e7e2")
-	)
-	(wire
-		(pts
 			(xy 193.04 50.8) (xy 231.14 50.8)
 		)
 		(stroke
@@ -7604,7 +7836,7 @@
 	)
 	(wire
 		(pts
-			(xy 121.92 59.69) (xy 128.27 59.69)
+			(xy 115.57 59.69) (xy 128.27 59.69)
 		)
 		(stroke
 			(width 0)
@@ -7734,6 +7966,16 @@
 	)
 	(wire
 		(pts
+			(xy 62.23 33.02) (xy 66.04 33.02)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c02f2133-7f3e-4693-a24e-504502a88bf5")
+	)
+	(wire
+		(pts
 			(xy 38.1 101.6) (xy 40.64 101.6)
 		)
 		(stroke
@@ -7741,26 +7983,6 @@
 			(type default)
 		)
 		(uuid "c269a7b7-1007-4176-9d7d-f996874a3528")
-	)
-	(wire
-		(pts
-			(xy 90.17 109.22) (xy 93.98 109.22)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "c3d7b6da-8072-4940-bb95-dec18147de14")
-	)
-	(wire
-		(pts
-			(xy 115.57 59.69) (xy 121.92 59.69)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "c68f010d-1ce6-4548-a2b6-23589948b397")
 	)
 	(wire
 		(pts
@@ -8111,16 +8333,6 @@
 			(type default)
 		)
 		(uuid "ed18f2bc-c43c-4613-954b-6ff5d7096f6d")
-	)
-	(wire
-		(pts
-			(xy 62.23 33.02) (xy 66.04 33.02)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "ee62eea5-3a73-41d2-85bc-7b79d0c28f9e")
 	)
 	(wire
 		(pts
@@ -8865,6 +9077,72 @@
 		)
 	)
 	(symbol
+		(lib_id "power:VD")
+		(at 90.17 109.22 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "03e250bf-8908-4afd-b6e7-4d51ae531c67")
+		(property "Reference" "#PWR0145"
+			(at 90.17 113.03 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "VD"
+			(at 90.17 104.14 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 90.17 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 90.17 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"VD\""
+			(at 90.17 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "7d82a049-10d9-4c42-be82-cda496a42f13")
+		)
+		(instances
+			(project "misrc_v2.5"
+				(path "/bc796fa4-76ff-4554-a44c-2597c6c5788e"
+					(reference "#PWR0145")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "cb3lv-5i-40m0000_p:CB3LV-5I-40M0000")
 		(at 13.97 107.95 0)
 		(unit 1)
@@ -9278,7 +9556,7 @@
 				(justify right)
 			)
 		)
-		(property "Value" "10R"
+		(property "Value" "10"
 			(at 66.548 155.194 90)
 			(effects
 				(font
@@ -9453,138 +9731,6 @@
 			(project "misrc_v2.5"
 				(path "/bc796fa4-76ff-4554-a44c-2597c6c5788e"
 					(reference "#PWR01")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:C")
-		(at 121.92 55.88 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "1232050f-1ffe-4b64-bf45-9b95e001557f")
-		(property "Reference" "C2"
-			(at 120.65 49.53 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "1µ"
-			(at 123.19 58.42 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
-			(at 122.8852 59.69 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 121.92 55.88 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 121.92 55.88 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Manufacturer_Part_Number" "UMK107AB7105KA-T"
-			(at 121.92 55.88 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "LCSC Part #" "C105174"
-			(at 121.92 55.88 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "FT Rotation Offset" ""
-			(at 121.92 55.88 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Max Tolerance" "10%"
-			(at 121.92 55.88 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Part Selection Note" ""
-			(at 121.92 55.88 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Capacitor Ceramic" "X7R"
-			(at 121.92 55.88 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Alternative Part" ""
-			(at 121.92 55.88 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "2460e565-ffd9-472a-a965-97853689154f")
-		)
-		(pin "2"
-			(uuid "4b22c04d-19b2-496f-b789-61b56b7f0267")
-		)
-		(instances
-			(project "MISRC_v3.0"
-				(path "/bc796fa4-76ff-4554-a44c-2597c6c5788e"
-					(reference "C2")
 					(unit 1)
 				)
 			)
@@ -10563,72 +10709,6 @@
 		)
 	)
 	(symbol
-		(lib_id "power:VDD")
-		(at 100.33 114.3 0)
-		(mirror y)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "32109333-bc46-4812-9553-14b5b8d6f467")
-		(property "Reference" "#PWR03"
-			(at 100.33 118.11 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "VDD"
-			(at 104.14 113.03 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 100.33 114.3 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 100.33 114.3 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 100.33 114.3 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "a3c25de0-02c1-449b-86b7-6792d867413b")
-		)
-		(instances
-			(project "misrc_v2.5"
-				(path "/bc796fa4-76ff-4554-a44c-2597c6c5788e"
-					(reference "#PWR03")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "power:GND")
 		(at 279.4 147.32 0)
 		(unit 1)
@@ -11551,7 +11631,7 @@
 				(justify right)
 			)
 		)
-		(property "Value" "10R"
+		(property "Value" "10"
 			(at 73.406 155.194 90)
 			(effects
 				(font
@@ -11975,6 +12055,94 @@
 			(project "MISRC_v3.0"
 				(path "/bc796fa4-76ff-4554-a44c-2597c6c5788e"
 					(reference "#PWR0250")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:FerriteBead")
+		(at 33.02 46.99 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "5004e66e-9363-4009-9c48-4065c7f483f3")
+		(property "Reference" "FB3"
+			(at 33.02 43.434 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "1k@100MHz,280@10MHz"
+			(at 33.02 44.958 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+		(property "Footprint" "Inductor_SMD:L_0603_1608Metric"
+			(at 31.242 46.99 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 33.02 46.99 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Ferrite bead"
+			(at 33.02 46.99 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "LCSC Part #" "C85824"
+			(at 33.02 46.99 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part_Number" "BLM18AG102SN1D"
+			(at 33.02 46.99 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "235faf70-600f-499b-aae6-8280317c484d")
+		)
+		(pin "2"
+			(uuid "00cff47c-4946-4448-b7de-721dd4e239ae")
+		)
+		(instances
+			(project "misrc_v2.5"
+				(path "/bc796fa4-76ff-4554-a44c-2597c6c5788e"
+					(reference "FB3")
 					(unit 1)
 				)
 			)
@@ -12500,6 +12668,71 @@
 			(project "MISRC_v3.0"
 				(path "/bc796fa4-76ff-4554-a44c-2597c6c5788e"
 					(reference "H2")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:VCCQ")
+		(at 33.02 43.18 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "5bc6f902-b56b-427c-8e5d-e540d68e3adc")
+		(property "Reference" "#PWR0149"
+			(at 33.02 46.99 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "VCCQ"
+			(at 33.274 39.37 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 33.02 43.18 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 33.02 43.18 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"VCCQ\""
+			(at 33.02 43.18 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "8dcd9cd1-94b0-4efc-b574-a2b5b66b770d")
+		)
+		(instances
+			(project "misrc_v2.5"
+				(path "/bc796fa4-76ff-4554-a44c-2597c6c5788e"
+					(reference "#PWR0149")
 					(unit 1)
 				)
 			)
@@ -13166,7 +13399,7 @@
 				(justify right)
 			)
 		)
-		(property "Value" "10R"
+		(property "Value" "10"
 			(at 208.28 97.79 90)
 			(effects
 				(font
@@ -14365,7 +14598,7 @@
 				(justify right)
 			)
 		)
-		(property "Value" "10R"
+		(property "Value" "10"
 			(at 76.708 129.794 90)
 			(effects
 				(font
@@ -14817,72 +15050,6 @@
 		)
 	)
 	(symbol
-		(lib_id "power:VDD")
-		(at 62.23 33.02 0)
-		(mirror y)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "9cf6f09f-d85f-4e4c-a175-3979e6a3baed")
-		(property "Reference" "#PWR068"
-			(at 62.23 36.83 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "VDD"
-			(at 61.722 29.21 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 62.23 33.02 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 62.23 33.02 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 62.23 33.02 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "dbe494f2-35bc-4e46-86c0-cefb854bf269")
-		)
-		(instances
-			(project "misrc_v2.5"
-				(path "/bc796fa4-76ff-4554-a44c-2597c6c5788e"
-					(reference "#PWR068")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_name "MountingHole_1")
 		(lib_id "Mechanical:MountingHole")
 		(at 39.37 162.56 0)
@@ -15210,6 +15377,138 @@
 		)
 	)
 	(symbol
+		(lib_id "power:VD")
+		(at 92.71 52.07 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "a39d6fc4-c12b-41df-a9ad-7a069243b884")
+		(property "Reference" "#PWR0147"
+			(at 92.71 55.88 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "VD"
+			(at 92.71 46.99 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 92.71 52.07 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 92.71 52.07 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"VD\""
+			(at 92.71 52.07 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "d24674db-3e34-4c1d-bf4f-0d8c2a725e21")
+		)
+		(instances
+			(project "misrc_v2.5"
+				(path "/bc796fa4-76ff-4554-a44c-2597c6c5788e"
+					(reference "#PWR0147")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:VD")
+		(at 100.33 114.3 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "a542f694-10b2-412d-b477-3898dc8e84f1")
+		(property "Reference" "#PWR0146"
+			(at 100.33 118.11 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "VD"
+			(at 100.33 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 100.33 114.3 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 100.33 114.3 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"VD\""
+			(at 100.33 114.3 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "a940ac7a-d2d7-4e19-bfa7-db08239f6103")
+		)
+		(instances
+			(project "misrc_v2.5"
+				(path "/bc796fa4-76ff-4554-a44c-2597c6c5788e"
+					(reference "#PWR0146")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "Device:R")
 		(at 78.74 102.87 180)
 		(unit 1)
@@ -15227,7 +15526,7 @@
 				(justify right)
 			)
 		)
-		(property "Value" "10R"
+		(property "Value" "10"
 			(at 79.756 100.076 90)
 			(effects
 				(font
@@ -16203,6 +16502,72 @@
 		)
 	)
 	(symbol
+		(lib_id "power:VD")
+		(at 62.23 33.02 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "c5177384-6ba4-4287-a092-69295995a90e")
+		(property "Reference" "#PWR0143"
+			(at 62.23 36.83 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "VD"
+			(at 62.23 27.94 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 62.23 33.02 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 62.23 33.02 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"VD\""
+			(at 62.23 33.02 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "f0c2810c-6899-47ac-ba58-1755d9e8aa00")
+		)
+		(instances
+			(project "misrc_v2.5"
+				(path "/bc796fa4-76ff-4554-a44c-2597c6c5788e"
+					(reference "#PWR0143")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "Device:C")
 		(at 22.86 100.33 270)
 		(unit 1)
@@ -16335,16 +16700,16 @@
 		)
 	)
 	(symbol
-		(lib_id "power:VDD")
+		(lib_id "power:VD")
 		(at 78.74 38.1 0)
-		(mirror y)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "c6a633b5-7483-4fca-8495-7d070df56913")
-		(property "Reference" "#PWR069"
+		(fields_autoplaced yes)
+		(uuid "c8d8b70b-eeee-4689-b51f-b7285c9c9efd")
+		(property "Reference" "#PWR0144"
 			(at 78.74 41.91 0)
 			(effects
 				(font
@@ -16353,8 +16718,8 @@
 				(hide yes)
 			)
 		)
-		(property "Value" "VDD"
-			(at 82.55 36.83 0)
+		(property "Value" "VD"
+			(at 78.74 33.02 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -16379,7 +16744,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Power symbol creates a global label with name \"VD\""
 			(at 78.74 38.1 0)
 			(effects
 				(font
@@ -16389,12 +16754,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "91b4d352-3182-4f87-80d4-87d67af00182")
+			(uuid "3c6ef0a7-be42-45c9-bf8a-0347021eb212")
 		)
 		(instances
 			(project "misrc_v2.5"
 				(path "/bc796fa4-76ff-4554-a44c-2597c6c5788e"
-					(reference "#PWR069")
+					(reference "#PWR0144")
 					(unit 1)
 				)
 			)
@@ -17041,6 +17406,72 @@
 		)
 	)
 	(symbol
+		(lib_id "power:VD")
+		(at 33.02 50.8 180)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "dc617b03-564f-4d3f-8593-131fd783b795")
+		(property "Reference" "#PWR0148"
+			(at 33.02 46.99 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "VD"
+			(at 33.02 55.88 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 33.02 50.8 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 33.02 50.8 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"VD\""
+			(at 33.02 50.8 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "e5020052-e0fd-436a-841d-dfc450662081")
+		)
+		(instances
+			(project ""
+				(path "/bc796fa4-76ff-4554-a44c-2597c6c5788e"
+					(reference "#PWR0148")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_name "MountingHole_1")
 		(lib_id "Mechanical:MountingHole")
 		(at 39.37 157.48 0)
@@ -17634,72 +18065,6 @@
 		)
 	)
 	(symbol
-		(lib_id "power:VDD")
-		(at 90.17 109.22 0)
-		(mirror y)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "e3183c42-f989-4baa-bb12-dfb6b19f2c7a")
-		(property "Reference" "#PWR04"
-			(at 90.17 113.03 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "VDD"
-			(at 89.662 105.41 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 90.17 109.22 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 90.17 109.22 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 90.17 109.22 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "4861bcdc-0948-4362-a663-f12ed75638c9")
-		)
-		(instances
-			(project "misrc_v2.5"
-				(path "/bc796fa4-76ff-4554-a44c-2597c6c5788e"
-					(reference "#PWR04")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "Device:R")
 		(at 76.2 90.17 0)
 		(unit 1)
@@ -17717,7 +18082,7 @@
 				(justify right)
 			)
 		)
-		(property "Value" "10R"
+		(property "Value" "10"
 			(at 73.914 87.884 90)
 			(effects
 				(font
@@ -18994,138 +19359,6 @@
 			(project "misrc_v2.5"
 				(path "/bc796fa4-76ff-4554-a44c-2597c6c5788e"
 					(reference "#PWR047")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:C")
-		(at 147.32 55.88 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "fba5bc47-3e3e-4064-b726-c95dffa91acb")
-		(property "Reference" "C31"
-			(at 148.59 53.34 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "1µ"
-			(at 148.59 58.42 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
-			(at 148.2852 59.69 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 147.32 55.88 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 147.32 55.88 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Manufacturer_Part_Number" "UMK107AB7105KA-T"
-			(at 147.32 55.88 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "LCSC Part #" "C105174"
-			(at 147.32 55.88 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "FT Rotation Offset" ""
-			(at 147.32 55.88 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Max Tolerance" "10%"
-			(at 147.32 55.88 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Part Selection Note" ""
-			(at 147.32 55.88 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Capacitor Ceramic" "X7R"
-			(at 147.32 55.88 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Alternative Part" ""
-			(at 147.32 55.88 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "e9543385-0268-43bb-bc99-6726eeeb68e7")
-		)
-		(pin "2"
-			(uuid "8a7685bf-ec47-4f0a-bbc6-870aa3b8c004")
-		)
-		(instances
-			(project "MISRC_v3.0"
-				(path "/bc796fa4-76ff-4554-a44c-2597c6c5788e"
-					(reference "C31")
 					(unit 1)
 				)
 			)

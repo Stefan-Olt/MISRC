@@ -6,7 +6,7 @@
 	(paper "A5")
 	(title_block
 		(title "MISRC")
-		(date "2025-10-23")
+		(date "2025-10-26")
 		(rev "2.5")
 		(comment 1 "Power supply")
 	)
