@@ -9351,7 +9351,7 @@
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
-		(on_board yes)
+		(on_board no)
 		(dnp yes)
 		(uuid "1d0c4fef-2d09-4fd4-b7fd-d24877dc8aa6")
 		(property "Reference" "J101/2"
@@ -9879,7 +9879,7 @@
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
-		(on_board yes)
+		(on_board no)
 		(dnp yes)
 		(uuid "281b94ec-7237-42e1-ab72-9604e8019869")
 		(property "Reference" "J101/3"
