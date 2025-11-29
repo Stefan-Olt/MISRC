@@ -75,9 +75,9 @@ make
 make install
 cd ../
 
-curl -L --silent -o "soxr-6f21980221f29652311b6c7aa263d2f2bc539063.tar.gz" "https://github.com/Stefan-Olt/soxr/archive/6f21980221f29652311b6c7aa263d2f2bc539063.tar.gz"
-tar xzf soxr-6f21980221f29652311b6c7aa263d2f2bc539063.tar.gz
-cd soxr-6f21980221f29652311b6c7aa263d2f2bc539063
+curl -L --silent -o "soxr-437e06c739eb825f229b58fa50a565f33f82cbd3.tar.gz" "https://github.com/Stefan-Olt/soxr/archive/437e06c739eb825f229b58fa50a565f33f82cbd3.tar.gz"
+tar xzf soxr-437e06c739eb825f229b58fa50a565f33f82cbd3.tar.gz
+cd soxr-437e06c739eb825f229b58fa50a565f33f82cbd3
 mkdir build
 cd build
 cmake -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DBUILD_SHARED_LIBS=OFF -DWITH_OPENMP=OFF -DCMAKE_INSTALL_PREFIX="${WORKSPACE}" ../
