@@ -1057,6 +1057,14 @@ int main(int argc, char **argv)
 		}
 	}
 
+	if(output_names[0] == NULL && output_names[1] == NULL && output_name_aux == NULL && output_name_raw == NULL) {
+		usage();
+	}
+	else {
+		cap_ctx.capture_rf = true;
+	}
+
+#if LIBSOXR_ENABLED == 1
 	for(int i=0; i<2; i++) {
 		switch (resample_qual[i]) {
 			case 0:
@@ -1079,15 +1087,6 @@ int main(int argc, char **argv)
 				usage();
 		}
 	}
-
-	if(output_names[0] == NULL && output_names[1] == NULL && output_name_aux == NULL && output_name_raw == NULL) {
-		usage();
-	}
-	else {
-		cap_ctx.capture_rf = true;
-	}
-
-#if LIBSOXR_ENABLED == 1
 	if(resample_rate[0] >= 40000.0 || resample_rate[1] >= 40000.0) {
 		fprintf(stderr, "ERROR: Resampling to rates higher than 40 MHz is not supported!\n");
 		usage();

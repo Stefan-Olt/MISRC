@@ -80,7 +80,7 @@ tar xzf soxr-0.1.3.tar.gz
 cd soxr-0.1.3
 mkdir build
 cd build
-cmake -DBUILD_SHARED_LIBS=OFF -DWITH_OPENMP=OFF -DCMAKE_INSTALL_PREFIX="${WORKSPACE}" ../
+cmake -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DBUILD_SHARED_LIBS=OFF -DWITH_OPENMP=OFF -DCMAKE_INSTALL_PREFIX="${WORKSPACE}" ../
 if [[ ("$OSTYPE" == "cygwin"*) || ("$OSTYPE" == "msys"*) ]]; then
   cmake --build .
   cmake --install .
