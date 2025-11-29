@@ -71,8 +71,6 @@ size_t sc_get_devices(sc_capture_dev_t **dev_list) {
 		close(fd);
 		if (r == 0) {
 			uint32_t caps = (cap.capabilities & V4L2_CAP_DEVICE_CAPS) ? cap.device_caps : cap.capabilities;
-			fprintf(stderr,"caps %04x devcaps %04x\n", cap.capabilities,cap.device_caps);
-			fprintf(stderr,"caps %04x capt %i capt_mplane %i\n", caps, caps&V4L2_CAP_VIDEO_CAPTURE, caps&V4L2_CAP_VIDEO_CAPTURE_MPLANE);
 			if(!((caps&V4L2_CAP_VIDEO_CAPTURE) || (caps&V4L2_CAP_VIDEO_CAPTURE_MPLANE))) continue;
 			dev_l[cnt].device_id = strdup(node);
 			dev_l[cnt].name = strdup((char*)cap.card);
@@ -150,17 +148,13 @@ static void* v4l2_thread(void* p) {
 		FD_SET(hc->fd, &fds);
 		struct timeval tv = {2, 0};
 		int r = select(hc->fd + 1, &fds, NULL, NULL, &tv);
-		//fprintf(stderr,"A\n");
 		if (r <= 0) continue;
-		//fprintf(stderr,"B\n");
 		struct v4l2_buffer buf;
 		memset(&buf, 0, sizeof(buf));
 		buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 		buf.memory = V4L2_MEMORY_MMAP;
 		if (ioctl(hc->fd, VIDIOC_DQBUF, &buf) == 0) {
-			//fprintf(stderr,"C\n");
 			if (buf.index < (uint32_t)hc->nbufs) {
-				//fprintf(stderr,"D %i\n",buf.bytesused);
 				hc->data_info.data = (uint8_t*)hc->bufs[buf.index].start;
 				hc->data_info.len = (uint32_t) buf.bytesused;
 				if (hc->cb && hc->data_info.data && hc->data_info.len > 0) {

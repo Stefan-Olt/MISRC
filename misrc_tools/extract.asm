@@ -45,6 +45,16 @@ default rel
 	%define outB r9
 %endif
 
+%if WIN
+	%define to32_in   rcx
+	%define to32_out  rdx
+	%define to32_len  r8
+%else
+	%define to32_in   rdi
+	%define to32_out  rsi
+	%define to32_len  rdx
+%endif
+
 %macro POPARGS 0
 	%if WIN
 		mov outA, [rsp+40]
@@ -525,11 +535,38 @@ loop_B_p_0:
 	jg loop_B_p_0
 	ret
 
+global convert_16to32_sse
+convert_16to32_sse:
+	pmovsxwd xmm0, [to32_in]
+	movdqa [to32_out], xmm0
+	add to32_in, 8
+	add to32_out, 16
+	sub to32_len, 4
+	jg convert_16to32_sse
+	ret
+
+global convert_16to32_avx
+convert_16to32_avx:
+	vpmovsxwd ymm0, [to32_in]
+	vmovdqa [to32_out], ymm0
+	add to32_in, 16
+	add to32_out, 32
+	sub to32_len, 8
+	jg convert_16to32_avx
+	ret
+
 global check_cpu_feat
 check_cpu_feat:
 	mov eax, 1
 	cpuid
-	and ecx, 0x00800201 ; check for SSE3, SSSE3 and popcnt
-	sub ecx, 0x00800201
-	mov eax, ecx
+	xor eax, eax
+	mov edx, ecx
+	and edx, 0x00800201 ; check for SSE3, SSSE3 and popcnt
+	sub edx, 0x00800201
+	jnz check_cpu_feat_end
+	inc eax
+	and ecx, 0x02000000 ; check for SSE4.1
+	jz check_cpu_feat_end
+	inc eax
+check_cpu_feat_end:
 	ret

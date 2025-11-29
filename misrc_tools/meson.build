@@ -100,15 +100,14 @@ else
   message('FLAC not found, building without FLAC support')
 endif
 
-swr_dep =  dependency('libswresample', required : false)
-avutil_dep =  dependency('libavutil', required : false)
-if swr_dep.found() and avutil_dep.found()
-  deps += [ swr_dep, avutil_dep ]
-  cflags += ['-DLIBSWRESAMPLE_ENABLED=1']
-  message('FFmpeg found, building with resample support')
+soxr_dep =  dependency('soxr', required : false)
+if soxr_dep.found()
+  deps += [ soxr_dep ]
+  cflags += ['-DLIBSOXR_ENABLED=1']
+  message('libsoxr found, building with resample support')
 else
-  cflags += ['-DLIBSWRESAMPLE_ENABLED=0']
-  message('FFmpeg not found, building without resample support')
+  cflags += ['-DLIBSOXR_ENABLED=0']
+  message('libsoxr not found, building without resample support')
 endif
 
 

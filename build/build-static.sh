@@ -75,23 +75,20 @@ make
 make install
 cd ../
 
-curl -L --silent -o "FFmpeg-n8.0.tar.gz" "https://github.com/FFmpeg/FFmpeg/archive/refs/tags/n8.0.tar.gz"
-tar xzf FFmpeg-n8.0.tar.gz
-cd FFmpeg-n8.0
-
+curl -L --silent -o "soxr-0.1.3.tar.gz" "https://github.com/chirlu/soxr/archive/refs/tags/0.1.3.tar.gz"
+tar xzf soxr-0.1.3.tar.gz
+cd soxr-0.1.3
+mkdir build
+cd build
+cmake -DBUILD_SHARED_LIBS=OFF -DWITH_OPENMP=OFF -DCMAKE_INSTALL_PREFIX="${WORKSPACE}" ../
 if [[ ("$OSTYPE" == "cygwin"*) || ("$OSTYPE" == "msys"*) ]]; then
-  echo "Build FFmpeg on $OSTYPE $MSYSTEM_CARCH"
-  if [[ ("$MSYSTEM_CARCH" == "arm64") || ("$MSYSTEM_CARCH" == "aarch64") ]]; then
-    ./configure --enable-static --disable-shared --disable-programs --enable-gpl --enable-version3 --disable-avdevice --disable-avcodec --disable-avformat --disable-swscale --disable-avfilter --disable-doc --prefix="${WORKSPACE}" --cc=clang --cxx=clang++ --arch=arm64
-  else
-    ./configure --enable-static --disable-shared --disable-programs --enable-gpl --enable-version3 --disable-avdevice --disable-avcodec --disable-avformat --disable-swscale --disable-avfilter --disable-doc --prefix="${WORKSPACE}"
-  fi
+  cmake --build .
+  cmake --install .
 else
-  ./configure --enable-static --disable-shared --disable-programs --enable-gpl --enable-version3 --disable-avdevice --disable-avcodec --disable-avformat --disable-swscale --disable-avfilter --disable-doc --prefix="${WORKSPACE}"
+  make
+  make install
 fi
-make
-make install
-cd ../
+cd ../../
 
 curl -L --silent -o "hsdaoh-ecd5f835ffad911e7b0b73d905e70cddc898c1ab.tar.gz" "https://github.com/Stefan-Olt/hsdaoh/archive/ecd5f835ffad911e7b0b73d905e70cddc898c1ab.tar.gz"
 tar xzf hsdaoh-ecd5f835ffad911e7b0b73d905e70cddc898c1ab.tar.gz

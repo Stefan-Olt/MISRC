@@ -227,6 +227,13 @@ void extract_AB_p_32_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int
 	}
 }
 
+void convert_16to32_C(int16_t *in, int32_t *out, size_t len) {
+	for(size_t i = 0; i < len; i++)
+	{
+		out[i] = in[i];
+	}
+}
+
 conv_function_t get_conv_function(uint8_t single, uint8_t pad, uint8_t dword, void* outA, void* outB) {
 
 	if (outA == NULL && outB == NULL) {
@@ -235,7 +242,7 @@ conv_function_t get_conv_function(uint8_t single, uint8_t pad, uint8_t dword, vo
 	}
 
 #if defined(__x86_64__) || defined(_M_X64)
-	if(check_cpu_feat()==0) {
+	if(check_cpu_feat()>=1) {
 		fprintf(stderr,"Detected processor with SSSE3 and POPCNT, using optimized extraction routine\n\n");
 		if (dword==0) {
 			if (pad==1) {
@@ -299,4 +306,18 @@ conv_function_t get_conv_function(uint8_t single, uint8_t pad, uint8_t dword, vo
 	}
 #endif
 }
-    
+
+conv_16to32_t get_16to32_function() {
+#if defined(__x86_64__) || defined(_M_X64)
+	if(check_cpu_feat()>=2) {
+		fprintf(stderr,"Detected processor with SSE4.1, using optimized resampling/repacking routine\n");
+		return (conv_16to32_t) &convert_16to32_sse;
+	}
+	else {
+		fprintf(stderr,"Detected processor without SSE4.1, using standard resampling/repacking routine\n");
+#endif
+		return (conv_16to32_t) &convert_16to32_C;
+#if defined(__x86_64__) || defined(_M_X64)
+	}
+#endif
+}

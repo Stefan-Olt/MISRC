@@ -1,6 +1,6 @@
 /*
 * extract_test
-* Copyright (C) 2024  vrunk11, stefan_o
+* Copyright (C) 2024-2025  vrunk11, stefan_o
 * 
 * This program will test the extraction functions
 *
@@ -21,10 +21,10 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
-
+#include <time.h>
 #include "extract.h"
 
-#define BUFSIZE ((2<<16)*1024)
+#define BUFSIZE ((2<<19)*1024)
 
 typedef struct {
 	conv_function_t C;
@@ -40,7 +40,8 @@ int main() {
 	void *bufBa, *bufBb;
 	void *bufAUXa, *bufAUXb;
 	size_t clipa[2], clipb[2];
-
+	clock_t time_start, time_end, time_a, time_b, time_c;
+	
 	conv_test_t cvs[] = {
 		/* 0*/ {extract_A_C, extract_A_sse, BUFSIZE>>1, 0 },
 		/* 1*/ {extract_B_C, extract_B_sse, 0, BUFSIZE>>1 },
@@ -58,18 +59,20 @@ int main() {
 		/*13*/ {extract_AB_p_32_C, extract_AB_p_32_sse, BUFSIZE, BUFSIZE}
 	};
 
+	fprintf(stderr,"Testing C and ASM extraction functions by comparison with random data.\n");
+
+	fprintf(stderr,"Gathering random data...\n");
+
 	rnd = fopen("/dev/urandom","rb");
-	buf = malloc(BUFSIZE);
-	bufAa = malloc(BUFSIZE);
-	bufAb = malloc(BUFSIZE);
-	bufBa = malloc(BUFSIZE);
-	bufBb = malloc(BUFSIZE);
-	bufAUXa = malloc(BUFSIZE);
-	bufAUXb = malloc(BUFSIZE);
+	buf = aligned_alloc(32,BUFSIZE);
+	bufAa = aligned_alloc(32,BUFSIZE);
+	bufAb = aligned_alloc(32,BUFSIZE);
+	bufBa = aligned_alloc(32,BUFSIZE);
+	bufBb = aligned_alloc(32,BUFSIZE);
+	bufAUXa = aligned_alloc(32,BUFSIZE);
+	bufAUXb = aligned_alloc(32,BUFSIZE);
 	fread(buf,1,BUFSIZE,rnd);
 	fclose(rnd);
-
-	fprintf(stderr,"Testing C and ASM extraction functions by comparison with random data.\n");
 
 	for(int i=0; i<sizeof(cvs)/sizeof(cvs[0]);i++) {
 		fprintf(stderr,"Testing %i...\n", i);
@@ -77,26 +80,61 @@ int main() {
 		clipa[1] = 0;
 		clipb[0] = 0;
 		clipb[1] = 0;
+		time_start = clock();
 		cvs[i].C(buf,BUFSIZE>>2,clipa,bufAUXa,bufAa,bufBa);
+		time_end = clock();
+		time_a = time_end - time_start;
+		time_start = clock();
 		cvs[i].S(buf,BUFSIZE>>2,clipb,bufAUXb,bufAb,bufBb);
+		time_end = clock();
+		time_b = time_end - time_start;
 		if(cvs[i].a_cmp > 0) {
 			if(clipa[0] != clipb[0]) fprintf(stderr, "%i Incorrect Clip A: %ul vs %ul\n", i, clipa[0], clipb[0]);
-			if(memcmp(bufAa,bufAb,cvs[i].a_cmp)!=0) {
-				fprintf(stderr, "%i Incorrect Buffer A\n", i);
-				for(int j=0;j<16;j++) {
-					fprintf(stderr, "%08x %08x %08x\n", *(((uint32_t*)(buf))+j),*(((uint32_t*)(bufAa))+j),*(((uint32_t*)(bufAb))+j));
+			uint64_t *a, *b;
+			size_t len = (cvs[i].a_cmp)>>3;
+			a = bufAa;
+			b = bufAb;
+			for(size_t j=0; j<len; j++) {
+				if (*a!=*b) {
+					fprintf(stderr, "%i Incorrect Buffer A at qword %i:\n", i, j);
+					fprintf(stderr, " %016x %016x\n",a,b);
 				}
+				a++;
+				b++;
 			}
 		}
 		if(cvs[i].b_cmp > 0) {
 			if(clipa[1] != clipb[1]) fprintf(stderr, "%i Incorrect Clip B: %ul vs %ul\n", i, clipa[1], clipb[1]);
-			if(memcmp(bufBa,bufBb,cvs[i].b_cmp)!=0) {
-				fprintf(stderr, "%i Incorrect Buffer B\n", i);
-				for(int j=0;j<16;j++) {
-					fprintf(stderr, "%08x %08x %08x\n", *(((uint32_t*)(buf))+j),*(((uint32_t*)(bufBa))+j),*(((uint32_t*)(bufBb))+j));
+			uint64_t *a, *b;
+			size_t len = (cvs[i].a_cmp)>>3;
+			a = bufBa;
+			b = bufBb;
+			for(size_t j=0; j<len; j++) {
+				if (*a!=*b) {
+					fprintf(stderr, "%i Incorrect Buffer B at qword %i:\n", i, j);
+					fprintf(stderr, " %016x %016x\n",a,b);
 				}
+				a++;
+				b++;
 			}
 		}
+		fprintf(stderr, "%i: SSE version was %.2f %% faster\n", i, 100.0*(double)(time_a-time_b)/(double)(time_a));
 	}
+
+	fprintf(stderr,"Testing C and ASM resampling repacking functions with random data.\n");
+
+	time_start = clock();
+	convert_16to32_C(buf,bufAa,BUFSIZE>>2);
+	time_end = clock();
+	time_a = time_end - time_start;
+	time_start = clock();
+	convert_16to32_sse(buf,bufBa,BUFSIZE>>2);
+	time_end = clock();
+	time_b = time_end - time_start;
+	time_start = clock();
+	convert_16to32_avx(buf,bufBa,BUFSIZE>>2);
+	time_end = clock();
+	time_c = time_end - time_start;
+	fprintf(stderr, "SSE version was %.2f %% faster, AVX %.2f %%\n", 100.0*(double)(time_a-time_b)/(double)(time_a), 100.0*(double)(time_a-time_c)/(double)(time_a));
 	free(buf);
 }
