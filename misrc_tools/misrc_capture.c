@@ -162,7 +162,7 @@ typedef struct {
 	ringbuffer_t rb;
 	FILE *f;
 #if LIBSOXR_ENABLED == 1
-	uint32_t resample_rate;
+	double resample_rate;
 	uint32_t resample_qual;
 	float resample_gain;
 #endif
@@ -590,7 +590,7 @@ int raw_file_writer(void *ctx)
 	uint8_t *resample_buffer;
 	soxr_t resampler = NULL;
 	soxr_error_t soxr_err;
-	if (file_ctx->resample_rate!=0) {
+	if (file_ctx->resample_rate!=0.0) {
 		soxr_io_spec_t io_spec = soxr_io_spec(SOXR_INT16_S, SOXR_INT16_S);
 		soxr_quality_spec_t qual_spec = soxr_quality_spec(file_ctx->resample_qual, 0);
 		io_spec.scale = pow(10.0,file_ctx->resample_gain/20.0);
@@ -600,7 +600,7 @@ int raw_file_writer(void *ctx)
 			do_exit = 1;
 			return 0;
 		}
-		resampler = soxr_create(40000.0, (double)file_ctx->resample_rate, 1, &soxr_err, &io_spec, &qual_spec, NULL);
+		resampler = soxr_create(40000.0, file_ctx->resample_rate, 1, &soxr_err, &io_spec, &qual_spec, NULL);
 		if (!resampler || soxr_err!=0) {
 			fprintf(stderr, "ERROR: failed allocating resampling context: %s\n", soxr_err);
 			do_exit = 1;
@@ -664,7 +664,8 @@ int flac_file_writer(void *ctx)
 	uint8_t *resample_buffer_b;
 	soxr_t resampler = NULL;
 	soxr_error_t soxr_err;
-	if (file_ctx->resample_rate!=0) {
+	if (file_ctx->resample_rate!=0.0) {
+		srate = (uint32_t)(file_ctx->resample_rate);
 		resample_buffer = aligned_alloc(32, BUFFER_READ_SIZE);
 		resample_buffer_b = aligned_alloc(32, BUFFER_READ_SIZE);
 		soxr_io_spec_t io_spec = soxr_io_spec(SOXR_INT32_S, SOXR_INT16_S);
@@ -676,8 +677,7 @@ int flac_file_writer(void *ctx)
 			do_exit = 1;
 			return 0;
 		}
-		resampler = soxr_create(40000.0, (double)file_ctx->resample_rate, 1, &soxr_err, &io_spec, &qual_spec, NULL);
-		fprintf(stderr,"craete dre\n");
+		resampler = soxr_create(40000.0, file_ctx->resample_rate, 1, &soxr_err, &io_spec, &qual_spec, NULL);
 		if (!resampler || soxr_err!=0) {
 			fprintf(stderr, "ERROR: failed allocating resampling context: %s\n", soxr_err);
 			do_exit = 1;
@@ -1088,11 +1088,11 @@ int main(int argc, char **argv)
 	}
 
 #if LIBSOXR_ENABLED == 1
-	if(resample_rate[0] >= 40000 || resample_rate[1] >= 40000) {
+	if(resample_rate[0] >= 40000.0 || resample_rate[1] >= 40000.0) {
 		fprintf(stderr, "ERROR: Resampling to rates higher than 40 MHz is not supported!\n");
 		usage();
 	}
-	if(resample_rate[0] != 0 || resample_rate[1] != 0) {
+	if(resample_rate[0] != 0.0 || resample_rate[1] != 0.0) {
 		conv_16to32 = get_16to32_function();
 	}
 #endif
@@ -1103,7 +1103,7 @@ int main(int argc, char **argv)
 		flac_12bit = false;
 	}
 #if LIBSOXR_ENABLED == 1
-	if(flac_12bit && (resample_rate[0] != 0 || resample_rate[1] != 0)) {
+	if(flac_12bit && (resample_rate[0] != 0.0 || resample_rate[1] != 0.0)) {
 		fprintf(stderr, "Warning: You use resampling, this cannot be combined with 12 bit flac output, will output 16 bit flac.\n");
 		flac_12bit = false;
 	}
