@@ -555,6 +555,7 @@ convert_16to32_avx:
 
 global check_cpu_feat
 check_cpu_feat:
+	push rbx
 	mov eax, 1
 	cpuid
 	xor eax, eax
@@ -567,4 +568,5 @@ check_cpu_feat:
 	jz check_cpu_feat_end
 	inc eax
 check_cpu_feat_end:
+	pop rbx
 	ret
