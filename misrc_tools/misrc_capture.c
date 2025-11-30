@@ -1258,7 +1258,7 @@ int main(int argc, char **argv)
 
 
 	while (!do_exit) {
-		void *buf, *buf_out1, *buf_out2;
+		void *buf, *buf_out1 = NULL, *buf_out2 = NULL;
 		while((((buf = rb_read_ptr(&cap_ctx.rb, BUFFER_READ_SIZE*4)) == NULL) || 
 			  (output_names[0] != NULL && ((buf_out1 = rb_write_ptr(&thread_out_ctx[0].rb, BUFFER_READ_SIZE*out_size)) == NULL)) ||
 			  (output_names[1] != NULL && ((buf_out2 = rb_write_ptr(&thread_out_ctx[1].rb, BUFFER_READ_SIZE*out_size)) == NULL))) && 

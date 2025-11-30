@@ -273,7 +273,6 @@ loop_B_32_0:
 	popcnt eax, eax
 	add [clip+8], eax
 	add aux, 4
-	add outA, 16
 	add outB, 16
 	add in, 16
 	sub len, 4
@@ -304,7 +303,6 @@ loop_B_p_32_0:
 	popcnt eax, eax
 	add [clip+8], eax
 	add aux, 4
-	add outA, 16
 	add outB, 16
 	add in, 16
 	sub len, 4
