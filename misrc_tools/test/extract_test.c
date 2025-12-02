@@ -118,10 +118,10 @@ int main() {
 				b++;
 			}
 		}
-		fprintf(stderr, "%i: SSE version was %.2f %% faster\n", i, 100.0*(double)(time_a-time_b)/(double)(time_a));
+		fprintf(stderr, "%i: SSE version was %.2f times faster\n", i, (double)(time_a)/(double)(time_b));
 	}
 
-	fprintf(stderr,"Testing C and ASM resampling repacking functions with random data.\n");
+	fprintf(stderr,"Speed test of C and ASM resampling / repacking functions with random data.\n");
 
 	time_start = clock();
 	convert_16to32_C(buf,bufAa,BUFSIZE>>2);
@@ -135,6 +135,31 @@ int main() {
 	convert_16to32_avx(buf,bufBa,BUFSIZE>>2);
 	time_end = clock();
 	time_c = time_end - time_start;
-	fprintf(stderr, "SSE version was %.2f %% faster, AVX %.2f %%\n", 100.0*(double)(time_a-time_b)/(double)(time_a), 100.0*(double)(time_a-time_c)/(double)(time_a));
+	fprintf(stderr, "SSE version was %.2fx faster, AVX %.2fx\n", (double)(time_a)/(double)(time_b), (double)(time_a)/(double)(time_c));
+
+	fprintf(stderr,"Speed test of C and ASM 8-bit repacking functions with random data.\n");
+
+	time_start = clock();
+	convert_16to8_C(buf,bufAa,BUFSIZE>>2);
+	time_end = clock();
+	time_a = time_end - time_start;
+	time_start = clock();
+	convert_16to8_sse(buf,bufBa,BUFSIZE>>2);
+	time_end = clock();
+	time_b = time_end - time_start;
+	fprintf(stderr, "SSE version was %.2fx faster\n", (double)(time_a)/(double)(time_b));
+
+	fprintf(stderr,"Speed test of C and ASM 8to32-bit repacking functions with random data.\n");
+
+	time_start = clock();
+	convert_16to8to32_C(buf,bufAa,BUFSIZE>>2);
+	time_end = clock();
+	time_a = time_end - time_start;
+	time_start = clock();
+	convert_16to8to32_sse(buf,bufBa,BUFSIZE>>2);
+	time_end = clock();
+	time_b = time_end - time_start;
+	fprintf(stderr, "SSE version was %.2fx faster\n", (double)(time_a)/(double)(time_b));
+
 	free(buf);
 }

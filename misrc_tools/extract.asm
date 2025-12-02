@@ -533,6 +533,7 @@ loop_B_p_0:
 	jg loop_B_p_0
 	ret
 
+; SSE4.1
 global convert_16to32_sse
 convert_16to32_sse:
 	pmovsxwd xmm0, [to32_in]
@@ -543,6 +544,7 @@ convert_16to32_sse:
 	jg convert_16to32_sse
 	ret
 
+; AVX2
 global convert_16to32_avx
 convert_16to32_avx:
 	vpmovsxwd ymm0, [to32_in]
@@ -551,6 +553,40 @@ convert_16to32_avx:
 	add to32_out, 32
 	sub to32_len, 8
 	jg convert_16to32_avx
+	ret
+
+; SSE2
+global convert_16to8_sse
+convert_16to8_sse:
+	movdqa xmm0, [to32_in]
+	packsswb xmm0, [to32_in+16]
+	movdqa [to32_out], xmm0
+	add to32_in, 32
+	add to32_out, 16
+	sub to32_len, 16
+	jg convert_16to8_sse
+	ret
+
+; SSE4.1
+global convert_16to8to32_sse
+convert_16to8to32_sse:
+	movdqa xmm0, [to32_in]
+	packsswb xmm0, [to32_in+16]
+	pmovsxbd xmm1, xmm0
+	movdqa [to32_out], xmm1
+	psrldq xmm0, 4
+	pmovsxbd xmm1, xmm0
+	movdqa [to32_out+16], xmm1
+	psrldq xmm0, 4
+	pmovsxbd xmm1, xmm0
+	movdqa [to32_out+32], xmm1
+	psrldq xmm0, 4
+	pmovsxbd xmm1, xmm0
+	movdqa [to32_out+48], xmm1
+	add to32_in, 32
+	add to32_out, 64
+	sub to32_len, 16
+	jg convert_16to8to32_sse
 	ret
 
 global check_cpu_feat

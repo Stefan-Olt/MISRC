@@ -135,6 +135,8 @@ static const char* const _FLAC_StreamEncoderSetNumThreadsStatusString[] = {
 #define OPT_RESAMPLE_QUAL_B  268
 #define OPT_RESAMPLE_GAIN_A  269
 #define OPT_RESAMPLE_GAIN_B  270
+#define OPT_8BIT_A           271
+#define OPT_8BIT_B           272
 #if defined(__GNUC__)
 # define UNUSED(x) x __attribute__((unused))
 #else
@@ -162,9 +164,12 @@ typedef struct {
 	ringbuffer_t rb;
 	FILE *f;
 #if LIBSOXR_ENABLED == 1
+	conv_16to32_t conv_func;
+	double init_scale;
 	double resample_rate;
 	uint32_t resample_qual;
 	float resample_gain;
+	bool reduce_8bit;
 #endif
 #if LIBFLAC_ENABLED == 1
 	uint32_t flac_level;
@@ -189,6 +194,8 @@ static int new_line = 1;
 static hsdaoh_dev_t *hs_dev = NULL;
 static sc_handle_t *sc_dev = NULL;
 static conv_16to32_t conv_16to32 = NULL;
+static conv_16to32_t conv_16to8to32 = NULL;
+static conv_16to8_t conv_16to8 = NULL;
 
 static struct option getopt_long_options[] =
 {
@@ -205,6 +212,8 @@ static struct option getopt_long_options[] =
   {"suppress-clip-rf-a",   no_argument,       0, 'A'},
   {"suppress-clip-rf-b",   no_argument,       0, 'B'},
 #if LIBSOXR_ENABLED == 1
+  {"8bit-a",               no_argument,       0, OPT_8BIT_A},
+  {"8bit-b",               no_argument,       0, OPT_8BIT_B},
   {"resample-rf-a",        required_argument, 0, OPT_RESAMPLE_A},
   {"resample-rf-b",        required_argument, 0, OPT_RESAMPLE_B},
   {"resample-rf-quality-a",required_argument, 0, OPT_RESAMPLE_QUAL_A},
@@ -248,6 +257,8 @@ static char* usage_options[][2] =
   { "suppress clipping messages for ADC A (need to specify -a or -r as well)", NULL },
   { "suppress clipping messages for ADC B (need to specify -b or -r as well)", NULL },
 #if LIBSOXR_ENABLED == 1
+  { "reduce output from 12 bit to 8 bit for ADC A", NULL },
+  { "reduce output from 12 bit to 8 bit for ADC B", NULL },
   { "resample ADC A signal to given sample rate (in kHz)", "[samplerate]" },
   { "resample ADC B signal to given sample rate (in kHz)", "[samplerate]" },
   { "resample ADC A quality (0=quick ... 4=very high quality, default: 3)", "[quality]" },
@@ -588,14 +599,17 @@ int raw_file_writer(void *ctx)
 #if LIBSOXR_ENABLED == 1
 	/* setup resampling */
 	uint8_t *resample_buffer;
+	uint8_t *resample_buffer_b;
 	soxr_t resampler = NULL;
 	soxr_error_t soxr_err;
 	if (file_ctx->resample_rate!=0.0) {
 		soxr_io_spec_t io_spec = soxr_io_spec(SOXR_INT16_S, SOXR_INT16_S);
 		soxr_quality_spec_t qual_spec = soxr_quality_spec(file_ctx->resample_qual, 0);
-		io_spec.scale = pow(10.0,file_ctx->resample_gain/20.0);
+		io_spec.scale = file_ctx->init_scale;
+		io_spec.scale *= pow(10.0,file_ctx->resample_gain/20.0);
 		resample_buffer = aligned_alloc(32, BUFFER_READ_SIZE);
-		if (!resample_buffer) {
+		resample_buffer_b = aligned_alloc(32, BUFFER_READ_SIZE);
+		if (!resample_buffer || !resample_buffer_b) {
 			fprintf(stderr, "ERROR: failed allocating resampling buffer\n");
 			do_exit = 1;
 			return 0;
@@ -628,7 +642,13 @@ int raw_file_writer(void *ctx)
 				do_exit = 1;
 				return 0;
 			}
-			fwrite(resample_buffer, 1, out_len<<1, file_ctx->f);
+			if (file_ctx->reduce_8bit) {
+				conv_16to8((int16_t*)resample_buffer, (int8_t*)resample_buffer_b, out_len);
+				fwrite(resample_buffer_b, 1, out_len, file_ctx->f);
+			}
+			else {
+				fwrite(resample_buffer, 1, out_len<<1, file_ctx->f);
+			}
 		} else {
 			fwrite(buf, 1, len, file_ctx->f);
 		}
@@ -641,6 +661,7 @@ int raw_file_writer(void *ctx)
 #if LIBSOXR_ENABLED == 1
 	if (file_ctx->resample_rate!=0) {
 		aligned_free(resample_buffer);
+		aligned_free(resample_buffer_b);
 		soxr_delete(resampler);
 	}
 #endif
@@ -670,7 +691,7 @@ int flac_file_writer(void *ctx)
 		resample_buffer_b = aligned_alloc(32, BUFFER_READ_SIZE);
 		soxr_io_spec_t io_spec = soxr_io_spec(SOXR_INT32_S, SOXR_INT16_S);
 		soxr_quality_spec_t qual_spec = soxr_quality_spec(file_ctx->resample_qual, 0);
-		io_spec.scale = 65536.0;
+		io_spec.scale = file_ctx->init_scale;
 		io_spec.scale *= pow(10.0,file_ctx->resample_gain/20.0);
 		if (!resample_buffer || !resample_buffer_b) {
 			fprintf(stderr, "ERROR: failed allocating resampling buffer\n");
@@ -744,7 +765,7 @@ int flac_file_writer(void *ctx)
 				do_exit = 1;
 				return 0;
 			}
-			conv_16to32((int16_t*)resample_buffer, (int32_t*)resample_buffer_b, out_len);
+			file_ctx->conv_func((int16_t*)resample_buffer, (int32_t*)resample_buffer_b, out_len);
 			ok = FLAC__stream_encoder_process(encoder, (const FLAC__int32**)&resample_buffer_b, out_len);
 		} else {
 			ok = FLAC__stream_encoder_process(encoder, (const FLAC__int32**)&buf, len>>2);
@@ -869,6 +890,7 @@ int main(int argc, char **argv)
 	double resample_rate[] = {0.0,0.0};
 	uint32_t resample_qual[] = {3,3};
 	float resample_gain[] = {.0f,.0f};
+	bool reduce_8bit[] = {false, false};
 #endif
 	thrd_start_t output_thread_func = (thrd_start_t)raw_file_writer;
 	capture_ctx_t cap_ctx;
@@ -1025,6 +1047,12 @@ int main(int argc, char **argv)
 		case OPT_RESAMPLE_GAIN_B:
 			resample_gain[1] = atof(optarg);
 			break;
+		case OPT_8BIT_A:
+			reduce_8bit[0] = true;
+			break;
+		case OPT_8BIT_B:
+			reduce_8bit[1] = true;
+			break;
 #endif
 		case OPT_AUDIO_4CH_OUT:
 			output_name_4ch_audio = optarg;
@@ -1091,8 +1119,16 @@ int main(int argc, char **argv)
 		fprintf(stderr, "ERROR: Resampling to rates higher than 40 MHz is not supported!\n");
 		usage();
 	}
-	if(resample_rate[0] != 0.0 || resample_rate[1] != 0.0) {
+	if((resample_rate[0] != 0.0 || resample_rate[1] != 0.0) && out_size == 4) {
 		conv_16to32 = get_16to32_function();
+	}
+	if(reduce_8bit[0] || reduce_8bit[1]) {
+		if (out_size == 4) 
+			conv_16to8to32 = get_16to8to32_function();
+		else 
+			conv_16to8 = get_16to8_function();
+		if(reduce_8bit[0] && resample_rate[0]==0.0) resample_rate[0] = 40000.0;
+		if(reduce_8bit[1] && resample_rate[1]==0.0) resample_rate[1] = 40000.0;
 	}
 #endif
 
@@ -1146,11 +1182,22 @@ int main(int argc, char **argv)
 	for(int i=0; i<2; i++) {
 		if (output_names[i] != NULL) {
 			if (open_file(&(thread_out_ctx[i].f),output_names[i],overwrite_files)) return -ENOENT;
+			thread_out_ctx[i].reduce_8bit = reduce_8bit[i];
+			if (out_size == 4) {
+				thread_out_ctx[i].init_scale = (reduce_8bit[i]) ? ((pad==1) ? 256.0 : 4096.0) : 65536.0;
+			} else {
+				thread_out_ctx[i].init_scale = (reduce_8bit[i]) ? ((pad==1) ? 0.00390625 : 0.0625) : 1.0;
+			}
 #if LIBFLAC_ENABLED == 1
 			thread_out_ctx[i].flac_level = flac_level;
 			thread_out_ctx[i].flac_verify = flac_verify;
 			thread_out_ctx[i].flac_threads = flac_threads;
+#if LIBSOXR_ENABLED == 1
+			thread_out_ctx[i].flac_bits = reduce_8bit[i] ? 8 : (flac_12bit ? 12 : 16);
+			thread_out_ctx[i].conv_func = reduce_8bit[i] ? conv_16to8to32 : conv_16to32;
+#else
 			thread_out_ctx[i].flac_bits = flac_12bit ? 12 : 16;
+#endif
 #endif
 #if LIBSOXR_ENABLED == 1
 			thread_out_ctx[i].resample_rate = resample_rate[i];

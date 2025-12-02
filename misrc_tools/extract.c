@@ -1,6 +1,6 @@
 /*
 * MISRC tools
-* Copyright (C) 2024  vrunk11, stefan_o
+* Copyright (C) 2024-2025  vrunk11, stefan_o
 *
 * This program is free software: you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
@@ -234,13 +234,83 @@ void convert_16to32_C(int16_t *in, int32_t *out, size_t len) {
 	}
 }
 
+void convert_16to8to32_C(int16_t *in, int32_t *out, size_t len) {
+	for(size_t i = 0; i < len; i++)
+	{
+		out[i] = (in[i]>INT8_MAX) ? INT8_MAX : ((in[i]<INT8_MIN) ? INT8_MIN : in[i]);
+	}
+}
+
+void convert_16to8_C(int16_t *in, int8_t *out, size_t len) {
+	for(size_t i = 0; i < len; i++)
+	{
+		out[i] = (in[i]>INT8_MAX) ? INT8_MAX : ((in[i]<INT8_MIN) ? INT8_MIN : in[i]);
+	}
+}
+
+/* untested, therefore not used yet */
+#if defined(__aarch64__) || defined(__arm64__)
+#include <arm_neon.h>
+
+void convert_16to8_arm(int16_t *in, int8_t *out, size_t len)
+{
+	int16_t *src = in;
+	int8_t  *dst = out;
+#ifdef __builtin_assume_aligned
+	src = (int16_t *)__builtin_assume_aligned(src, 16);
+	dst = (int8_t  *)__builtin_assume_aligned(dst, 16);
+#endif
+	for (size_t i = 0; i < len; i += 16) {
+		int16x8_t a = vld1q_s16(src);       // load 8 x int16
+		int16x8_t b = vld1q_s16(src + 8);   // load next 8 x int16
+		int8x8_t   lo = vqmovn_s16(a);          // SQXTN: saturate+narrow low 8 -> int8x8_t
+		int8x16_t  v  = vqmovn_high_s16(lo, b); // SQXTN2: saturate+narrow high 8 into top half
+		vst1q_s8(dst, v);                   // store 16 x int8
+		src += 16;
+		dst += 16;
+	}
+}
+
+void convert_16to8to32_arm(int16_t *in, int32_t *out, size_t len)
+{
+	int16_t *src = in;
+	int32_t *dst = out;
+#ifdef __builtin_assume_aligned
+	src = (int16_t *)__builtin_assume_aligned(src, 16);
+	dst = (int8_t  *)__builtin_assume_aligned(dst, 16);
+#endif
+	for (size_t i = 0; i < len; i += 16) {
+		// Load 16 x int16_t as two 8-lane vectors
+		int16x8_t a = vld1q_s16(src);
+		int16x8_t b = vld1q_s16(src + 8);
+		// Saturating narrow to signed 8-bit ([-128, 127])
+		int8x8_t a8 = vqmovn_s16(a);
+		int8x8_t b8 = vqmovn_s16(b);
+		// Widen to signed 16-bit
+		int16x8_t a16 = vmovl_s8(a8);
+		int16x8_t b16 = vmovl_s8(b8);
+		// Widen to signed 32-bit (two 4-lane groups per 8-lane vector)
+		int32x4_t a32_lo = vmovl_s16(vget_low_s16(a16));
+		int32x4_t a32_hi = vmovl_s16(vget_high_s16(a16));
+		int32x4_t b32_lo = vmovl_s16(vget_low_s16(b16));
+		int32x4_t b32_hi = vmovl_s16(vget_high_s16(b16));
+		// Store 16 x int32_t
+		vst1q_s32(dst + 0,  a32_lo);
+		vst1q_s32(dst + 4,  a32_hi);
+		vst1q_s32(dst + 8,  b32_lo);
+		vst1q_s32(dst + 12, b32_hi);
+		src += 16;
+		dst += 16;
+	}
+}
+#endif
+
 conv_function_t get_conv_function(uint8_t single, uint8_t pad, uint8_t dword, void* outA, void* outB) {
 
 	if (outA == NULL && outB == NULL) {
 		if (single == 1) return (conv_function_t) &extract_XS_C;
 		else return (conv_function_t) &extract_X_C;
 	}
-
 #if defined(__x86_64__) || defined(_M_X64)
 	if(check_cpu_feat()>=1) {
 		fprintf(stderr,"Detected processor with SSSE3 and POPCNT, using optimized extraction routine\n\n");
@@ -319,5 +389,28 @@ conv_16to32_t get_16to32_function() {
 		return (conv_16to32_t) &convert_16to32_C;
 #if defined(__x86_64__) || defined(_M_X64)
 	}
+#endif
+}
+
+conv_16to32_t get_16to8to32_function() {
+#if defined(__x86_64__) || defined(_M_X64)
+	if(check_cpu_feat()>=2) {
+		fprintf(stderr,"Detected processor with SSE4.1, using optimized 8 bit repacking routine\n");
+		return (conv_16to32_t) &convert_16to8to32_sse;
+	}
+	else {
+		fprintf(stderr,"Detected processor without SSE4.1, using standard 8 bit repacking routine\n");
+#endif
+		return (conv_16to32_t) &convert_16to8to32_C;
+#if defined(__x86_64__) || defined(_M_X64)
+	}
+#endif
+}
+
+conv_16to8_t get_16to8_function() {
+#if defined(__x86_64__) || defined(_M_X64) // SSE2 is mandatory on x86_64
+	return (conv_16to8_t) &convert_16to8_sse;
+#else
+	return (conv_16to8_t) &convert_16to8_C;
 #endif
 }
