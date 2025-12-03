@@ -42,6 +42,7 @@ void extract_AB_p_32_sse(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, i
 void convert_16to32_sse (int16_t *in, int32_t *out, size_t len);
 void convert_16to32_avx (int16_t *in, int32_t *out, size_t len);
 void convert_16to8to32_sse (int16_t *in, int32_t *out, size_t len);
+void convert_16to12to32_sse (int16_t *in, int32_t *out, size_t len);
 void convert_16to8_sse (int16_t *in, int8_t *out, size_t len);
 
 int check_cpu_feat();
@@ -69,6 +70,7 @@ void extract_S_p_32_C (uint16_t *in, size_t len, size_t *clip, uint8_t *aux, int
 
 void convert_16to32_C (int16_t *in, int32_t *out, size_t len);
 void convert_16to8to32_C (int16_t *in, int32_t *out, size_t len);
+void convert_16to12to32_C (int16_t *in, int32_t *out, size_t len);
 void convert_16to8_C (int16_t *in, int8_t *out, size_t len);
 
 void extract_audio_2ch_C  (uint16_t *in, size_t len, uint16_t *out12, uint16_t *out34);
@@ -77,6 +79,7 @@ void extract_audio_1ch_C  (uint8_t  *in, size_t len, uint8_t   *out1, uint8_t  *
 conv_function_t get_conv_function(uint8_t single, uint8_t pad, uint8_t dword, void* outA, void* outB);
 conv_16to32_t get_16to32_function();
 conv_16to32_t get_16to8to32_function();
+conv_16to32_t get_16to12to32_function();
 conv_16to8_t get_16to8_function();
 
 #endif // EXTRACT_H

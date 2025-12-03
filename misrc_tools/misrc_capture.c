@@ -195,6 +195,7 @@ static hsdaoh_dev_t *hs_dev = NULL;
 static sc_handle_t *sc_dev = NULL;
 static conv_16to32_t conv_16to32 = NULL;
 static conv_16to32_t conv_16to8to32 = NULL;
+static conv_16to32_t conv_16to12to32 = NULL;
 static conv_16to8_t conv_16to8 = NULL;
 
 static struct option getopt_long_options[] =
@@ -1120,7 +1121,11 @@ int main(int argc, char **argv)
 		usage();
 	}
 	if((resample_rate[0] != 0.0 || resample_rate[1] != 0.0) && out_size == 4) {
-		conv_16to32 = get_16to32_function();
+		if (flac_12bit) {
+			conv_16to12to32 = get_16to12to32_function();
+		} else {
+			conv_16to32 = get_16to32_function();
+		}
 	}
 	if(reduce_8bit[0] || reduce_8bit[1]) {
 		if (out_size == 4) 
@@ -1137,12 +1142,12 @@ int main(int argc, char **argv)
 		fprintf(stderr, "Warning: You enabled padding the lower 4 bits, but requested 12 bit flac output, this is not possible, will output 16 bit flac.\n");
 		flac_12bit = false;
 	}
-#if LIBSOXR_ENABLED == 1
+/*#if LIBSOXR_ENABLED == 1
 	if(flac_12bit && (resample_rate[0] != 0.0 || resample_rate[1] != 0.0)) {
 		fprintf(stderr, "Warning: You use resampling, this cannot be combined with 12 bit flac output, will output 16 bit flac.\n");
 		flac_12bit = false;
 	}
-#endif
+#endif*/
 # if defined(FLAC_API_VERSION_CURRENT) && FLAC_API_VERSION_CURRENT >= 14
 	if (flac_threads == 0) {
 		int out_cnt = ((output_names[0] == NULL) ? 0 : 1) + ((output_names[1] == NULL) ? 0 : 1);
@@ -1194,7 +1199,7 @@ int main(int argc, char **argv)
 			thread_out_ctx[i].flac_threads = flac_threads;
 #if LIBSOXR_ENABLED == 1
 			thread_out_ctx[i].flac_bits = reduce_8bit[i] ? 8 : (flac_12bit ? 12 : 16);
-			thread_out_ctx[i].conv_func = reduce_8bit[i] ? conv_16to8to32 : conv_16to32;
+			thread_out_ctx[i].conv_func = reduce_8bit[i] ? conv_16to8to32 : (flac_12bit ? conv_16to12to32 : conv_16to32);
 #else
 			thread_out_ctx[i].flac_bits = flac_12bit ? 12 : 16;
 #endif

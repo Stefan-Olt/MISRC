@@ -544,6 +544,21 @@ convert_16to32_sse:
 	jg convert_16to32_sse
 	ret
 
+; SSE4.1
+global convert_16to12to32_sse
+convert_16to12to32_sse:
+	pmovsxwd xmm0, [to32_in]
+	pslld xmm0, 4
+	packssdw xmm0, xmm0
+	pmovsxwd xmm0, xmm0
+	psrad xmm0, 4
+	movdqa [to32_out], xmm0
+	add to32_in, 8
+	add to32_out, 16
+	sub to32_len, 4
+	jg convert_16to12to32_sse
+	ret
+
 ; AVX2
 global convert_16to32_avx
 convert_16to32_avx:

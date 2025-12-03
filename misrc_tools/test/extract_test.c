@@ -121,7 +121,7 @@ int main() {
 		fprintf(stderr, "%i: SSE version was %.2f times faster\n", i, (double)(time_a)/(double)(time_b));
 	}
 
-	fprintf(stderr,"Speed test of C and ASM resampling / repacking functions with random data.\n");
+	fprintf(stderr,"Test of C and ASM resampling / repacking functions with random data.\n");
 
 	time_start = clock();
 	convert_16to32_C(buf,bufAa,BUFSIZE>>2);
@@ -132,24 +132,63 @@ int main() {
 	time_end = clock();
 	time_b = time_end - time_start;
 	time_start = clock();
-	convert_16to32_avx(buf,bufBa,BUFSIZE>>2);
+	convert_16to32_avx(buf,bufBb,BUFSIZE>>2);
 	time_end = clock();
 	time_c = time_end - time_start;
+	{
+		int32_t *a = (int32_t*)bufAa;
+		int32_t *b = (int32_t*)bufBa;
+		fprintf(stderr,"Verify SSE version.\n");
+		for(size_t j=0; j<BUFSIZE>>2; j++) {
+			if (*a!=*b) {
+				fprintf(stderr, "Incorrect Buffer B at dword %i:\n", j);
+				fprintf(stderr, " %016x %016x\n",a,b);
+			}
+			a++;
+			b++;
+		}
+	}
+	{
+		int32_t *a = (int32_t*)bufAa;
+		int32_t *b = (int32_t*)bufBb;
+		fprintf(stderr,"Verify AVX version.\n");
+		for(size_t j=0; j<BUFSIZE>>2; j++) {
+			if (*a!=*b) {
+				fprintf(stderr, "Incorrect Buffer B at dword %i:\n", j);
+				fprintf(stderr, " %016x %016x\n",a,b);
+			}
+			a++;
+			b++;
+		}
+	}
 	fprintf(stderr, "SSE version was %.2fx faster, AVX %.2fx\n", (double)(time_a)/(double)(time_b), (double)(time_a)/(double)(time_c));
 
-	fprintf(stderr,"Speed test of C and ASM 8-bit repacking functions with random data.\n");
+	fprintf(stderr,"Test of C and ASM 8-bit repacking functions with random data.\n");
 
 	time_start = clock();
-	convert_16to8_C(buf,bufAa,BUFSIZE>>2);
+	convert_16to8_C(buf,bufAa,BUFSIZE>>1);
 	time_end = clock();
 	time_a = time_end - time_start;
 	time_start = clock();
-	convert_16to8_sse(buf,bufBa,BUFSIZE>>2);
+	convert_16to8_sse(buf,bufBa,BUFSIZE>>1);
 	time_end = clock();
 	time_b = time_end - time_start;
+	{
+		int8_t *a = (int32_t*)bufAa;
+		int8_t *b = (int32_t*)bufBa;
+		fprintf(stderr,"Verify SSE version.\n");
+		for(size_t j=0; j<BUFSIZE>>1; j++) {
+			if (*a!=*b) {
+				fprintf(stderr, "Incorrect Buffer B at dword %i:\n", j);
+				fprintf(stderr, " %016x %016x\n",a,b);
+			}
+			a++;
+			b++;
+		}
+	}
 	fprintf(stderr, "SSE version was %.2fx faster\n", (double)(time_a)/(double)(time_b));
 
-	fprintf(stderr,"Speed test of C and ASM 8to32-bit repacking functions with random data.\n");
+	fprintf(stderr,"Test of C and ASM 8to32-bit repacking functions with random data.\n");
 
 	time_start = clock();
 	convert_16to8to32_C(buf,bufAa,BUFSIZE>>2);
@@ -159,6 +198,44 @@ int main() {
 	convert_16to8to32_sse(buf,bufBa,BUFSIZE>>2);
 	time_end = clock();
 	time_b = time_end - time_start;
+	{
+		int32_t *a = (int32_t*)bufAa;
+		int32_t *b = (int32_t*)bufBa;
+		fprintf(stderr,"Verify SSE version.\n");
+		for(size_t j=0; j<BUFSIZE>>2; j++) {
+			if (*a!=*b) {
+				fprintf(stderr, "Incorrect Buffer B at dword %i:\n", j);
+				fprintf(stderr, " %016x %016x\n",a,b);
+			}
+			a++;
+			b++;
+		}
+	}
+	fprintf(stderr, "SSE version was %.2fx faster\n", (double)(time_a)/(double)(time_b));
+
+	fprintf(stderr,"Test of C and ASM 12to32-bit repacking functions with random data.\n");
+
+	time_start = clock();
+	convert_16to12to32_C(buf,bufAa,BUFSIZE>>2);
+	time_end = clock();
+	time_a = time_end - time_start;
+	time_start = clock();
+	convert_16to12to32_sse(buf,bufBa,BUFSIZE>>2);
+	time_end = clock();
+	time_b = time_end - time_start;
+	{
+		int32_t *a = (int32_t*)bufAa;
+		int32_t *b = (int32_t*)bufBa;
+		fprintf(stderr,"Verify SSE version.\n");
+		for(size_t j=0; j<BUFSIZE>>2; j++) {
+			if (*a!=*b) {
+				fprintf(stderr, "Incorrect Buffer B at dword %i:\n", j);
+				fprintf(stderr, " %016x %016x\n",a,b);
+			}
+			a++;
+			b++;
+		}
+	}
 	fprintf(stderr, "SSE version was %.2fx faster\n", (double)(time_a)/(double)(time_b));
 
 	free(buf);

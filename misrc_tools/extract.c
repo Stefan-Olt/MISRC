@@ -33,6 +33,9 @@
 # define UNUSED(x) x
 #endif
 
+#define INT12_MAX 2047
+#define INT12_MIN -2048
+
 void extract_audio_2ch_C(uint16_t *in, size_t len, uint16_t *out12, uint16_t *out34) {
 	for(size_t i = 0; i < len/4; i+=3)
 	{
@@ -241,6 +244,13 @@ void convert_16to8to32_C(int16_t *in, int32_t *out, size_t len) {
 	}
 }
 
+void convert_16to12to32_C(int16_t *in, int32_t *out, size_t len) {
+	for(size_t i = 0; i < len; i++)
+	{
+		out[i] = (in[i]>INT12_MAX) ? INT12_MAX : ((in[i]<INT12_MIN) ? INT12_MIN : in[i]);
+	}
+}
+
 void convert_16to8_C(int16_t *in, int8_t *out, size_t len) {
 	for(size_t i = 0; i < len; i++)
 	{
@@ -402,6 +412,21 @@ conv_16to32_t get_16to8to32_function() {
 		fprintf(stderr,"Detected processor without SSE4.1, using standard 8 bit repacking routine\n");
 #endif
 		return (conv_16to32_t) &convert_16to8to32_C;
+#if defined(__x86_64__) || defined(_M_X64)
+	}
+#endif
+}
+
+conv_16to32_t get_16to12to32_function() {
+#if defined(__x86_64__) || defined(_M_X64)
+	if(check_cpu_feat()>=2) {
+		fprintf(stderr,"Detected processor with SSE4.1, using optimized 8 bit repacking routine\n");
+		return (conv_16to32_t) &convert_16to12to32_sse;
+	}
+	else {
+		fprintf(stderr,"Detected processor without SSE4.1, using standard 8 bit repacking routine\n");
+#endif
+		return (conv_16to32_t) &convert_16to12to32_C;
 #if defined(__x86_64__) || defined(_M_X64)
 	}
 #endif
