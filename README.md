@@ -6,13 +6,13 @@
 <img src="assets/hardware-images/MISRC_V1.5_Tang_Nano_20k_Sony_ILCE-7RM3_2024.10.21_03.14.08-Small.png" width="600" height="" />
 </picture>
 
-> V1.5 with Tang Nano 20k on the FX3 to Tang adaptor PCB. 
+> V1.5 with Tang Nano 20k on the FX3 to Tang Nano 20k adaptor PCB. 
 
 
 ## Description
 
 
-MISRC is a device to capture two signals at 12-bit and up to 40 MHz (could maybe be extended to 80 MHz in the future) and an additional 8-bit's of binary (auxiliary data) over USB 3.0.
+MISRC is a device to capture two signals at 12-bit and up to 40 MSPS (20 Mhz bandwith) (This could be extended to 80 MSPS in the future) and an additional 8-bit's (2-bit's for v2.5) of binary (auxiliary data) over USB 3.0.
 
 It is intended to capture modulated tape deck RF for software demodulation, but also baseband CVBS/S-Video (Composite) video signals for software decoding, and can be used as a direct stream Oscilloscope but limited to 2vpp input voltage.
 
@@ -39,7 +39,7 @@ Possible capture examples:
 - Capture 1x S-Video (Y & C)
 - Capture Video RF and HiFi RF simultaneously
 - Capture Video RF and CVBS simultaneously
-- Capture 4ch of 24-bit 48khz audio with AUX pins via integrated or external ADCs
+- Capture 4ch of 24-bit 48khz audio with AUX pins via integrated or external clock-locked ADCs
 
 > [!NOTE]
 > It may be useful for other purposes as well, as it is built as a generic ADC with configurable filtering.
@@ -55,9 +55,9 @@ Possible capture examples:
 - Selectable input impedance (75, 50, 37.5 and 30 ohms)
 - DC or AC (pre- or post-termination) coupling
 - Zero-adjust to compensate DC offset
-- Latching clipping indicator
+- Latching clipping indicator (automatic resetting on v2.5) 
 - Clock source selectable: USB PLL (FX3 setup), crystal or external
-- Clock output SMA for external devices
+- Clock output SMA for external devices (In/Out for V2.5)
 - Melted PCB Traces
 
 
