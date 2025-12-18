@@ -221,7 +221,7 @@ int main(int argc, char **argv)
 		}
 	}
 
-	conv_function = get_conv_function(single, pad, 0, output_name_1, output_name_2);
+	conv_function = get_conv_function(single, pad, 0, 0, output_name_1, output_name_2);
 
 	if(input_name_1 != NULL && (output_name_1 != NULL || output_name_2 != NULL || output_name_aux != NULL))
 	{
@@ -239,7 +239,7 @@ int main(int argc, char **argv)
 			clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &start);
 #endif
 
-			conv_function(buf_tmp, nb_block, clip, buf_aux, buf_1, buf_2);
+			conv_function(buf_tmp, nb_block, clip, buf_aux, buf_1, buf_2, NULL);
 
 #if PERF_MEASURE
 			clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &stop);

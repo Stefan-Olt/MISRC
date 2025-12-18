@@ -210,6 +210,7 @@ static struct option getopt_long_options[] =
   {"aux",                  required_argument, 0, 'x'},
   {"raw",                  required_argument, 0, 'r'},
   {"pad",                  no_argument,       0, 'p'},
+  {"level",                no_argument,       0, 'L'},
   {"suppress-clip-rf-a",   no_argument,       0, 'A'},
   {"suppress-clip-rf-b",   no_argument,       0, 'B'},
 #if LIBSOXR_ENABLED == 1
@@ -254,7 +255,8 @@ static char* usage_options[][2] =
   { "ADC B output file (use '-' to write on stdout)", "[filename]" },
   { "AUX output file (use '-' to write on stdout)", "[filename]" },
   { "raw data output file (use '-' to write on stdout)", "[filename]" },
-  { "pad lower 4 bits of 16 bit output with 0 instead of upper 4]", NULL },
+  { "pad lower 4 bits of 16 bit output with 0 instead of upper 4", NULL },
+  { "display peak level of RF ADCs", NULL },
   { "suppress clipping messages for ADC A (need to specify -a or -r as well)", NULL },
   { "suppress clipping messages for ADC B (need to specify -b or -r as well)", NULL },
 #if LIBSOXR_ENABLED == 1
@@ -870,6 +872,17 @@ void list_devices() {
 	exit(1);
 }
 
+void print_level(char ch, uint16_t level) {
+	float db_level = 20.0f * log10((float)level / 2048.0f);
+	// the idea is a non-linear scale similar to vu meters
+	uint8_t count = (uint8_t) lroundf( 70.0f/(1.0f + exp(0.163f*(-15.0f - db_level))));
+	char full[] = "################################################################";
+	char none[] = "                                                                ";
+	full[count] = 0;
+	none[64-count] = 0;
+	fprintf(stderr, "\33[2K\r RF %c [%s%s] %5.1f dB\n", ch, full, none, db_level);
+}
+
 int main(int argc, char **argv)
 {
 //set pipe mode to binary in windows
@@ -880,7 +893,7 @@ int main(int argc, char **argv)
 	struct sigaction sigact;
 #endif
 
-	int r, opt, pad=0, dev_index=0, out_size = 2;
+	int r, opt, pad=0, plevel=0, dev_index=0, out_size = 2;
 #if LIBFLAC_ENABLED == 1
 	int flac_level = 1;
 	bool flac_verify = false;
@@ -946,6 +959,9 @@ int main(int argc, char **argv)
 
 	//clipping state
 	size_t clip[2] = {0, 0};
+
+	//peak level
+	uint16_t peak_level[2] = {0, 0};
 
 	// conversion function
 	conv_function_t conv_function;
@@ -1029,6 +1045,9 @@ int main(int argc, char **argv)
 		case 'B':
 			suppress_b_clipping = true;
 			break;
+		case 'L':
+			plevel = 1;
+			break;
 #if LIBSOXR_ENABLED == 1
 		case OPT_RESAMPLE_A:
 			resample_rate[0] = atof(optarg);
@@ -1086,7 +1105,7 @@ int main(int argc, char **argv)
 		}
 	}
 
-	if(output_names[0] == NULL && output_names[1] == NULL && output_name_aux == NULL && output_name_raw == NULL) {
+	if(output_names[0] == NULL && output_names[1] == NULL && output_name_aux == NULL && output_name_raw == NULL && plevel == 0) {
 		usage();
 	}
 	else {
@@ -1266,7 +1285,7 @@ int main(int argc, char **argv)
 		}
 	}
 
-	conv_function = get_conv_function(0, pad, (out_size==2) ? 0 : 1, output_names[0], output_names[1]);
+	conv_function = get_conv_function(0, pad, (out_size==2) ? 0 : 1, plevel, output_names[0], output_names[1]);
 
 	rb_init(&cap_ctx.rb,"capture_ringbuffer",BUFFER_TOTAL_SIZE);
 
@@ -1319,7 +1338,7 @@ int main(int argc, char **argv)
 			sleep_ms(10);
 		}
 		if (do_exit) break;
-		conv_function((uint32_t*)buf, BUFFER_READ_SIZE, clip, buf_aux, buf_out1, buf_out2);
+		conv_function((uint32_t*)buf, BUFFER_READ_SIZE, clip, buf_aux, buf_out1, buf_out2, peak_level);
 		if(output_raw != NULL){fwrite(buf,4,BUFFER_READ_SIZE,output_raw);}
 		rb_read_finished(&cap_ctx.rb, BUFFER_READ_SIZE*4);
 		if(output_aux != NULL){fwrite(buf_aux,1,BUFFER_READ_SIZE,output_aux);}
@@ -1341,10 +1360,26 @@ int main(int argc, char **argv)
 			clip[1] = 0;
 			new_line = 1;
 		}
-		if (total_samples % (BUFFER_READ_SIZE<<2) == 0) {
-			if(new_line) fprintf(stderr,"\n");
+		if (total_samples % (BUFFER_READ_SIZE<<(2 - plevel)) == 0) {
+			if(new_line) {
+				fprintf(stderr,"\n");
+				if(plevel) fprintf(stderr,"\n\n");
+			}
 			new_line = 0;
-			fprintf(stderr,"\033[A\33[2K\r Progress: %13" PRIu64 " samples, %2uh %2um %2us\n", total_samples, (uint32_t)(total_samples/(144000000000)), (uint32_t)((total_samples/(2400000000)) % 60), (uint32_t)((total_samples/(40000000)) % 60));
+			if(plevel) {
+				fprintf(stderr,"\033[A\033[A\033[A");
+				
+				print_level('A', peak_level[0]);
+				print_level('B', peak_level[1]);
+			}
+			else {
+				fprintf(stderr,"\033[A");
+			}
+			// \033[A = move cursor up
+			// \33[2K = erase line
+			
+			
+			fprintf(stderr,"\33[2K\r Progress: %13" PRIu64 " samples, %2uh %2um %2us\n", total_samples, (uint32_t)(total_samples/(144000000000)), (uint32_t)((total_samples/(2400000000)) % 60), (uint32_t)((total_samples/(40000000)) % 60));
 			fflush(stderr);
 		}
 		if (total_samples >= total_samples_before_exit && total_samples_before_exit != 0) {

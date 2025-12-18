@@ -36,6 +36,7 @@ default rel
 	%define aux  r9
 	%define outA r10
 	%define outB r11
+	%define level r12
 %else
 	%define in   rdi
 	%define len  rsi
@@ -43,6 +44,7 @@ default rel
 	%define aux  rcx
 	%define outA r8
 	%define outB r9
+	%define level r10
 %endif
 
 %if WIN
@@ -55,11 +57,55 @@ default rel
 	%define to32_len  rdx
 %endif
 
-%macro POPARGS 0
+%macro STARTP 0
+	%if WIN
+		mov outA, [rsp+40]
+		mov outB, [rsp+48]
+		mov rax, [rsp+56]
+		sub rsp, 48
+		movdqa [rsp+32], xmm6
+		movdqa [rsp+16], xmm7
+		movdqa [rsp], xmm8
+		push level
+		mov level, rax
+	%else
+		mov level, [rsp+8]
+	%endif
+%endmacro
+
+%macro START 0
 	%if WIN
 		mov outA, [rsp+40]
 		mov outB, [rsp+48]
 	%endif
+%endmacro
+
+%macro ENDP 0
+	%if WIN
+		pop level
+		movdqa xmm6, [rsp+32]
+		movdqa xmm7, [rsp+16]
+		movdqa xmm8, [rsp]
+		add rsp, 48
+	%endif
+%endmacro
+
+%macro PEAKCALC16 2
+	pshufd xmm0, %2, 0b01001110
+	pmaxuw xmm0, %2
+	pshuflw %2, xmm0, 0b01001110
+	pmaxuw xmm0, %2
+	pshuflw %2, xmm0, 0b00000001
+	pmaxuw xmm0, %2
+	pextrw %1, xmm0, 0
+%endmacro
+
+%macro PEAKCALC32 2
+	pshufd xmm0, %2, 0b01001110
+	pmaxud xmm0, %2
+	pshufd %2, xmm0, 0b00000001
+	pmaxud xmm0, %2
+	pextrw %1, xmm0, 0
 %endmacro
 
 %ifidn __OUTPUT_FORMAT__,elf64
@@ -81,10 +127,16 @@ section .data
 
 section .text
 
-global extract_AB_sse
-extract_AB_sse:
-	POPARGS
-loop_AB_0:
+
+%macro EXTRACT_AB 0
+%if PEAK
+	STARTP
+	pxor xmm7, xmm7
+	pxor xmm8, xmm8
+%else
+	START
+%endif
+%%loop_AB:
 	movdqa xmm0, [in]
 	movdqa xmm1, [in+16]
 	movdqa xmm2, xmm0
@@ -98,9 +150,23 @@ loop_AB_0:
 	pand xmm4, [andmask]
 	movdqa xmm5, [subval]
 	psubw xmm5, xmm4
+%if PEAK
+	pabsw xmm6, xmm5
+	pmaxuw xmm7, xmm6
+%endif
+%if PAD
+	psllw xmm5, 4
+%endif
 	movdqa [outA], xmm5
 	movdqa xmm5, [subval]
 	psubw xmm5, xmm1
+%if PEAK
+	pabsw xmm6, xmm5
+	pmaxuw xmm8, xmm6
+%endif
+%if PAD
+	psllw xmm5, 4
+%endif
 	movdqa [outB], xmm5
 	psrld xmm2, 12
 	psrld xmm3, 12
@@ -121,118 +187,218 @@ loop_AB_0:
 	add outB, 16
 	add in, 32
 	sub len, 8
-	jg loop_AB_0
+	jg %%loop_AB
+%if PEAK
+	PEAKCALC16 rax, xmm7
+	PEAKCALC16 rcx, xmm8
+	mov [level], ax
+	mov [level+2], cx
+	ENDP
+%endif
 	ret
+%endmacro
 
+%define PAD 0
+%define PEAK 1
+global extract_AB_peak_sse
+extract_AB_peak_sse:
+	EXTRACT_AB
+
+%define PEAK 0
+global extract_AB_sse
+extract_AB_sse:
+	EXTRACT_AB
+
+%define PAD 1
+%define PEAK 1
+global extract_AB_p_peak_sse
+extract_AB_p_peak_sse:
+	EXTRACT_AB
+
+%define PEAK 0
+global extract_AB_p_sse
+extract_AB_p_sse:
+	EXTRACT_AB
+
+
+
+%macro EXTRACT_AB_32 0
+%if PEAK
+	STARTP
+	pxor xmm7, xmm7
+	pxor xmm8, xmm8
+%else
+	START
+%endif
+%%loop_AB_32:
+	movdqa xmm0, [in]
+	movdqa xmm2, xmm0
+	pand xmm2, [andmask32]
+	movdqa xmm5, [subval32]
+	psubd xmm5, xmm2
+%if PEAK
+	pabsd xmm6, xmm5
+	pmaxud xmm7, xmm6
+%endif
+%if PAD
+	pslld xmm5, 4
+%endif
+	movdqa [outA], xmm5
+	movdqa xmm2, xmm0
+	psrld xmm2, 20
+	movdqa xmm5, [subval32]
+	psubd xmm5, xmm2
+%if PEAK
+	pabsd xmm6, xmm5
+	pmaxud xmm8, xmm6
+%endif
+%if PAD
+	pslld xmm5, 4
+%endif
+	movdqa [outB], xmm5
+	psrld xmm0, 12
+	pshufb xmm0, [shuf_aux0]
+	movd [aux], xmm0
+	movd eax, xmm0
+	and eax, [clip_maskA]
+	popcnt eax, eax
+	add [clip], eax
+	movd eax, xmm0
+	and eax, [clip_maskB]
+	popcnt eax, eax
+	add [clip+8], eax
+	add aux, 4
+	add outA, 16
+	add outB, 16
+	add in, 16
+	sub len, 4
+	jg %%loop_AB_32
+%if PEAK
+	PEAKCALC32 rax, xmm7
+	PEAKCALC32 rcx, xmm8
+	mov [level], ax
+	mov [level+2], cx
+	ENDP
+%endif
+	ret
+%endmacro
+
+%define PAD 0
+%define PEAK 1
+global extract_AB_peak_32_sse
+extract_AB_peak_32_sse:
+	EXTRACT_AB_32
+
+%define PEAK 0
 global extract_AB_32_sse
 extract_AB_32_sse:
-	POPARGS
-loop_AB_32_0:
-	movdqa xmm0, [in]
-	movdqa xmm2, xmm0
-	pand xmm2, [andmask32]
-	movdqa xmm5, [subval32]
-	psubd xmm5, xmm2
-	movdqa [outA], xmm5
-	movdqa xmm2, xmm0
-	psrld xmm2, 20
-	movdqa xmm5, [subval32]
-	psubd xmm5, xmm2
-	movdqa [outB], xmm5
-	psrld xmm0, 12
-	pshufb xmm0, [shuf_aux0]
-	movd [aux], xmm0
-	movd eax, xmm0
-	and eax, [clip_maskA]
-	popcnt eax, eax
-	add [clip], eax
-	movd eax, xmm0
-	and eax, [clip_maskB]
-	popcnt eax, eax
-	add [clip+8], eax
-	add aux, 4
-	add outA, 16
-	add outB, 16
-	add in, 16
-	sub len, 4
-	jg loop_AB_32_0
-	ret
+	EXTRACT_AB_32
 
+%define PAD 1
+%define PEAK 1
+global extract_AB_p_peak_32_sse
+extract_AB_p_peak_32_sse:
+	EXTRACT_AB_32
+
+%define PEAK 0
 global extract_AB_p_32_sse
 extract_AB_p_32_sse:
-	POPARGS
-loop_AB_p_32_0:
+	EXTRACT_AB_32
+
+
+
+%macro EXTRACT_A_32 0
+%if PEAK
+	STARTP
+	pxor xmm7, xmm7
+%else
+	START
+%endif
+%%loop_A_32:
 	movdqa xmm0, [in]
 	movdqa xmm2, xmm0
 	pand xmm2, [andmask32]
 	movdqa xmm5, [subval32]
 	psubd xmm5, xmm2
+%if PEAK
+	pabsd xmm6, xmm5
+	pmaxud xmm7, xmm6
+%endif
+%if PAD
 	pslld xmm5, 4
+%endif
 	movdqa [outA], xmm5
-	movdqa xmm2, xmm0
-	psrld xmm2, 20
-	movdqa xmm5, [subval32]
-	psubd xmm5, xmm2
-	pslld xmm5, 4
-	movdqa [outB], xmm5
 	psrld xmm0, 12
 	pshufb xmm0, [shuf_aux0]
 	movd [aux], xmm0
 	movd eax, xmm0
 	and eax, [clip_maskA]
 	popcnt eax, eax
-	add [clip], eax
+	add [clip], rax
 	movd eax, xmm0
 	and eax, [clip_maskB]
 	popcnt eax, eax
-	add [clip+8], eax
+	add [clip+8], rax
 	add aux, 4
 	add outA, 16
-	add outB, 16
 	add in, 16
 	sub len, 4
-	jg loop_AB_p_32_0
+	jg %%loop_A_32
+%if PEAK
+	PEAKCALC32 rax, xmm7
+	mov [level], ax
+	ENDP
+%endif
 	ret
+%endmacro
 
+%define PAD 0
+
+%define PEAK 1
+global extract_A_peak_32_sse
+extract_A_peak_32_sse:
+	EXTRACT_A_32
+
+%define PEAK 0
 global extract_A_32_sse
 extract_A_32_sse:
-	POPARGS
-loop_A_32_0:
-	movdqa xmm0, [in]
-	movdqa xmm2, xmm0
-	pand xmm2, [andmask32]
-	movdqa xmm5, [subval32]
-	psubd xmm5, xmm2
-	movdqa [outA], xmm5
-	psrld xmm0, 12
-	pshufb xmm0, [shuf_aux0]
-	movd [aux], xmm0
-	movd eax, xmm0
-	and eax, [clip_maskA]
-	popcnt eax, eax
-	add [clip], eax
-	movd eax, xmm0
-	and eax, [clip_maskB]
-	popcnt eax, eax
-	add [clip+8], eax
-	add aux, 4
-	add outA, 16
-	add in, 16
-	sub len, 4
-	jg loop_A_32_0
-	ret
+	EXTRACT_A_32
 
+%define PAD 1
+%define PEAK 1
+
+global extract_A_p_peak_32_sse
+extract_A_p_peak_32_sse:
+	EXTRACT_A_32
+
+%define PEAK 0
 global extract_A_p_32_sse
 extract_A_p_32_sse:
-	POPARGS
-loop_A_p_32_0:
+	EXTRACT_A_32
+
+
+
+%macro EXTRACT_B_32 0
+%if PEAK
+	STARTP
+	pxor xmm7, xmm7
+%else
+	START
+%endif
+%%loop_B_32:
 	movdqa xmm0, [in]
 	movdqa xmm2, xmm0
-	pand xmm2, [andmask32]
+	psrld xmm2, 20
 	movdqa xmm5, [subval32]
 	psubd xmm5, xmm2
+%if PEAK
+	pabsd xmm6, xmm5
+	pmaxud xmm7, xmm6
+%endif
+%if PAD
 	pslld xmm5, 4
-	movdqa [outA], xmm5
+%endif
+	movdqa [outB], xmm5
 	psrld xmm0, 12
 	pshufb xmm0, [shuf_aux0]
 	movd [aux], xmm0
@@ -245,74 +411,52 @@ loop_A_p_32_0:
 	popcnt eax, eax
 	add [clip+8], eax
 	add aux, 4
-	add outA, 16
+	add outB, 16
 	add in, 16
 	sub len, 4
-	jg loop_A_p_32_0
+	jg %%loop_B_32
+%if PEAK
+	PEAKCALC32 rax, xmm7
+	mov [level+2], ax
+	ENDP
+%endif
 	ret
+%endmacro
 
+%define PAD 0
+
+%define PEAK 1
+global extract_B_peak_32_sse
+extract_B_peak_32_sse:
+	EXTRACT_B_32
+
+%define PEAK 0
 global extract_B_32_sse
 extract_B_32_sse:
-	POPARGS
-loop_B_32_0:
-	movdqa xmm0, [in]
-	movdqa xmm2, xmm0
-	psrld xmm2, 20
-	movdqa xmm5, [subval32]
-	psubd xmm5, xmm2
-	movdqa [outB], xmm5
-	psrld xmm0, 12
-	pshufb xmm0, [shuf_aux0]
-	movd [aux], xmm0
-	movd eax, xmm0
-	and eax, [clip_maskA]
-	popcnt eax, eax
-	add [clip], eax
-	movd eax, xmm0
-	and eax, [clip_maskB]
-	popcnt eax, eax
-	add [clip+8], eax
-	add aux, 4
-	add outB, 16
-	add in, 16
-	sub len, 4
-	jg loop_B_32_0
-	ret
+	EXTRACT_B_32
 
+%define PAD 1
+%define PEAK 1
+
+global extract_B_p_peak_32_sse
+extract_B_p_peak_32_sse:
+	EXTRACT_B_32
+
+%define PEAK 0
 global extract_B_p_32_sse
 extract_B_p_32_sse:
-	POPARGS
-	movdqa xmm5, [subval32]
-loop_B_p_32_0:
-	movdqa xmm0, [in]
-	movdqa xmm2, xmm0
-	psrld xmm2, 20
-	movdqa xmm5, [subval32]
-	psubd xmm5, xmm2
-	pslld xmm5, 4
-	movdqa [outB], xmm5
-	psrld xmm0, 12
-	pshufb xmm0, [shuf_aux0]
-	movd [aux], xmm0
-	movd eax, xmm0
-	and eax, [clip_maskA]
-	popcnt eax, eax
-	add [clip], eax
-	movd eax, xmm0
-	and eax, [clip_maskB]
-	popcnt eax, eax
-	add [clip+8], eax
-	add aux, 4
-	add outB, 16
-	add in, 16
-	sub len, 4
-	jg loop_B_p_32_0
-	ret
+	EXTRACT_B_32
 
-global extract_A_sse
-extract_A_sse:
-	POPARGS
-loop_A_0:
+
+
+%macro EXTRACT_A 0
+%if PEAK
+	STARTP
+	pxor xmm7, xmm7
+%else
+	START
+%endif
+%%loop_A:
 	movdqa xmm0, [in]
 	movdqa xmm1, [in+16]
 	movdqa xmm2, xmm0
@@ -323,6 +467,13 @@ loop_A_0:
 	pand xmm0, [andmask]
 	movdqa xmm4, [subval]
 	psubw xmm4, xmm0
+%if PEAK
+	pabsw xmm6, xmm4
+	pmaxuw xmm7, xmm6
+%endif
+%if PAD
+	psllw xmm4, 4
+%endif
 	movdqa [outA], xmm4
 	psrld xmm2, 12
 	psrld xmm3, 12
@@ -338,12 +489,121 @@ loop_A_0:
 	add outA, 16
 	add in, 32
 	sub len, 8
-	jg loop_A_0
+	jg %%loop_A
+%if PEAK
+	PEAKCALC16 rax, xmm7
+	mov [level], ax
+	ENDP
+%endif
 	ret
+%endmacro
+
+%define PAD 0
+
+%define PEAK 1
+global extract_A_peak_sse
+extract_A_peak_sse:
+	EXTRACT_A
+
+%define PEAK 0
+global extract_A_sse
+extract_A_sse:
+	EXTRACT_A
+
+%define PAD 1
+%define PEAK 1
+
+global extract_A_p_peak_sse
+extract_A_p_peak_sse:
+	EXTRACT_A
+
+%define PEAK 0
+global extract_A_p_sse
+extract_A_p_sse:
+	EXTRACT_A
+
+
+
+%macro EXTRACT_B 0
+%if PEAK
+	STARTP
+	pxor xmm7, xmm7
+%else
+	START
+%endif
+%%loop_B:
+	movdqa xmm0, [in]
+	movdqa xmm1, [in+16]
+	movdqa xmm2, xmm0
+	movdqa xmm3, xmm1
+	pshufb xmm0, [shuf_dat]
+	pshufb xmm1, [shuf_dat]
+	movhlps xmm1, xmm0
+	psrlw xmm1, 4
+	movdqa xmm4, [subval]
+	psubw xmm4, xmm1
+%if PEAK
+	pabsw xmm6, xmm4
+	pmaxuw xmm7, xmm6
+%endif
+%if PAD
+	psllw xmm4, 4
+%endif
+	movdqa [outB], xmm4
+	psrld xmm2, 12
+	psrld xmm3, 12
+	pshufb xmm2, [shuf_aux0]
+	pshufb xmm3, [shuf_aux1]
+	por xmm2, xmm3
+	movlpd [aux], xmm2
+	movq rax, xmm2
+	and rax, [clip_maskB]
+	popcnt rax, rax
+	add [clip+8], rax
+	add aux, 8
+	add outB, 16
+	add in, 32
+	sub len, 8
+	jg %%loop_B
+%if PEAK
+	PEAKCALC16 rax, xmm7
+	mov [level+2], ax
+	ENDP
+%endif
+	ret
+%endmacro
+
+%define PAD 0
+
+%define PEAK 1
+global extract_B_peak_sse
+extract_B_peak_sse:
+	EXTRACT_B
+
+%define PEAK 0
+global extract_B_sse
+extract_B_sse:
+	EXTRACT_B
+
+%define PAD 1
+%define PEAK 1
+
+global extract_B_p_peak_sse
+extract_B_p_peak_sse:
+	EXTRACT_B
+
+%define PEAK 0
+global extract_B_p_sse
+extract_B_p_sse:
+	EXTRACT_B
+
+
+
+
 
 global extract_S_sse
 extract_S_sse:
-	POPARGS
+	START
 loop_S_0:
 	movdqa xmm0, [in]
 	movdqa xmm2, xmm0
@@ -367,7 +627,7 @@ loop_S_0:
 
 global extract_S_p_sse
 extract_S_p_sse:
-	POPARGS
+	START
 loop_S_p_0:
 	movdqa xmm0, [in]
 	movdqa xmm2, xmm0
@@ -390,148 +650,7 @@ loop_S_p_0:
 	jg loop_S_p_0
 	ret
 
-global extract_B_sse
-extract_B_sse:
-	POPARGS
-loop_B_0:
-	movdqa xmm0, [in]
-	movdqa xmm1, [in+16]
-	movdqa xmm2, xmm0
-	movdqa xmm3, xmm1
-	pshufb xmm0, [shuf_dat]
-	pshufb xmm1, [shuf_dat]
-	movhlps xmm1, xmm0
-	psrlw xmm1, 4
-	movdqa xmm4, [subval]
-	psubw xmm4, xmm1
-	movdqa [outB], xmm4
-	psrld xmm2, 12
-	psrld xmm3, 12
-	pshufb xmm2, [shuf_aux0]
-	pshufb xmm3, [shuf_aux1]
-	por xmm2, xmm3
-	movlpd [aux], xmm2
-	movq rax, xmm2
-	and rax, [clip_maskB]
-	popcnt rax, rax
-	add [clip+8], rax
-	add aux, 8
-	add outB, 16
-	add in, 32
-	sub len, 8
-	jg loop_B_0
-	ret
 
-global extract_AB_p_sse
-extract_AB_p_sse:
-	POPARGS
-loop_AB_p_0:
-	movdqa xmm0, [in]
-	movdqa xmm1, [in+16]
-	movdqa xmm2, xmm0
-	movdqa xmm3, xmm1
-	pshufb xmm0, [shuf_dat]
-	pshufb xmm1, [shuf_dat]
-	movdqa xmm4, xmm0
-	movlhps xmm4, xmm1
-	movhlps xmm1, xmm0
-	psrlw xmm1, 4
-	pand xmm4, [andmask]
-	movdqa xmm5, [subval]
-	psubw xmm5, xmm4
-	psllw xmm5, 4
-	movdqa [outA], xmm5
-	movdqa xmm5, [subval]
-	psubw xmm5, xmm1
-	psllw xmm5, 4
-	movdqa [outB], xmm5
-	psrld xmm2, 12
-	psrld xmm3, 12
-	pshufb xmm2, [shuf_aux0]
-	pshufb xmm3, [shuf_aux1]
-	por xmm2, xmm3
-	movlpd [aux], xmm2
-	movq rax, xmm2
-	and rax, [clip_maskA]
-	popcnt rax, rax
-	add [clip], rax
-	movq rax, xmm2
-	and rax, [clip_maskB]
-	popcnt rax, rax
-	add [clip+8], rax
-	add aux, 8
-	add outA, 16
-	add outB, 16
-	add in, 32
-	sub len, 8
-	jg loop_AB_p_0
-	ret
-
-global extract_A_p_sse
-extract_A_p_sse:
-	POPARGS
-loop_A_p_0:
-	movdqa xmm0, [in]
-	movdqa xmm1, [in+16]
-	movdqa xmm2, xmm0
-	movdqa xmm3, xmm1
-	pshufb xmm0, [shuf_dat]
-	pshufb xmm1, [shuf_dat]
-	movlhps xmm0, xmm1
-	pand xmm0, [andmask]
-	movdqa xmm4, [subval]
-	psubw xmm4, xmm0
-	psllw xmm4, 4
-	movdqa [outA], xmm4
-	psrld xmm2, 12
-	psrld xmm3, 12
-	pshufb xmm2, [shuf_aux0]
-	pshufb xmm3, [shuf_aux1]
-	por xmm2, xmm3
-	movlpd [aux], xmm2
-	movq rax, xmm2
-	and rax, [clip_maskA]
-	popcnt rax, rax
-	add [clip], rax
-	add aux, 8
-	add outA, 16
-	add in, 32
-	sub len, 8
-	jg loop_A_p_0
-	ret
-
-global extract_B_p_sse
-extract_B_p_sse:
-	POPARGS
-loop_B_p_0:
-	movdqa xmm0, [in]
-	movdqa xmm1, [in+16]
-	movdqa xmm2, xmm0
-	movdqa xmm3, xmm1
-	pshufb xmm0, [shuf_dat]
-	pshufb xmm1, [shuf_dat]
-	movhlps xmm1, xmm0
-	psrlw xmm1, 4
-	movdqa xmm4, [subval]
-	psubw xmm4, xmm1
-	psllw xmm4, 4
-	movdqa [outB], xmm4
-	psrld xmm2, 12
-	psrld xmm3, 12
-	pshufb xmm2, [shuf_aux0]
-	pshufb xmm3, [shuf_aux1]
-	por xmm2, xmm3
-	movlpd [aux], xmm2
-	movq rax, xmm2
-	and rax, [clip_maskB]
-	popcnt rax, rax
-	add [clip+8], rax
-	add aux, 8
-	add outB, 16
-	add in, 32
-	sub len, 8
-	jg loop_B_p_0
-	ret
 
 ; SSE4.1
 global convert_16to32_sse

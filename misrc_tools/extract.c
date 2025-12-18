@@ -66,21 +66,34 @@ void extract_audio_1ch_C(uint8_t *in, size_t len, uint8_t *out1, uint8_t *out2, 
 	}
 }
 
-void extract_XS_C(uint16_t *in, size_t len, size_t UNUSED(*clip), uint8_t *aux, int16_t UNUSED(*outA), int16_t UNUSED(*outB)) {
+void extract_XS_C(uint16_t *in, size_t len, size_t UNUSED(*clip), uint8_t *aux, int16_t UNUSED(*outA), int16_t UNUSED(*outB), uint16_t UNUSED(*peak_level)) {
 	for(size_t i = 0; i < len; i++)
 	{
 		aux[i] = (in[i] & MASK_AUXS) >> 12;
 	}
 }
 
-void extract_X_C(uint32_t *in, size_t len, size_t UNUSED(*clip), uint8_t *aux, int16_t UNUSED(*outA), int16_t UNUSED(*outB)) {
+void extract_X_C(uint32_t *in, size_t len, size_t UNUSED(*clip), uint8_t *aux, int16_t UNUSED(*outA), int16_t UNUSED(*outB), uint16_t UNUSED(*peak_level)) {
 	for(size_t i = 0; i < len; i++)
 	{
 		aux[i] = (in[i] & MASK_AUX) >> 12;
 	}
 }
 
-void extract_S_C(uint16_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t UNUSED(*outB)) {
+void extract_X_peak_C(uint32_t *in, size_t len, size_t UNUSED(*clip), uint8_t *aux, int16_t UNUSED(*outA), int16_t UNUSED(*outB), uint16_t *peak_level) {
+	peak_level[0] = 0;
+	peak_level[1] = 0;
+	for(size_t i = 0; i < len; i++)
+	{
+		uint16_t outA = abs(2047 - ((int16_t)(in[i] & MASK_1)));
+		uint16_t outB = abs(2047 - ((int16_t)((in[i] & MASK_2) >> 20)));
+		aux[i] = (in[i] & MASK_AUX) >> 12;
+		if(outA>peak_level[0]) peak_level[0] = outA;
+		if(outB>peak_level[1]) peak_level[1] = outB;
+	}
+}
+
+void extract_S_C(uint16_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t UNUSED(*outB), uint16_t UNUSED(*peak_level)) {
 	for(size_t i = 0; i < len; i++)
 	{
 		outA[i]  = 2047 - ((int16_t)(in[i] & MASK_1));
@@ -89,7 +102,7 @@ void extract_S_C(uint16_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *
 	}
 }
 
-void extract_A_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t UNUSED(*outB)) {
+void extract_A_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t UNUSED(*outB), uint16_t UNUSED(*peak_level)) {
 	for(size_t i = 0; i < len; i++)
 	{
 		outA[i]  = 2047 - ((int16_t)(in[i] & MASK_1));
@@ -98,7 +111,18 @@ void extract_A_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *
 	}
 }
 
-void extract_B_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t UNUSED(*outA), int16_t *outB) {
+void extract_A_peak_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t UNUSED(*outB), uint16_t *peak_level) {
+	peak_level[0] = 0;
+	for(size_t i = 0; i < len; i++)
+	{
+		outA[i]  = 2047 - ((int16_t)(in[i] & MASK_1));
+		aux[i]   = (in[i] & MASK_AUX) >> 12;
+		clip[0] += ((in[i] >> 12) & 1);
+		if(abs(outA[i])>peak_level[0]) peak_level[0] = abs(outA[i]);
+	}
+}
+
+void extract_B_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t UNUSED(*outA), int16_t *outB, uint16_t UNUSED(*peak_level)) {
 	for(size_t i = 0; i < len; i++)
 	{
 		outB[i]  = 2047 - ((int16_t)((in[i] & MASK_2) >> 20));
@@ -107,7 +131,18 @@ void extract_B_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t U
 	}
 }
 
-void extract_AB_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB) {
+void extract_B_peak_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t UNUSED(*outA), int16_t *outB, uint16_t *peak_level) {
+	peak_level[1] = 0;
+	for(size_t i = 0; i < len; i++)
+	{
+		outB[i]  = 2047 - ((int16_t)((in[i] & MASK_2) >> 20));
+		aux[i]   = (in[i] & MASK_AUX) >> 12;
+		clip[1] += ((in[i] >> 13) & 1);
+		if(abs(outB[i])>peak_level[1]) peak_level[1] = abs(outB[i]);
+	}
+}
+
+void extract_AB_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB, uint16_t UNUSED(*peak_level)) {
 	for(size_t i = 0; i < len; i++)
 	{
 		outA[i]  = 2047 - ((int16_t)(in[i] & MASK_1));
@@ -118,7 +153,22 @@ void extract_AB_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t 
 	}
 }
 
-void extract_S_p_C(uint16_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t UNUSED(*outB)) {
+void extract_AB_peak_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB, uint16_t *peak_level) {
+	peak_level[0] = 0;
+	peak_level[1] = 0;
+	for(size_t i = 0; i < len; i++)
+	{
+		outA[i]  = 2047 - ((int16_t)(in[i] & MASK_1));
+		outB[i]  = 2047 - ((int16_t)((in[i] & MASK_2) >> 20));
+		aux[i]   = (in[i] & MASK_AUX) >> 12;
+		clip[0] += ((in[i] >> 12) & 1);
+		clip[1] += ((in[i] >> 13) & 1);
+		if(abs(outA[i])>peak_level[0]) peak_level[0] = abs(outA[i]);
+		if(abs(outB[i])>peak_level[1]) peak_level[1] = abs(outB[i]);
+	}
+}
+
+void extract_S_p_C(uint16_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t UNUSED(*outB), uint16_t UNUSED(*peak_level)) {
 	for(size_t i = 0; i < len; i++)
 	{
 		outA[i]  = (2047 - ((int16_t)(in[i] & MASK_1)))<<4;
@@ -127,7 +177,7 @@ void extract_S_p_C(uint16_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t
 	}
 }
 
-void extract_A_p_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t UNUSED(*outB)) {
+void extract_A_p_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t UNUSED(*outB), uint16_t UNUSED(*peak_level)) {
 	for(size_t i = 0; i < len; i++)
 	{
 		outA[i]  = (2047 - ((int16_t)(in[i] & MASK_1)))<<4;
@@ -135,7 +185,20 @@ void extract_A_p_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t
 		clip[0] += ((in[i] >> 12) & 1);
 	}
 }
-void extract_B_p_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t UNUSED(*outA), int16_t *outB) {
+
+void extract_A_p_peak_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t UNUSED(*outB), uint16_t *peak_level) {
+	peak_level[0] = 0;
+	for(size_t i = 0; i < len; i++)
+	{
+		outA[i]  = (2047 - ((int16_t)(in[i] & MASK_1)));
+		if(abs(outA[i])>peak_level[0]) peak_level[0] = abs(outA[i]);
+		outA[i]<<= 4;
+		aux[i]   = (in[i] & MASK_AUX) >> 12;
+		clip[0] += ((in[i] >> 12) & 1);
+	}
+}
+
+void extract_B_p_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t UNUSED(*outA), int16_t *outB, uint16_t UNUSED(*peak_level)) {
 	for(size_t i = 0; i < len; i++)
 	{
 		outB[i]  = (2047 - ((int16_t)((in[i] & MASK_2) >> 20)))<<4;
@@ -144,7 +207,19 @@ void extract_B_p_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t
 	}
 }
 
-void extract_AB_p_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB) {
+void extract_B_p_peak_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t UNUSED(*outA), int16_t *outB, uint16_t *peak_level) {
+	peak_level[1] = 0;
+	for(size_t i = 0; i < len; i++)
+	{
+		outB[i]  = (2047 - ((int16_t)((in[i] & MASK_2) >> 20)));
+		if(abs(outB[i])>peak_level[1]) peak_level[1] = abs(outB[i]);
+		outB[i]<<= 4;
+		aux[i]   = (in[i] & MASK_AUX) >> 12;
+		clip[1] += ((in[i] >> 13) & 1);
+	}
+}
+
+void extract_AB_p_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB, uint16_t UNUSED(*peak_level)) {
 	for(size_t i = 0; i < len; i++)
 	{
 		outA[i]  = (2047 - ((int16_t)(in[i] & MASK_1)))<<4;
@@ -155,7 +230,24 @@ void extract_AB_p_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_
 	}
 }
 
-void extract_S_32_C(uint16_t *in, size_t len, size_t *clip, uint8_t *aux, int32_t *outA, int32_t UNUSED(*outB)) {
+void extract_AB_p_peak_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int16_t *outA, int16_t *outB, uint16_t *peak_level) {
+	peak_level[0] = 0;
+	peak_level[1] = 0;
+	for(size_t i = 0; i < len; i++)
+	{
+		outA[i]  = (2047 - ((int16_t)(in[i] & MASK_1)));
+		if(abs(outA[i])>peak_level[0]) peak_level[0] = abs(outA[i]);
+		outA[i]<<= 4;
+		outB[i]  = (2047 - ((int16_t)((in[i] & MASK_2) >> 20)));
+		if(abs(outB[i])>peak_level[1]) peak_level[1] = abs(outB[i]);
+		outB[i]<<= 4;
+		aux[i]   = (in[i] & MASK_AUX) >> 12;
+		clip[0] += ((in[i] >> 12) & 1);
+		clip[1] += ((in[i] >> 13) & 1);
+	}
+}
+
+void extract_S_32_C(uint16_t *in, size_t len, size_t *clip, uint8_t *aux, int32_t *outA, int32_t UNUSED(*outB), uint16_t UNUSED(*peak_level)) {
 	for(size_t i = 0; i < len; i++)
 	{
 		outA[i]  = 2047 - ((int32_t)(in[i] & MASK_1));
@@ -164,7 +256,7 @@ void extract_S_32_C(uint16_t *in, size_t len, size_t *clip, uint8_t *aux, int32_
 	}
 }
 
-void extract_A_32_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int32_t *outA, int32_t UNUSED(*outB)) {
+void extract_A_32_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int32_t *outA, int32_t UNUSED(*outB), uint16_t UNUSED(*peak_level)) {
 	for(size_t i = 0; i < len; i++)
 	{
 		outA[i]  = 2047 - ((int32_t)(in[i] & MASK_1));
@@ -173,7 +265,19 @@ void extract_A_32_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int32_
 	}
 }
 
-void extract_B_32_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int32_t UNUSED(*outA), int32_t *outB) {
+void extract_A_peak_32_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int32_t *outA, int32_t UNUSED(*outB), uint16_t *peak_level) {
+	peak_level[0] = 0;
+	for(size_t i = 0; i < len; i++)
+	{
+		outA[i]  = 2047 - ((int16_t)(in[i] & MASK_1));
+		aux[i]   = (in[i] & MASK_AUX) >> 12;
+		clip[0] += ((in[i] >> 12) & 1);
+		if(abs(outA[i])>peak_level[0]) peak_level[0] = abs(outA[i]);
+	}
+}
+
+
+void extract_B_32_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int32_t UNUSED(*outA), int32_t *outB, uint16_t UNUSED(*peak_level)) {
 	for(size_t i = 0; i < len; i++)
 	{
 		outB[i]  = 2047 - ((int32_t)((in[i] & MASK_2) >> 20));
@@ -182,7 +286,18 @@ void extract_B_32_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int32_
 	}
 }
 
-void extract_AB_32_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int32_t *outA, int32_t *outB) {
+void extract_B_peak_32_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int32_t UNUSED(*outA), int32_t *outB, uint16_t *peak_level) {
+	peak_level[1] = 0;
+	for(size_t i = 0; i < len; i++)
+	{
+		outB[i]  = 2047 - ((int16_t)((in[i] & MASK_2) >> 20));
+		aux[i]   = (in[i] & MASK_AUX) >> 12;
+		clip[1] += ((in[i] >> 13) & 1);
+		if(abs(outB[i])>peak_level[1]) peak_level[1] = abs(outB[i]);
+	}
+}
+
+void extract_AB_32_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int32_t *outA, int32_t *outB, uint16_t UNUSED(*peak_level)) {
 	for(size_t i = 0; i < len; i++)
 	{
 		outA[i]  = 2047 - ((int32_t)(in[i] & MASK_1));
@@ -193,7 +308,22 @@ void extract_AB_32_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int32
 	}
 }
 
-void extract_S_p_32_C(uint16_t *in, size_t len, size_t *clip, uint8_t *aux, int32_t *outA, int32_t UNUSED(*outB)) {
+void extract_AB_peak_32_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int32_t *outA, int32_t *outB, uint16_t *peak_level) {
+	peak_level[0] = 0;
+	peak_level[1] = 0;
+	for(size_t i = 0; i < len; i++)
+	{
+		outA[i]  = 2047 - ((int16_t)(in[i] & MASK_1));
+		outB[i]  = 2047 - ((int16_t)((in[i] & MASK_2) >> 20));
+		aux[i]   = (in[i] & MASK_AUX) >> 12;
+		clip[0] += ((in[i] >> 12) & 1);
+		clip[1] += ((in[i] >> 13) & 1);
+		if(abs(outA[i])>peak_level[0]) peak_level[0] = abs(outA[i]);
+		if(abs(outB[i])>peak_level[1]) peak_level[1] = abs(outB[i]);
+	}
+}
+
+void extract_S_p_32_C(uint16_t *in, size_t len, size_t *clip, uint8_t *aux, int32_t *outA, int32_t UNUSED(*outB), uint16_t UNUSED(*peak_level)) {
 	for(size_t i = 0; i < len; i++)
 	{
 		outA[i]  = (2047 - ((int32_t)(in[i] & MASK_1)))<<4;
@@ -202,7 +332,7 @@ void extract_S_p_32_C(uint16_t *in, size_t len, size_t *clip, uint8_t *aux, int3
 	}
 }
 
-void extract_A_p_32_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int32_t *outA, int32_t UNUSED(*outB)) {
+void extract_A_p_32_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int32_t *outA, int32_t UNUSED(*outB), uint16_t UNUSED(*peak_level)) {
 	for(size_t i = 0; i < len; i++)
 	{
 		outA[i]  = (2047 - ((int32_t)(in[i] & MASK_1)))<<4;
@@ -210,7 +340,20 @@ void extract_A_p_32_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int3
 		clip[0] += ((in[i] >> 12) & 1);
 	}
 }
-void extract_B_p_32_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int32_t UNUSED(*outA), int32_t *outB) {
+
+void extract_A_p_peak_32_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int32_t *outA, int32_t UNUSED(*outB), uint16_t *peak_level) {
+	peak_level[0] = 0;
+	for(size_t i = 0; i < len; i++)
+	{
+		outA[i]  = (2047 - ((int16_t)(in[i] & MASK_1)));
+		if(abs(outA[i])>peak_level[0]) peak_level[0] = abs(outA[i]);
+		outA[i]<<= 4;
+		aux[i]   = (in[i] & MASK_AUX) >> 12;
+		clip[0] += ((in[i] >> 12) & 1);
+	}
+}
+
+void extract_B_p_32_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int32_t UNUSED(*outA), int32_t *outB, uint16_t UNUSED(*peak_level)) {
 	for(size_t i = 0; i < len; i++)
 	{
 		outB[i]  = (2047 - ((int32_t)((in[i] & MASK_2) >> 20)))<<4;
@@ -219,11 +362,40 @@ void extract_B_p_32_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int3
 	}
 }
 
-void extract_AB_p_32_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int32_t *outA, int32_t *outB) {
+void extract_B_p_peak_32_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int32_t UNUSED(*outA), int32_t *outB, uint16_t *peak_level) {
+	peak_level[1] = 0;
+	for(size_t i = 0; i < len; i++)
+	{
+		outB[i]  = (2047 - ((int16_t)((in[i] & MASK_2) >> 20)));
+		if(abs(outB[i])>peak_level[1]) peak_level[1] = abs(outB[i]);
+		outB[i]<<= 4;
+		aux[i]   = (in[i] & MASK_AUX) >> 12;
+		clip[1] += ((in[i] >> 13) & 1);
+	}
+}
+
+void extract_AB_p_32_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int32_t *outA, int32_t *outB, uint16_t UNUSED(*peak_level)) {
 	for(size_t i = 0; i < len; i++)
 	{
 		outA[i]  = (2047 - ((int32_t)(in[i] & MASK_1)))<<4;
 		outB[i]  = (2047 - ((int32_t)((in[i] & MASK_2) >> 20)))<<4;
+		aux[i]   = (in[i] & MASK_AUX) >> 12;
+		clip[0] += ((in[i] >> 12) & 1);
+		clip[1] += ((in[i] >> 13) & 1);
+	}
+}
+
+void extract_AB_p_peak_32_C(uint32_t *in, size_t len, size_t *clip, uint8_t *aux, int32_t *outA, int32_t *outB, uint16_t *peak_level) {
+	peak_level[0] = 0;
+	peak_level[1] = 0;
+	for(size_t i = 0; i < len; i++)
+	{
+		outA[i]  = (2047 - ((int16_t)(in[i] & MASK_1)));
+		if(abs(outA[i])>peak_level[0]) peak_level[0] = abs(outA[i]);
+		outA[i]<<= 4;
+		outB[i]  = (2047 - ((int16_t)((in[i] & MASK_2) >> 20)));
+		if(abs(outB[i])>peak_level[1]) peak_level[1] = abs(outB[i]);
+		outB[i]<<= 4;
 		aux[i]   = (in[i] & MASK_AUX) >> 12;
 		clip[0] += ((in[i] >> 12) & 1);
 		clip[1] += ((in[i] >> 13) & 1);
@@ -315,76 +487,134 @@ void convert_16to8to32_arm(int16_t *in, int32_t *out, size_t len)
 }
 #endif
 
-conv_function_t get_conv_function(uint8_t single, uint8_t pad, uint8_t dword, void* outA, void* outB) {
+conv_function_t get_conv_function(uint8_t single, uint8_t pad, uint8_t dword, uint8_t peak_level, void* outA, void* outB) {
+
+	if (single == 1) peak_level = 0;
 
 	if (outA == NULL && outB == NULL) {
 		if (single == 1) return (conv_function_t) &extract_XS_C;
+		if (peak_level) return (conv_function_t) &extract_X_peak_C;
 		else return (conv_function_t) &extract_X_C;
 	}
 #if defined(__x86_64__) || defined(_M_X64)
-	if(check_cpu_feat()>=1) {
-		fprintf(stderr,"Detected processor with SSSE3 and POPCNT, using optimized extraction routine\n\n");
-		if (dword==0) {
-			if (pad==1) {
-				if (single == 1) return (conv_function_t) &extract_S_p_sse;
-				else if (outA == NULL) return (conv_function_t) &extract_B_p_sse;
-				else if (outB == NULL) return (conv_function_t) &extract_A_p_sse;
-				else return (conv_function_t) &extract_AB_p_sse;
+	if (peak_level == 1) {
+		if(check_cpu_feat()>=2) {
+			fprintf(stderr,"Detected processor with SSE4.1, using optimized extraction routine\n\n");
+			if (dword==0) {
+				if (pad==1) {
+					if (outA == NULL) return (conv_function_t) &extract_B_p_peak_sse;
+					if (outB == NULL) return (conv_function_t) &extract_A_p_peak_sse;
+					return (conv_function_t) &extract_AB_p_peak_sse;
+				}
+				else {
+					if (outA == NULL) return (conv_function_t) &extract_B_peak_sse;
+					if (outB == NULL) return (conv_function_t) &extract_A_peak_sse;
+					return (conv_function_t) &extract_AB_peak_sse;
+				}
 			}
 			else {
-				if (single == 1) return (conv_function_t) &extract_S_sse;
-				else if (outA == NULL) return (conv_function_t) &extract_B_sse;
-				else if (outB == NULL) return (conv_function_t) &extract_A_sse;
-				else return (conv_function_t) &extract_AB_sse;
+				if (pad==1) {
+					if (outA == NULL) return (conv_function_t) &extract_B_p_peak_32_sse;
+					if (outB == NULL) return (conv_function_t) &extract_A_p_peak_32_sse;
+					return (conv_function_t) &extract_AB_p_peak_32_sse;
+				}
+				else {
+					if (outA == NULL) return (conv_function_t) &extract_B_peak_32_sse;
+					if (outB == NULL) return (conv_function_t) &extract_A_peak_32_sse;
+					return (conv_function_t) &extract_AB_peak_32_sse;
+				}
+			}
+		}
+	}
+	else {
+		if(check_cpu_feat()>=1) {
+			fprintf(stderr,"Detected processor with SSSE3 and POPCNT, using optimized extraction routine\n\n");
+			if (dword==0) {
+				if (pad==1) {
+					if (single == 1) return (conv_function_t) &extract_S_p_sse;
+					else if (outA == NULL) return (conv_function_t) &extract_B_p_sse;
+					else if (outB == NULL) return (conv_function_t) &extract_A_p_sse;
+					else return (conv_function_t) &extract_AB_p_sse;
+				}
+				else {
+					if (single == 1) return (conv_function_t) &extract_S_sse;
+					else if (outA == NULL) return (conv_function_t) &extract_B_sse;
+					else if (outB == NULL) return (conv_function_t) &extract_A_sse;
+					else return (conv_function_t) &extract_AB_sse;
+				}
+			}
+			else {
+				if (pad==1) {
+					if (outA == NULL) return (conv_function_t) &extract_B_p_32_sse;
+					else if (outB == NULL) return (conv_function_t) &extract_A_p_32_sse;
+					else return (conv_function_t) &extract_AB_p_32_sse;
+				}
+				else {
+					if (outA == NULL) return (conv_function_t) &extract_B_32_sse;
+					else if (outB == NULL) return (conv_function_t) &extract_A_32_sse;
+					else return (conv_function_t) &extract_AB_32_sse;
+				}
+			}
+		}
+	}
+	if (peak_level == 1) fprintf(stderr,"Detected processor without SSE4.1, using standard extraction routine\n\n");
+	else  fprintf(stderr,"Detected processor without SSSE3 and POPCNT, using standard extraction routine\n\n");
+#endif
+	if (peak_level == 1) {
+		if (dword==0) { 
+			if (pad==1) {
+				if (outA == NULL) return (conv_function_t) &extract_B_p_peak_C;
+				if (outB == NULL) return (conv_function_t) &extract_A_p_peak_C;
+				return (conv_function_t) &extract_AB_p_peak_C;
+			}
+			else {
+				if (outA == NULL) return (conv_function_t) &extract_B_peak_C;
+				if (outB == NULL) return (conv_function_t) &extract_A_peak_C;
+				return (conv_function_t) &extract_AB_peak_C;
 			}
 		}
 		else {
 			if (pad==1) {
-				if (outA == NULL) return (conv_function_t) &extract_B_p_32_sse;
-				else if (outB == NULL) return (conv_function_t) &extract_A_p_32_sse;
-				else return (conv_function_t) &extract_AB_p_32_sse;
+				if (outA == NULL) return (conv_function_t) &extract_B_p_peak_32_C;
+				if (outB == NULL) return (conv_function_t) &extract_A_p_peak_32_C;
+				return (conv_function_t) &extract_AB_p_peak_32_C;
 			}
 			else {
-				if (outA == NULL) return (conv_function_t) &extract_B_32_sse;
-				else if (outB == NULL) return (conv_function_t) &extract_A_32_sse;
-				else return (conv_function_t) &extract_AB_32_sse;
+				if (outA == NULL) return (conv_function_t) &extract_B_peak_32_C;
+				if (outB == NULL) return (conv_function_t) &extract_A_peak_32_C;
+				return (conv_function_t) &extract_AB_peak_32_C;
 			}
-			return NULL;
 		}
 	}
 	else {
-		fprintf(stderr,"Detected processor without SSSE3 and POPCNT, using standard extraction routine\n\n");
-#endif
 		if (dword==0) { 
 			if (pad==1) {
 				if (single == 1) return (conv_function_t) &extract_S_p_C;
-				else if (outA == NULL) return (conv_function_t) &extract_B_p_C;
-				else if (outB == NULL) return (conv_function_t) &extract_A_p_C;
-				else return (conv_function_t) &extract_AB_p_C;
+				if (outA == NULL) return (conv_function_t) &extract_B_p_C;
+				if (outB == NULL) return (conv_function_t) &extract_A_p_C;
+				return (conv_function_t) &extract_AB_p_C;
 			}
 			else {
 				if (single == 1) return (conv_function_t) &extract_S_C;
-				else if (outA == NULL) return (conv_function_t) &extract_B_C;
-				else if (outB == NULL) return (conv_function_t) &extract_A_C;
-				else return (conv_function_t) &extract_AB_C;
+				if (outA == NULL) return (conv_function_t) &extract_B_C;
+				if (outB == NULL) return (conv_function_t) &extract_A_C;
+				return (conv_function_t) &extract_AB_C;
 			}
 		}
 		else {
 			if (pad==1) {
 				if (outA == NULL) return (conv_function_t) &extract_B_p_32_C;
-				else if (outB == NULL) return (conv_function_t) &extract_A_p_32_C;
-				else return (conv_function_t) &extract_AB_p_32_C;
+				if (outB == NULL) return (conv_function_t) &extract_A_p_32_C;
+				return (conv_function_t) &extract_AB_p_32_C;
 			}
 			else {
 				if (outA == NULL) return (conv_function_t) &extract_B_32_C;
-				else if (outB == NULL) return (conv_function_t) &extract_A_32_C;
-				else return (conv_function_t) &extract_AB_32_C;
+				if (outB == NULL) return (conv_function_t) &extract_A_32_C;
+				return (conv_function_t) &extract_AB_32_C;
 			}
-			return NULL;
 		}
-#if defined(__x86_64__) || defined(_M_X64)
 	}
-#endif
+	return NULL;
 }
 
 conv_16to32_t get_16to32_function() {

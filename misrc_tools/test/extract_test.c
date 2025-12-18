@@ -29,8 +29,10 @@
 typedef struct {
 	conv_function_t C;
 	conv_function_t S;
+	size_t len;
 	size_t a_cmp;
 	size_t b_cmp;
+	uint8_t pl_cmp;
 } conv_test_t;
 
 int main() {
@@ -40,23 +42,48 @@ int main() {
 	void *bufBa, *bufBb;
 	void *bufAUXa, *bufAUXb;
 	size_t clipa[2], clipb[2];
+	uint16_t peaka[2], peakb[2];
 	clock_t time_start, time_end, time_a, time_b, time_c;
 	
 	conv_test_t cvs[] = {
-		/* 0*/ {extract_A_C, extract_A_sse, BUFSIZE>>1, 0 },
-		/* 1*/ {extract_B_C, extract_B_sse, 0, BUFSIZE>>1 },
-		/* 2*/ {extract_AB_C, extract_AB_sse, BUFSIZE>>1, BUFSIZE>>1 },
-		/* 3*/ {extract_S_C, extract_S_sse, BUFSIZE>>2, 0},
-		/* 4*/ {extract_A_p_C, extract_A_p_sse, BUFSIZE>>1, 0 },
-		/* 5*/ {extract_B_p_C, extract_B_p_sse, 0, BUFSIZE>>1 },
-		/* 6*/ {extract_AB_p_C, extract_AB_p_sse, BUFSIZE>>1, BUFSIZE>>1 },
-		/* 7*/ {extract_S_p_C, extract_S_p_sse, BUFSIZE>>2, 0 },
-		/* 8*/ {extract_A_32_C, extract_A_32_sse, BUFSIZE, 0 },
-		/* 9*/ {extract_B_32_C, extract_B_32_sse, 0, BUFSIZE },
-		/*10*/ {extract_AB_32_C, extract_AB_32_sse, BUFSIZE, BUFSIZE },
-		/*11*/ {extract_A_p_32_C, extract_A_p_32_sse, BUFSIZE, 0 },
-		/*12*/ {extract_B_p_32_C, extract_B_p_32_sse, 0, BUFSIZE },
-		/*13*/ {extract_AB_p_32_C, extract_AB_p_32_sse, BUFSIZE, BUFSIZE}
+		/* 0*/ {extract_A_C, extract_A_sse, BUFSIZE>>2, BUFSIZE>>1, 0, 0 },
+		/* 1*/ {extract_B_C, extract_B_sse, BUFSIZE>>2, 0, BUFSIZE>>1, 0 },
+		/* 2*/ {extract_AB_C, extract_AB_sse, BUFSIZE>>2, BUFSIZE>>1, BUFSIZE>>1, 0 },
+		/* 3*/ {extract_S_C, extract_S_sse, BUFSIZE>>2, BUFSIZE>>2, 0},
+		/* 4*/ {extract_A_p_C, extract_A_p_sse, BUFSIZE>>2, BUFSIZE>>1, 0, 0 },
+		/* 5*/ {extract_B_p_C, extract_B_p_sse, BUFSIZE>>2, 0, BUFSIZE>>1, 0 },
+		/* 6*/ {extract_AB_p_C, extract_AB_p_sse, BUFSIZE>>2, BUFSIZE>>1, BUFSIZE>>1, 0 },
+		/* 7*/ {extract_S_p_C, extract_S_p_sse, BUFSIZE>>2, BUFSIZE>>2, 0, 0 },
+		/* 8*/ {extract_A_32_C, extract_A_32_sse, BUFSIZE>>2, BUFSIZE, 0, 0 },
+		/* 9*/ {extract_B_32_C, extract_B_32_sse, BUFSIZE>>2, 0, BUFSIZE, 0 },
+		/*10*/ {extract_AB_32_C, extract_AB_32_sse, BUFSIZE>>2, BUFSIZE, BUFSIZE, 0 },
+		/*11*/ {extract_A_p_32_C, extract_A_p_32_sse, BUFSIZE>>2, BUFSIZE, 0, 0 },
+		/*12*/ {extract_B_p_32_C, extract_B_p_32_sse, BUFSIZE>>2, 0, BUFSIZE, 0 },
+		/*13*/ {extract_AB_p_32_C, extract_AB_p_32_sse, BUFSIZE>>2, BUFSIZE, BUFSIZE},
+		/*14*/ {extract_A_peak_C, extract_A_peak_sse, BUFSIZE>>2, BUFSIZE>>1, 0, 1 },
+		/*15*/ {extract_B_peak_C, extract_B_peak_sse, BUFSIZE>>2, 0, BUFSIZE>>1, 1 },
+		/*16*/ {extract_AB_peak_C, extract_AB_peak_sse, BUFSIZE>>2, BUFSIZE>>1, BUFSIZE>>1, 1 },
+		/*17*/ {extract_A_p_peak_C, extract_A_p_peak_sse, BUFSIZE>>2, BUFSIZE>>1, 0, 1 },
+		/*18*/ {extract_B_p_peak_C, extract_B_p_peak_sse, BUFSIZE>>2, 0, BUFSIZE>>1, 1 },
+		/*19*/ {extract_AB_p_peak_C, extract_AB_p_peak_sse, BUFSIZE>>2, BUFSIZE>>1, BUFSIZE>>1, 1 },
+		/*20*/ {extract_A_peak_32_C, extract_A_peak_32_sse, BUFSIZE>>2, BUFSIZE, 0, 1 },
+		/*21*/ {extract_B_peak_32_C, extract_B_peak_32_sse, BUFSIZE>>2, 0, BUFSIZE, 1 },
+		/*22*/ {extract_AB_peak_32_C, extract_AB_peak_32_sse, BUFSIZE>>2, BUFSIZE, BUFSIZE, 1 },
+		/*23*/ {extract_A_p_peak_32_C, extract_A_p_peak_32_sse, BUFSIZE>>2, BUFSIZE, 0, 1 },
+		/*24*/ {extract_B_p_peak_32_C, extract_B_p_peak_32_sse, BUFSIZE>>2, 0, BUFSIZE, 1 },
+		/*25*/ {extract_AB_p_peak_32_C, extract_AB_p_peak_32_sse, BUFSIZE>>2, BUFSIZE, BUFSIZE, 1 },
+		/*26*/ {extract_A_peak_C, extract_A_peak_sse, 16, 64>>1, 0, 1 },
+		/*27*/ {extract_B_peak_C, extract_B_peak_sse, 16, 0, 64>>1, 1 },
+		/*28*/ {extract_AB_peak_C, extract_AB_peak_sse, 16, 64>>1, 64>>1, 1 },
+		/*29*/ {extract_A_p_peak_C, extract_A_p_peak_sse, 16, 64>>1, 0, 1 },
+		/*30*/ {extract_B_p_peak_C, extract_B_p_peak_sse, 16, 0, 64>>1, 1 },
+		/*31*/ {extract_AB_p_peak_C, extract_AB_p_peak_sse, 16, 64>>1, 64>>1, 1 },
+		/*32*/ {extract_A_peak_32_C, extract_A_peak_32_sse, 16, 64, 0, 1 },
+		/*33*/ {extract_B_peak_32_C, extract_B_peak_32_sse, 16, 0, 64, 1 },
+		/*34*/ {extract_AB_peak_32_C, extract_AB_peak_32_sse, 16, 64, 64, 1 },
+		/*35*/ {extract_A_p_peak_32_C, extract_A_p_peak_32_sse, 16, 64, 0, 1 },
+		/*36*/ {extract_B_p_peak_32_C, extract_B_p_peak_32_sse, 16, 0, 64, 1 },
+		/*37*/ {extract_AB_p_peak_32_C, extract_AB_p_peak_32_sse, 16, 64, 64, 1 }
 	};
 
 	fprintf(stderr,"Testing C and ASM extraction functions by comparison with random data.\n");
@@ -81,15 +108,15 @@ int main() {
 		clipb[0] = 0;
 		clipb[1] = 0;
 		time_start = clock();
-		cvs[i].C(buf,BUFSIZE>>2,clipa,bufAUXa,bufAa,bufBa);
+		cvs[i].C(buf,cvs[i].len,clipa,bufAUXa,bufAa,bufBa,peaka);
 		time_end = clock();
 		time_a = time_end - time_start;
 		time_start = clock();
-		cvs[i].S(buf,BUFSIZE>>2,clipb,bufAUXb,bufAb,bufBb);
+		cvs[i].S(buf,cvs[i].len,clipb,bufAUXb,bufAb,bufBb,peakb);
 		time_end = clock();
 		time_b = time_end - time_start;
 		if(cvs[i].a_cmp > 0) {
-			if(clipa[0] != clipb[0]) fprintf(stderr, "%i Incorrect Clip A: %ul vs %ul\n", i, clipa[0], clipb[0]);
+			if(clipa[0] != clipb[0]) fprintf(stderr, "%i Incorrect Clip A: %lu vs %lu\n", i, clipa[0], clipb[0]);
 			uint64_t *a, *b;
 			size_t len = (cvs[i].a_cmp)>>3;
 			a = bufAa;
@@ -104,7 +131,7 @@ int main() {
 			}
 		}
 		if(cvs[i].b_cmp > 0) {
-			if(clipa[1] != clipb[1]) fprintf(stderr, "%i Incorrect Clip B: %ul vs %ul\n", i, clipa[1], clipb[1]);
+			if(clipa[1] != clipb[1]) fprintf(stderr, "%i Incorrect Clip B: %lu vs %lu\n", i, clipa[1], clipb[1]);
 			uint64_t *a, *b;
 			size_t len = (cvs[i].a_cmp)>>3;
 			a = bufBa;
@@ -117,6 +144,12 @@ int main() {
 				a++;
 				b++;
 			}
+		}
+		if(cvs[i].a_cmp > 0 && cvs[i].pl_cmp > 0) {
+			if(peaka[0] != peakb[0]) fprintf(stderr, "%i Incorrect peak level A: %u vs %u\n", i, peaka[0], peakb[0]);
+		}
+		if(cvs[i].b_cmp > 0 && cvs[i].pl_cmp > 0) {
+			if(peaka[1] != peakb[1]) fprintf(stderr, "%i Incorrect peak level B: %u vs %u\n", i, peaka[1], peakb[1]);
 		}
 		fprintf(stderr, "%i: SSE version was %.2f times faster\n", i, (double)(time_a)/(double)(time_b));
 	}
