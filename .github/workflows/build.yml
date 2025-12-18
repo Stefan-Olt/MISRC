@@ -203,7 +203,7 @@ jobs:
 
   build-macos-intel:
     name: Build macOS (Intel)
-    runs-on: macos-13
+    runs-on: macos-14-intel
 
     steps:
       - uses: actions/checkout@v4
