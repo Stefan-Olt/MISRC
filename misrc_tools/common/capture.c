@@ -671,16 +671,6 @@ static bool str_starts_with(const char *restrict prefixA, const char *restrict p
 	return true;
 }
 
-#define MISRC_ARGTYPE_BOOL    0
-#define MISRC_ARGTYPE_INT     1
-#define MISRC_ARGTYPE_LIST    2
-// float types
-#define MISRC_ARGTYPE_FLOAT   3
-// char* types
-#define MISRC_ARGTYPE_INFILE  4
-#define MISRC_ARGTYPE_OUTFILE 5
-#define MISRC_ARGTYPE_STR     6
-
 void misrc_capture_set_default(misrc_settings_t *set, misrc_option_t *opt)
 {
 	while(opt->short_opt!=0) {
@@ -960,6 +950,10 @@ int misrc_run_capture(misrc_settings_t *set)
 	}
 	else {
 
+#if defined(__linux__) && defined(_GNU_SOURCE)
+		pthread_setname_np(pthread_self(), "hsdaoh");
+#endif
+
 		r = hsdaoh_alloc(&hs_dev);
 		if (r < 0) {
 			set->msg_cb(set->msg_cb_ctx, MISRC_MSG_CRITICAL, "Failed to allocate hsdaoh device.");
@@ -990,6 +984,9 @@ int misrc_run_capture(misrc_settings_t *set)
 		r = hsdaoh_start_stream(hs_dev, hsdaoh_callback, &cap_ctx);
 	}
 
+#if defined(__linux__) && defined(_GNU_SOURCE)
+		pthread_setname_np(pthread_self(), "misrc_cap_main");
+#endif
 
 	while (!do_exit) {
 		void *buf, *buf_out1 = NULL, *buf_out2 = NULL;

@@ -42,6 +42,10 @@
 	#include "getopt/getopt.h"
 #endif
 
+#if defined(_WIN32)
+	#include <windows.h>
+#endif
+
 #include "misrc.h"
 #include "misrc_options.h"
 
