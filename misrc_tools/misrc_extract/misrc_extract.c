@@ -22,6 +22,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include <inttypes.h>
 
 #ifndef _WIN32
@@ -47,7 +48,7 @@
 #include <time.h>
 #endif
 
-#include "version.h"
+#include "../version.h"
 #include "extract.h"
 
 #define BUFFER_SIZE 65536*32
@@ -78,7 +79,8 @@ int main(int argc, char **argv)
 	_setmode(_fileno(stdin), O_BINARY);
 #endif
 
-	int opt, pad=0, single=0;
+	int opt;
+	bool pad=false, single=false;
 
 
 	//file adress
@@ -135,10 +137,10 @@ int main(int argc, char **argv)
 			output_name_aux = optarg;
 			break;
 		case 'p':
-			pad = 1;
+			pad = true;
 			break;
 		case 's':
-			single = 1;
+			single = true;
 			break;
 		case 'h':
 		default:
@@ -221,7 +223,7 @@ int main(int argc, char **argv)
 		}
 	}
 
-	conv_function = get_conv_function(single, pad, 0, 0, output_name_1, output_name_2);
+	conv_function = get_conv_function(single, pad, false, false, output_name_1, output_name_2);
 
 	if(input_name_1 != NULL && (output_name_1 != NULL || output_name_2 != NULL || output_name_aux != NULL))
 	{

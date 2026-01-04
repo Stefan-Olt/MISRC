@@ -21,16 +21,20 @@ ldflags = [
 ldflags_capture = [
 ]
 
+common_capture_source = [
+  'common/capture.c',
+  'common/extract.c',
+  'common/ringbuffer.c',
+]
+
 sources_extract = [
-  'misrc_extract.c',
-  'extract.c',
+  'misrc_extract/misrc_extract.c',
+  'common/extract.c',
   version_target
 ]
 
 sources_capture = [
-  'misrc_capture.c',
-  'extract.c',
-  'ringbuffer.c',
+  'misrc_capture/misrc_capture.c',
   version_target
 ]
 
@@ -65,7 +69,7 @@ if host_cpu_family == 'x86_64'
   endif
 
   nasm_sources = [
-    'extract.asm',
+    'common/extract.asm',
   ]
 
   nasm = find_program('nasm')
@@ -81,9 +85,8 @@ if host_cpu_family == 'x86_64'
 
   nasm_genb = nasm_gen.process(nasm_sources)
   sources_extract += nasm_genb
-  sources_capture +=nasm_genb
+  common_capture_source +=nasm_genb
 endif
-
 
 deps = [ dependency('hsdaoh') ]
 
@@ -118,24 +121,27 @@ if host_system == 'windows' or host_system == 'cygwin'
   endif
   cflags += [ '-DNTDDI_VERSION=NTDDI_WIN10_RS4', '-D_WIN32_WINNT=_WIN32_WINNT_WIN10' ]
   ldflags_capture += [ '-lmf', '-lmfplat', '-lmfuuid', '-lmfreadwrite', '-lole32', '-lonecore', '-static' ]
-  sources_capture += 'simple_capture/simple_capture_mediafoundation.c'
+  common_capture_source += 'common/simple_capture/simple_capture_mediafoundation.c'
   if host_cpu_family == 'aarch64'
     ldflags_capture += [ '-lwinpthread' ]
   endif
 elif host_system == 'linux'
-  sources_capture += 'simple_capture/simple_capture_v4l2.c'
+  common_capture_source += 'common/simple_capture/simple_capture_v4l2.c'
   ldflags_capture += [ '-lm' ]
 elif host_system == 'darwin'
   add_languages('objc')
   ldflags_capture += ['-Wl,-framework,Cocoa', '-Wl,-framework,AVFoundation', '-Wl,-framework,CoreMedia', '-Wl,-framework,CoreVideo', '-Wl,-framework,IOKit', '-Wl,-framework,CoreFoundation', '-Wl,-framework,Security']
-  sources_capture += 'simple_capture/simple_capture_avfoundation.m'
+  common_capture_source += 'common/simple_capture/simple_capture_avfoundation.m'
 endif
+
+sources_capture += common_capture_source
 
 executable('misrc_extract',
               sources_extract,
               dependencies: [],
               link_args: ldflags,
               c_args: cflags,
+              include_directories: 'common',
               install: true)
 
 executable('misrc_capture',
@@ -143,4 +149,5 @@ executable('misrc_capture',
               dependencies: deps,
               link_args: ldflags + ldflags_capture,
               c_args: cflags,
+              include_directories: 'common',
               install: true)

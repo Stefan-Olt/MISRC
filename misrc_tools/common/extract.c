@@ -27,10 +27,12 @@
 #define MASK_AUX    0xFF000
 #define MASK_AUXS   0xF000
 
+#if !defined(UNUSED)
 #if defined(__GNUC__)
 # define UNUSED(x) x __attribute__((unused))
 #else
 # define UNUSED(x) x
+#endif
 #endif
 
 #define INT12_MAX 2047
@@ -85,11 +87,11 @@ void extract_X_peak_C(uint32_t *in, size_t len, size_t UNUSED(*clip), uint8_t *a
 	peak_level[1] = 0;
 	for(size_t i = 0; i < len; i++)
 	{
-		uint16_t outA = abs(2047 - ((int16_t)(in[i] & MASK_1)));
-		uint16_t outB = abs(2047 - ((int16_t)((in[i] & MASK_2) >> 20)));
+		uint16_t outxA = abs(2047 - ((int16_t)(in[i] & MASK_1)));
+		uint16_t outxB = abs(2047 - ((int16_t)((in[i] & MASK_2) >> 20)));
 		aux[i] = (in[i] & MASK_AUX) >> 12;
-		if(outA>peak_level[0]) peak_level[0] = outA;
-		if(outB>peak_level[1]) peak_level[1] = outB;
+		if(outxA>peak_level[0]) peak_level[0] = outxA;
+		if(outxB>peak_level[1]) peak_level[1] = outxB;
 	}
 }
 
@@ -487,9 +489,9 @@ void convert_16to8to32_arm(int16_t *in, int32_t *out, size_t len)
 }
 #endif
 
-conv_function_t get_conv_function(uint8_t single, uint8_t pad, uint8_t dword, uint8_t peak_level, void* outA, void* outB) {
+conv_function_t get_conv_function(bool single, bool pad, bool dword, bool peak_level, void* outA, void* outB) {
 
-	if (single == 1) peak_level = 0;
+	if (single) peak_level = 0;
 
 	if (outA == NULL && outB == NULL) {
 		if (single == 1) return (conv_function_t) &extract_XS_C;
@@ -497,11 +499,11 @@ conv_function_t get_conv_function(uint8_t single, uint8_t pad, uint8_t dword, ui
 		else return (conv_function_t) &extract_X_C;
 	}
 #if defined(__x86_64__) || defined(_M_X64)
-	if (peak_level == 1) {
+	if (peak_level) {
 		if(check_cpu_feat()>=2) {
 			fprintf(stderr,"Detected processor with SSE4.1, using optimized extraction routine\n\n");
-			if (dword==0) {
-				if (pad==1) {
+			if (!dword) {
+				if (pad) {
 					if (outA == NULL) return (conv_function_t) &extract_B_p_peak_sse;
 					if (outB == NULL) return (conv_function_t) &extract_A_p_peak_sse;
 					return (conv_function_t) &extract_AB_p_peak_sse;
@@ -513,7 +515,7 @@ conv_function_t get_conv_function(uint8_t single, uint8_t pad, uint8_t dword, ui
 				}
 			}
 			else {
-				if (pad==1) {
+				if (pad) {
 					if (outA == NULL) return (conv_function_t) &extract_B_p_peak_32_sse;
 					if (outB == NULL) return (conv_function_t) &extract_A_p_peak_32_sse;
 					return (conv_function_t) &extract_AB_p_peak_32_sse;
@@ -529,8 +531,8 @@ conv_function_t get_conv_function(uint8_t single, uint8_t pad, uint8_t dword, ui
 	else {
 		if(check_cpu_feat()>=1) {
 			fprintf(stderr,"Detected processor with SSSE3 and POPCNT, using optimized extraction routine\n\n");
-			if (dword==0) {
-				if (pad==1) {
+			if (!dword) {
+				if (pad) {
 					if (single == 1) return (conv_function_t) &extract_S_p_sse;
 					else if (outA == NULL) return (conv_function_t) &extract_B_p_sse;
 					else if (outB == NULL) return (conv_function_t) &extract_A_p_sse;
@@ -544,7 +546,7 @@ conv_function_t get_conv_function(uint8_t single, uint8_t pad, uint8_t dword, ui
 				}
 			}
 			else {
-				if (pad==1) {
+				if (pad) {
 					if (outA == NULL) return (conv_function_t) &extract_B_p_32_sse;
 					else if (outB == NULL) return (conv_function_t) &extract_A_p_32_sse;
 					else return (conv_function_t) &extract_AB_p_32_sse;
@@ -557,12 +559,12 @@ conv_function_t get_conv_function(uint8_t single, uint8_t pad, uint8_t dword, ui
 			}
 		}
 	}
-	if (peak_level == 1) fprintf(stderr,"Detected processor without SSE4.1, using standard extraction routine\n\n");
+	if (peak_level) fprintf(stderr,"Detected processor without SSE4.1, using standard extraction routine\n\n");
 	else  fprintf(stderr,"Detected processor without SSSE3 and POPCNT, using standard extraction routine\n\n");
 #endif
-	if (peak_level == 1) {
-		if (dword==0) { 
-			if (pad==1) {
+	if (peak_level) {
+		if (!dword) { 
+			if (pad) {
 				if (outA == NULL) return (conv_function_t) &extract_B_p_peak_C;
 				if (outB == NULL) return (conv_function_t) &extract_A_p_peak_C;
 				return (conv_function_t) &extract_AB_p_peak_C;
@@ -574,7 +576,7 @@ conv_function_t get_conv_function(uint8_t single, uint8_t pad, uint8_t dword, ui
 			}
 		}
 		else {
-			if (pad==1) {
+			if (pad) {
 				if (outA == NULL) return (conv_function_t) &extract_B_p_peak_32_C;
 				if (outB == NULL) return (conv_function_t) &extract_A_p_peak_32_C;
 				return (conv_function_t) &extract_AB_p_peak_32_C;
@@ -587,8 +589,8 @@ conv_function_t get_conv_function(uint8_t single, uint8_t pad, uint8_t dword, ui
 		}
 	}
 	else {
-		if (dword==0) { 
-			if (pad==1) {
+		if (!dword) { 
+			if (pad) {
 				if (single == 1) return (conv_function_t) &extract_S_p_C;
 				if (outA == NULL) return (conv_function_t) &extract_B_p_C;
 				if (outB == NULL) return (conv_function_t) &extract_A_p_C;
@@ -602,7 +604,7 @@ conv_function_t get_conv_function(uint8_t single, uint8_t pad, uint8_t dword, ui
 			}
 		}
 		else {
-			if (pad==1) {
+			if (pad) {
 				if (outA == NULL) return (conv_function_t) &extract_B_p_32_C;
 				if (outB == NULL) return (conv_function_t) &extract_A_p_32_C;
 				return (conv_function_t) &extract_AB_p_32_C;
