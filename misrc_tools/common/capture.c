@@ -797,6 +797,7 @@ int misrc_run_capture(misrc_settings_t *set)
 #if LIBFLAC_ENABLED == 1
 	if(set->flac_12bit && set->flac_bits == 0) set->flac_bits = 1;
 	if(set->flac_enable) {
+		output_thread_func = (thrd_start_t)flac_file_writer;
 		out_size = 4;
 		if (set->pad == 1) {
 			if(set->flac_bits == 1) {
