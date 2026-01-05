@@ -307,6 +307,7 @@ static void print_progress_level_clip(void *ctx, size_t count, size_t *clip, uin
 		fprintf(stderr,"\033[A\033[A\033[A");
 		for(int i=0; i<2; i++) print_level(rfi[i], level[i]);
 	}
+	else fprintf(stderr,"\033[A");
 	fprintf(stderr,"\33[2K\r Progress: %13" PRIu64 " samples, %2uh %2um %2us\n", count, (uint32_t)(count/(144000000000)), (uint32_t)((count/(2400000000)) % 60), (uint32_t)((count/(40000000)) % 60));
 	fflush(stderr);
 }
