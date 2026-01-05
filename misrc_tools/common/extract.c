@@ -652,11 +652,11 @@ conv_16to32_t get_16to8to32_function() {
 conv_16to32_t get_16to12to32_function() {
 #if defined(__x86_64__) || defined(_M_X64)
 	if(check_cpu_feat()>=2) {
-		fprintf(stderr,"Detected processor with SSE4.1, using optimized 8 bit repacking routine\n");
+		fprintf(stderr,"Detected processor with SSE4.1, using optimized 12 bit routine\n");
 		return (conv_16to32_t) &convert_16to12to32_sse;
 	}
 	else {
-		fprintf(stderr,"Detected processor without SSE4.1, using standard 8 bit repacking routine\n");
+		fprintf(stderr,"Detected processor without SSE4.1, using standard 12 bit routine\n");
 #endif
 		return (conv_16to32_t) &convert_16to12to32_C;
 #if defined(__x86_64__) || defined(_M_X64)

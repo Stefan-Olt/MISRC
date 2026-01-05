@@ -125,11 +125,11 @@ typedef struct {
 
 #define MISRC_OPTTYPE_OTHER                0
 #define MISRC_OPTTYPE_CAPTURE_ALL          1 // options that effect the eintire capture
-#define MISRC_OPTTYPE_CAPTURE_RF           3 // options that effect both RF captures
-#define MISRC_OPTTYPE_CAPTURE_RFC          4 // options that effect each RF channel independentaly (option is array[2])
-#define MISRC_OPTTYPE_CAPTURE_AUDIO_ALL    5 // options that effect all channels
-#define MISRC_OPTTYPE_CAPTURE_AUDIO_STEREO 6 // options that effect all stereo audio (option is array[2])
-#define MISRC_OPTTYPE_CAPTURE_AUDIO_MONO   7 // options that effect each audio channel independently (option is array[4])
+#define MISRC_OPTTYPE_CAPTURE_RF           2 // options that effect both RF captures
+#define MISRC_OPTTYPE_CAPTURE_RFC          3 // options that effect each RF channel independentaly (option is array[2])
+#define MISRC_OPTTYPE_CAPTURE_AUDIO_ALL    4 // options that effect all channels
+#define MISRC_OPTTYPE_CAPTURE_AUDIO_STEREO 5 // options that effect all stereo audio (option is array[2])
+#define MISRC_OPTTYPE_CAPTURE_AUDIO_MONO   6 // options that effect each audio channel independently (option is array[4])
 
 #define MISRC_OPTFLAG_ADVANCED 1
 #define MISRC_OPTFLAG_CLIONLY  2
