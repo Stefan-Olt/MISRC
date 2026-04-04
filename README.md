@@ -47,7 +47,7 @@ Possible capture examples:
 
 ## Hardware features
 
-- Duel ADC / Duel Input (BNC Connectors)
+- Dual ADC / Dual Input (BNC Connectors)
 - 6 Extra Aux inputs for audio ADC modules etc
 - Two 12-bit 40msps ADCs: [AD9235](https://www.analog.com/media/en/technical-documentation/data-sheets/AD9235.pdf)
 - Selectable input gain (8 steps) (using [AD8138](https://www.analog.com/media/en/technical-documentation/data-sheets/ad8138.pdf) op-amp)
