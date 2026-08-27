@@ -6,8 +6,7 @@
 <img src="assets/hardware-images/MISRC_V1.5_Tang_Nano_20k_Sony_ILCE-7RM3_2024.10.21_03.14.08-Small.png" width="600" height="" />
 </picture>
 
-> V1.5 with Tang Nano 20k on the FX3 to Tang Nano 20k adaptor PCB. 
-
+> V1.5 with Tang Nano 20k on the FX3 to Tang Nano 20k adapter PCB. 
 
 ## Description
 
@@ -18,7 +17,7 @@ It is intended to capture modulated tape deck RF for software demodulation, but 
 
 The Decode Projects:
 
-- [VHS-Decode](https://github.com/oyvindln/vhs-decode/)
+- [VHS-Decode](https://github.com/oyvindln/vhs-decode/) / [Tape Decode](https://github.com/harrypm/tape-decode-rust)
 - [HiFi-Decode](https://github.com/oyvindln/vhs-decode/wiki/hifi-decode)
 - [CVBS-Decode](https://github.com/oyvindln/vhs-decode/wiki/CVBS-Composite-Decode) 
 
@@ -47,6 +46,7 @@ Possible capture examples:
 
 ## Hardware features
 
+
 - Dual ADC / Dual Input (BNC Connectors)
 - 6 Extra Aux inputs for audio ADC modules etc
 - Two 12-bit 40msps ADCs: [AD9235](https://www.analog.com/media/en/technical-documentation/data-sheets/AD9235.pdf)
@@ -67,7 +67,7 @@ Possible capture examples:
 > You can support the development and production of the MISRC platform [here](https://github.com/Stefan-Olt/MISRC/wiki/Donations).
 - PCB: 20-30USD
 - Parts 100-150USD
-- Single unit total production cost is currently 260-300USD.
+- Single unit total production cost is currently 260-350USD. (USA costs vastly higher for direct fab)
 - [Order a V1.5 Development MISRC](https://github.com/Stefan-Olt/MISRC/wiki/Fabrication)
 
 ------
@@ -89,7 +89,7 @@ To be able to use the [Tang Nano 20k](https://s.click.aliexpress.com/e/_DcwBOX3)
 <summary>Firmware Flashing </summary>
 <br>
 
-1. Download the firmare, see [releases](https://github.com/Stefan-Olt/MISRC/releases) for the latest version.
+1. Download the firmware, see [releases](https://github.com/Stefan-Olt/MISRC/releases) for the latest version.
 
 2. Install [openFPGALoader](https://github.com/trabucayre/openFPGALoader)
 
@@ -103,22 +103,16 @@ You have flashed your Tang Nano 20k!
 
 </details>
 
-
 ## Software
 
-Supported operating systems with direct links to the latest release (also available on the [releases tab](https://github.com/Stefan-Olt/MISRC/releases)):
+<img width="150" height="150" alt="" src="https://github.com/harrypm/assets/Icons/MISRC_Icon.png" />
 
-| Operating System  | Minimum supported OS version | Download x86_64 (Intel / AMD)                                                                                                                                  | Download arm64 (Apple Silicon / aarch64)                                                                                                                                   |
-| ----------------- | ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Microsoft Windows | 10 (1803)                    | [misrc_tools-0.5.1-win-x86_64.zip](https://github.com/Stefan-Olt/MISRC/releases/download/misrc_tools-0.5.1/misrc_tools-0.5.1-win-x86_64.zip)                         | [misrc_tools-0.5.1-win-arm64.zip](https://github.com/Stefan-Olt/MISRC/releases/download/misrc_tools-0.5.1/misrc_tools-0.5.1-win-arm64.zip)                                       |
-| Apple macOS       | 10.15                        | [misrc_tools-0.5.1-macos-intel-x86_64.tar.gz](https://github.com/Stefan-Olt/MISRC/releases/download/misrc_tools-0.5.1/misrc_tools-0.5.1-macos-intel-x86_64.tar.gz)   | [misrc_tools-0.5.1-macos-apple-silicon-arm64.tar.gz](https://github.com/Stefan-Olt/MISRC/releases/download/misrc_tools-0.5.1/misrc_tools-0.5.1-macos-apple-silicon-arm64.tar.gz) |
-| Linux             | libc6 2.35 (Ubuntu 22.04)    | [misrc_tools-0.5.1-linux-x86_64.tar.gz](https://github.com/Stefan-Olt/MISRC/releases/download/misrc_tools-0.5.1/misrc_tools-0.5.1-linux-x86_64.tar.gz)               | [misrc_tools-0.5.1-linux-arm64.tar.gz](https://github.com/Stefan-Olt/MISRC/releases/download/misrc_tools-0.5.1/misrc_tools-0.5.1-linux-arm64.tar.gz)                             |
-
+MISRC GUI is built for cross platform use, all binary's bundle both CLI and GUI. 
 
 > [!NOTE]  
 > The arm64 builds for Windows are untested and considered experimental!
 
-The packages contain two command-line applications, `misrc_capture` and `misrc_extract`. For detailed usage information see the [misrc_tools readme](/misrc_tools/README.md) and the [usage example](#capture--usage-example) down below.
+For detailed information of the core tools, see the [misrc_tools readme](/misrc_tools/README.md) and the [usage example](#capture--usage-example) down below.
 
 If you want to build the tools yourself, see the instructions in the [misrc_tools readme](/misrc_tools/README.md).
 
