@@ -38,7 +38,7 @@ Possible capture examples:
 - Capture 1x S-Video (Y & C)
 - Capture Video RF and HiFi RF simultaneously
 - Capture Video RF and CVBS simultaneously
-- Capture 4ch of 24-bit 48khz audio with AUX pins via integrated or external clock-locked ADCs
+- Capture 4ch of 24-bit 48khz audio with AUX pins via integrated or external clock-locked ADCs See [MISRC Clockgen]()
 
 > [!NOTE]
 > It may be useful for other purposes as well, as it is built as a generic ADC with configurable filtering.
@@ -79,9 +79,11 @@ Possible capture examples:
 - [MS2130](http://en.macrosilicon.com/info.asp?base_id=2&third_id=75) - [Order Link 1](https://s.click.aliexpress.com/e/_DBaBiOp) / [Order Link 2](https://s.click.aliexpress.com/e/_okDl2Vf) - HDMI raw data stream capture.
 
 > [!TIP]  
-> You can order pre-made [adaptor PCBs here](https://ko-fi.com/s/617b72ab2c) for V1.5 boards with the headders for the FX3.  
+> You can order pre-made [adaptor PCBs here](https://ko-fi.com/s/617b72ab2c) for V1.5 boards with the headers for the FX3.  
+
 
 ## Firmware (Tang Nano 20k)
+
 
 To be able to use the [Tang Nano 20k](https://s.click.aliexpress.com/e/_DcwBOX3) to send data over HDMI, it needs to be flashed once via USB connection:
 
@@ -103,24 +105,22 @@ You have flashed your Tang Nano 20k!
 
 </details>
 
+
 ## Software
 
-<img width="150" height="150" alt="" src="https://github.com/harrypm/assets/Icons/MISRC_Icon.png" />
 
-MISRC GUI is built for cross platform use, all binary's bundle both CLI and GUI. 
+[MISRC GUI](https://github.com/harrypm/MISRC-GUI#misrc-gui) is built for cross platform use, all binary's bundle both CLI and GUI. 
 
-> [!NOTE]  
-> The arm64 builds for Windows are untested and considered experimental!
+<img width="" height="" alt="" src="https://github.com/harrypm/MISRC-GUI/blob/main/assets/images/MISRC_GUI_Window_Main_Current.png" />
 
-For detailed information of the core tools, see the [misrc_tools readme](/misrc_tools/README.md) and the [usage example](#capture--usage-example) down below.
 
-If you want to build the tools yourself, see the instructions in the [misrc_tools readme](/misrc_tools/README.md).
+For detailed information of the original core tools, see the [misrc_tools readme](/misrc_tools/README.md).
 
 <details closed>
-<summary>Install Windows</summary>
+<summary>Windows Driver Setup</summary>
 <br>
-
-For `misrc_capture` to be able to access the MS2130 capture device, you need to install a special driver:
+   
+For `misrc_capture` or `misrc-gui` to be able to access the MS2130 or MS2131 capture device, you need to install a generic driver:
 
 Firstly download [Zadig](https://zadig.akeo.ie/)
 
@@ -140,7 +140,7 @@ Interface 4 - HIDDevice
 For macOS you do not need to install anything.
 
 - macOS versions 10.15 and 11: You can directly execute `misrc_capture`.
-- macOS 12 and later: You have to run `misrc_capture` as root (sudo). This is a new security feature by Apple, there is currently no way to bypass it. 
+- macOS 12 and later: You have to run `misrc_capture` as root (sudo). `misrc-gui` automatically prompts when opened. This is a new security feature by Apple, there is currently no way to bypass it...
 
 </details>
 
@@ -150,73 +150,8 @@ For macOS you do not need to install anything.
 
 If you want to run `misrc_capture` as root, there is no need to install anything on Linux.
 
-But for `misrc_capture` to be able to access the MS2130 capture device without root privilege (sudo), you need to install a udev-rule and add the user that will use `misrc_capture` to the `plugdev`-group.
+But for `misrc_capture` to be able to access the MS2130 capture device without root privilege (sudo), you may need to install a udev-rule and add the user that will use `misrc_capture` to the `plugdev`-group.
 The pre-build packages contains the script `install-udev-rules.sh`. On execution (double-click the file or run `./install-udev-rules.sh` on the command line) it will install the rule and add the current user to the plugdev group.
-
-</details>
-
-
-## Capture / Usage example
-
-
-> [!TIP]  
-> Pre-built Binaries is available on the [releases tab](https://github.com/Stefan-Olt/MISRC/releases).
-
-`misrc_capture` is a simple command line interface program to capture from MISRC boards using [hsdaoh](https://github.com/Stefan-Olt/hsdaoh) to which leverages data capture over HDMI with [MS2130](https://s.click.aliexpress.com/e/_DBaBiOp) "U3" cheep HDMI capture cards that have YUV support and full-frame signal acesses. 
-
-Create a folder which you wish to capture inside, open it inside terminal and then run `misrc_capture`.
-
-Example with FLAC compression:
-    
-    misrc_capture -p -f -l 8 -a video_rf.flac -b hifi_rf.flac 
-
-Example RAW:
-
-    misrc_capture -a video_rf.s16 -b hifi_rf.s16
-
-
-Example with AUX pins capture ([PCM1802 audio example](https://github.com/Stefan-Olt/MISRC/wiki/PCM-Extract))
-
-    misrc_capture -p -f -l 8 -a video_rf.flac -b hifi_rf.flac -x pcm1802.bin
-
-You can also define its directory path of each RF stream manually: 
-
-    misrc_capture -p -f -l 8 -a /mnt/my_video_storrage/video_rf.flac -b ../../this/is/a/relative/path/hifi_rf.flac
-
-Press <kbd>Ctrl</kbd>+<kbd>C</kbd> to copy and <kbd>Ctrl</kbd>+<kbd>P</kbd> to past your config from a notepad or txt file.
-
-Use <kbd><</kbd>+<kbd>></kbd> to move edit position on the command line to edit the name or command while in terminal and <kbd>Enter</kbd> to run the command.
-
-<kbd>Ctrl</kbd>+<kbd>C</kbd> Will kill the current process, use this to stop the capture manually.
-
-
-<details closed>
-
-<summary>Usage Arguments:</summary>
-<br>
-
-
-Example:
-
-    misrc_capture -p -f -l 8 -a video_rf.flac -b hifi_rf.flac -x baseband_audio.bin
-
-Usage:
-
-- `-d` device_index (default: 0) (select target MS21xx device for capture)
-- `-n` number of samples to read (default: 0, infinite)
-- `-t` time to capture (seconds, m:s or h:m:s; -n takes priority, assumes 40msps)
-- `-w` overwrite any files without asking
-- `-a` ADC A output file (use '-' to write on stdout)  
-- `-b` ADC B output file (use '-' to write on stdout)  
-- `-x` AUX output file (use '-' to write on stdout)  
-- `-r` RAW 32-Bit data output file (use '-' to write on stdout)  
-- `-p` pad lower 4 bits of 16 bit output with 0 instead of upper 4
-- `-A` suppress clipping messages for ADC A (need to specify -a or -r as well)
-- `-B` suppress clipping messages for ADC B (need to specify -a or -r as well)
-- `-f` compress ADC output as FLAC  
-- `-l` LEVEL set flac compression level (default: 1) 
-- `-v` enable verification of flac encoder output  
-- `-c` number of flac encoding threads per file (default: auto)
 
 </details>
 
@@ -226,7 +161,7 @@ Usage:
 
 - Connect your 5V USB-C to the Tang Nano for power. 
 
-- Connect your HDMI cable (copper or fibre) to your Tang Nano for data output to the MS2130 or MS2131. 
+- Connect your HDMI cable (copper or fiber) to your Tang Nano for data output to the MS2130 or MS2131. 
 
 - Connect the desired sources to the BNC inputs and select suitable impedance and AC or DC coupling.
 
@@ -258,15 +193,15 @@ Once happy, then do a full test capture to verify.
 ## Design
 
 
-MISRC is loosely based on the [Domesday Duplicator (DdD)](https://github.com/simoninns/DomesdayDuplicator) a LaserDisc focused ([ld-decode](https://github.com/happycube/ld-decode)) FM RF Archival device. 
+MISRC is loosely based on the [Domesday Duplicator (DdD)](https://github.com/harrypm/DomesdayDuplicator) a legacy LaserDisc capture focused FM RF Archival device. 
 
-
-It is built around the AD9235 analogue to digital converter by Analog Devices and is heavily based on the evaluation board circuit given in its datasheet with the AD8138 Op-Amp providing adjustable fixed gain.
+The MISRC is built around the AD9235 analogue to digital converter by Analog Devices and is heavily based on the evaluation board circuit given in its datasheet with the AD8138 Op-Amp providing adjustable fixed gain.
 
 The MISRC like the DdD it originally used the [Cypress FX3 SuperSpeed Explorer board](https://www.infineon.com/cms/en/product/evaluation-boards/cyusb3kit-003/) for a USB 3.0 data connection, and using Sigronk for capture, with hopes to not use the DE0 FPGA, this ended with the adoption of the Tang Nano 20k and MS2130 "data over YUV" method being used. 
 
 
 ## License
+
 
 The hardware, firmware and software is released under different open-source licenses.
 You can read the [License here](https://github.com/Stefan-Olt/MISRC/wiki/Licenses)
